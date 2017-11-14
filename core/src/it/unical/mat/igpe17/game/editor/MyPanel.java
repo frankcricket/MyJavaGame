@@ -1,59 +1,42 @@
 package it.unical.mat.igpe17.game.editor;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Label;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.Vector;
 import java.awt.Point;
 
-import javax.swing.JButton;
 import javax.swing.JPanel;
-
-
 
 
 public class MyPanel extends JPanel implements MouseListener, MouseMotionListener{
 
 	private static final long serialVersionUID = 1L;
 	
+	protected static int dimX = 16;
+	protected static int dimY;
+	
 	public static String IMAGE_NAME = null;
-	protected  Image image;
 	protected static Vector<Sprite> points = new Vector<Sprite>(300);
-	private Sprite sprite = new Sprite();
 
-	public MyPanel() 
-	{
-		super();
-		sprite.setName(Asset.BACKGROUND);
-		image = sprite.getImageByName();
-		image.getScaledInstance(100, 80, Image.SCALE_DEFAULT);
-		
-	}
-	
-	public static String toString(Point p){
-	
-		return ";"+(int)p.getY()+";" + (int)p.getX();
-	}
 
 	public void paintComponent(Graphics g) {
-		//this.setBackground(Color.WHITE);
-		super.paintComponent(g);
-		if(image == null) return;
-	    g.drawImage(image,0,0, null); 
-	    
-	    for(int i = 0; i < image.getWidth(this); i += 64){
+		super.paintComponent(g);	    
+	    for(int i = 0; i < Asset.WIDTH; i += Asset.TILE){
 			g.setColor(Color.LIGHT_GRAY);
-			g.fillRect(i, 0, 1, image.getHeight(this));
-			g.fillRect(0, i, image.getWidth(this), 1);
+			g.fillRect(i, 0, 1, Asset.HEIGHT);
+			g.fillRect(0, i, Asset.WIDTH, 1);
 		} 
 	    
-	    for(int i = 0; i < points.size() && points.get(i) != null; i++){
+	    for(int i = 0; i < points.size(); i++){
 			Sprite tmp = points.get(i);
-			g.drawImage(tmp.getImageByName(),tmp.getPoint().x*64, tmp.getPoint().y*64, null);
+			g.drawImage(tmp.getImageByName(),
+						tmp.getPoint().x*Asset.TILE,
+						tmp.getPoint().y*Asset.TILE,
+						null);
 		}
 	    
 	}
@@ -73,43 +56,43 @@ public class MyPanel extends JPanel implements MouseListener, MouseMotionListene
 		
 		int x = e.getX();
 		int y = e.getY();
-		Point point = clickToGrid(x,y);		
+		Point point = clickToGrid(x,y);	
+		dimY = x;
 		Sprite sp = new Sprite(point,IMAGE_NAME);
-		
-		//System.out.println("   " + sp.getName());	
-		//removeDuplicate(point);
+
 		boolean checked = true;
-		for(int i = 0; i < points.size() && points.get(i) != null;i++){
+		for(int i = 0; i < points.size();i++){
 			if(!points.isEmpty() && sp.getPoint().equals(points.get(i).getPoint())){
 				checked = false;
 				break;
 			}
 		}
 		if(checked){
-			points.add(sp);		
+			points.add(sp);	
 			repaint();
+			if(dimY >= Asset.WIDTH * 0.9){
+				Asset.WIDTH += (int) (Asset.WIDTH * .2); 
+				MyFrame.drawing.setPreferredSize(new Dimension(Asset.WIDTH, Asset.HEIGHT));
+				MyFrame.drawing.revalidate();
+				repaint();
+			}
 		}
 	
 	}
 	private Point clickToGrid(int x, int y){
 		int px = x ;
 		int py = y ;
-		px = px / 64;
-		py = py / 64;
+		px = px / Asset.TILE;
+		py = py / Asset.TILE;
 		return new Point(px,py);
 	}
-/*	
-	private void removeDuplicate(Point p){
-		for(int i = 0; i < points.size();i++){
-			Sprite tmp = points.get(i);
-			if (tmp.getPoint().equals(p)){
-				points.remove(i);
-				return;
-			}
-		}
+	
+	public static String toString(Point p){
+		
+		return ";"+(int)p.getY()+";" + (int)p.getX();
 	}
+	
 
-*/
 	@Override
 	public void mouseMoved(MouseEvent e) {
 	}

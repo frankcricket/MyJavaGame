@@ -5,6 +5,12 @@ import java.util.Map;
 
 public class Asset {
 	
+	public static int WIDTH = 1920;
+	public static int HEIGHT = 1024;
+	
+	public static final int TILE = 64;
+	
+	
 	public static Map<String, String> map = new HashMap<String,String>();
 	
 	public static String BACKGROUND = "assets/Background.png";

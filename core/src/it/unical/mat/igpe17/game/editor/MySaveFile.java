@@ -1,22 +1,17 @@
 package it.unical.mat.igpe17.game.editor;
 import java.awt.Point;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
-import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 
 public class MySaveFile {
+	
 	private BufferedWriter bw;
-	private BufferedReader br;
 	private FileWriter fw;
-	private FileReader fr;
 	private JFileChooser fc = new JFileChooser();
 	protected static String IMAGE_NAME = Asset.BACKGROUND;
 
@@ -27,12 +22,15 @@ public class MySaveFile {
 			if (fc.showSaveDialog(null) == JFileChooser.APPROVE_OPTION){
 				fw = new FileWriter(fc.getSelectedFile());
 				bw = new BufferedWriter(fw);
-				bw.write(IMAGE_NAME);
+				bw.write(""+MyPanel.dimX+" "+(Asset.WIDTH/Asset.TILE));
 				bw.newLine();
 				for (int i = 0; i < MyPanel.points.size(); i++){
 					bw.write(MyPanel.points.get(i).getName()+MyPanel.toString(MyPanel.points.get(i).getPoint())+".");
 					bw.newLine();
 				}
+				bw.write("/");
+				bw.newLine();
+				bw.write(""+Asset.WIDTH);
 				bw.close();
 			}
 
@@ -40,6 +38,7 @@ public class MySaveFile {
 			e.printStackTrace();
 		}
 	}
+
 
 	public void open(String fileName) {
 		FileReader fr = null;
@@ -49,12 +48,7 @@ public class MySaveFile {
 			try{
 				
 				MyPanel.points.clear();
-				Scanner input = new Scanner(System.in);
-				input = new Scanner(fr);
-				FileUtils fu = new FileUtils();				 
-				
-				MyFrame.panel_img.image = new ImageIcon(input.nextLine()).getImage();
-				//System.out.println("  "+ input.nextLine());
+				Scanner input = new Scanner(fr);
 				
 				while(input.hasNextLine())
 				{

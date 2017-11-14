@@ -22,9 +22,6 @@ public class Sprite {
 		this.name = name;
 	}
 	public Image getImageByName(){
-//		FileUtils fu = new FileUtils();
-//		Image g = fu.getImage(name);
-//		return g;
 		Image image = new ImageIcon(name).getImage();
 		return image;		
 	}
@@ -38,8 +35,6 @@ public class Sprite {
 	public Point getPoint() {
 		return point;
 	}
-	public void setPoint(Point point) {
-		this.point = point;
-	}	
+
 	
 }
