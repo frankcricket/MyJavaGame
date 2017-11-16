@@ -10,15 +10,18 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+
+import it.unical.mat.igpe17.game.constants.Asset;
 
 public class MyFrame extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 
 	private static final int WIDTH = 1280;
-	private static final int HEIGHT = 780;
+	private static final int HEIGHT = 720;
 
 
 	static MyPanel drawing = new MyPanel();
@@ -45,6 +48,8 @@ public class MyFrame extends JFrame {
 		setSize(WIDTH, HEIGHT);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setResizable(false);
+		
+		scrollFrame.setAlignmentX(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
 		createFrame();
 		addListenerToFrame();	
 
@@ -86,6 +91,8 @@ public class MyFrame extends JFrame {
 					MySaveFile mysavefile = new MySaveFile();
 					mysavefile.open(path);
 					repaint();
+					
+					JOptionPane.showMessageDialog(null, "Operation Completed!");
 				}
 			}
 
@@ -109,7 +116,6 @@ public class MyFrame extends JFrame {
 		drawing.addListenerToPanel();
 		drawing.setAutoscrolls(true);
 
-
 		centerPanel.setLayout(new BorderLayout());
 		centerPanel.add(new MyTree(),"Center");
 		
@@ -127,13 +133,17 @@ public class MyFrame extends JFrame {
 		centerPanel.add(eastP, "East");
 		centerPanel.add(buttonPanel, "South");
 
+		//panel sotto l'area di disegno
+		JPanel pp = new JPanel();
+		pp.setPreferredSize(new Dimension(WIDTH, 131));
 
 		//aggiungo i pannelli al frame
 		setJMenuBar(mymenu);	
 		add(centerPanel,"East");
 		add(scrollFrame,"Center");
-		setVisible(true);
+		add(pp,"South");
 		
+		setVisible(true);
 
 	}
 	/*

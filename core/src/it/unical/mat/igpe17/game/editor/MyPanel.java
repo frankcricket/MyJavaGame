@@ -11,13 +11,15 @@ import java.awt.Point;
 
 import javax.swing.JPanel;
 
+import it.unical.mat.igpe17.game.constants.Asset;
+
 
 public class MyPanel extends JPanel implements MouseListener, MouseMotionListener{
 
 	private static final long serialVersionUID = 1L;
 	
-	protected static int dimX = 16;
-	protected static int dimY;
+	protected static int row = Asset.HEIGHT / Asset.TILE;
+	protected static int column;
 	
 	public static String IMAGE_NAME = null;
 	protected static Vector<Sprite> points = new Vector<Sprite>(300);
@@ -49,7 +51,9 @@ public class MyPanel extends JPanel implements MouseListener, MouseMotionListene
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		mousePressed(e);		
+		if(checkBounds(e)){
+			mousePressed(e);
+		}
 	}
 	
 	public void mousePressed(MouseEvent e) {
@@ -57,7 +61,7 @@ public class MyPanel extends JPanel implements MouseListener, MouseMotionListene
 		int x = e.getX();
 		int y = e.getY();
 		Point point = clickToGrid(x,y);	
-		dimY = x;
+		column = x;
 		Sprite sp = new Sprite(point,IMAGE_NAME);
 
 		boolean checked = true;
@@ -70,7 +74,7 @@ public class MyPanel extends JPanel implements MouseListener, MouseMotionListene
 		if(checked){
 			points.add(sp);	
 			repaint();
-			if(dimY >= Asset.WIDTH * 0.9){
+			if(column >= Asset.WIDTH * 0.9){
 				Asset.WIDTH += (int) (Asset.WIDTH * .2); 
 				MyFrame.drawing.setPreferredSize(new Dimension(Asset.WIDTH, Asset.HEIGHT));
 				MyFrame.drawing.revalidate();
@@ -90,6 +94,13 @@ public class MyPanel extends JPanel implements MouseListener, MouseMotionListene
 	public static String toString(Point p){
 		
 		return ";"+(int)p.getY()+";" + (int)p.getX();
+	}
+	
+	private boolean checkBounds(MouseEvent e){
+	
+		return ((e.getX() >=0 && e.getX() <= Asset.WIDTH) 
+				&& (e.getY() >=0 && e.getY() <= Asset.HEIGHT));
+	
 	}
 	
 

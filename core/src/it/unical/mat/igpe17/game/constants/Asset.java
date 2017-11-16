@@ -1,4 +1,4 @@
-package it.unical.mat.igpe17.game.editor;
+package it.unical.mat.igpe17.game.constants;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,7 +6,7 @@ import java.util.Map;
 public class Asset {
 	
 	public static int WIDTH = 1920;
-	public static int HEIGHT = 1024;
+	public static int HEIGHT = 512;
 	
 	public static final int TILE = 64;
 	
@@ -51,7 +51,7 @@ public class Asset {
 		map.put("16", GROUND16);
 	}
 	
-	static String getPath(String s){
+	public static String getPath(String s){
 		return map.get(s);
 	}
 	

@@ -1,4 +1,5 @@
 package it.unical.mat.igpe17.game.editor;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.io.BufferedWriter;
 import java.io.FileReader;
@@ -7,6 +8,9 @@ import java.io.IOException;
 import java.util.Scanner;
 
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+
+import it.unical.mat.igpe17.game.constants.Asset;
 
 public class MySaveFile {
 	
@@ -22,16 +26,18 @@ public class MySaveFile {
 			if (fc.showSaveDialog(null) == JFileChooser.APPROVE_OPTION){
 				fw = new FileWriter(fc.getSelectedFile());
 				bw = new BufferedWriter(fw);
-				bw.write(""+MyPanel.dimX+" "+(Asset.WIDTH/Asset.TILE));
+				bw.write("" + MyPanel.row + " " + (Asset.WIDTH / Asset.TILE));  //TODO fixare
 				bw.newLine();
 				for (int i = 0; i < MyPanel.points.size(); i++){
-					bw.write(MyPanel.points.get(i).getName()+MyPanel.toString(MyPanel.points.get(i).getPoint())+".");
+					bw.write(MyPanel.points.get(i).getName()+MyPanel.toString(MyPanel.points.get(i).getPoint()));
 					bw.newLine();
 				}
 				bw.write("/");
 				bw.newLine();
 				bw.write(""+Asset.WIDTH);
 				bw.close();
+				
+				JOptionPane.showMessageDialog(null, "Operation Completed!");
 			}
 
 		} catch (IOException e){
@@ -43,27 +49,35 @@ public class MySaveFile {
 	public void open(String fileName) {
 		FileReader fr = null;
 		try {
+			
 			fr = new FileReader(fileName);
-			MyPanel.points.clear();
 			try{
 				
 				MyPanel.points.clear();
 				Scanner input = new Scanner(fr);
-				
+				input.nextLine(); //ignoro la dimensione della matrice
 				while(input.hasNextLine())
 				{
-					String line = input.nextLine();					
-					addTile(line);
+					String line = input.nextLine();	
+					if(!line.equals("/"))
+						addTile(line);
+					else
+						break;
 				}
 				
+				String dimension = input.nextLine();
+				int dim = Integer.parseInt(dimension);
+				Asset.WIDTH = dim;
+				MyFrame.drawing.setPreferredSize(new Dimension(Asset.WIDTH, Asset.HEIGHT));
+				MyFrame.drawing.revalidate();
 				input.close();
+				
 				
 			}catch (Exception e){
 				e.printStackTrace();
 			}
 
 			fr.close();
-
 
 		}catch (IOException e){
 			e.printStackTrace();
@@ -77,6 +91,9 @@ public class MySaveFile {
 //		}
 //	}
 
+	
+	/*
+	
 	public void addTile(String s)
 	{
 		String word = new String();
@@ -107,6 +124,17 @@ public class MySaveFile {
 		
 	}
 
-
+*/
+	
+	public void addTile(String s){
+		String[] tmp = s.split(";");
+		String type = tmp[0];
+		int x = Integer.parseInt(tmp[1]);
+		int y = Integer.parseInt(tmp[2]);
+		
+		Point p = new Point(y, x);
+		Sprite sprite = new Sprite(p,type);
+		MyPanel.points.add(sprite);
+	}
 }
 

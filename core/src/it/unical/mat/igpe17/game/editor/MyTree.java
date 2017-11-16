@@ -5,7 +5,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.Image;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -19,17 +18,15 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeCellRenderer;
-import javax.swing.tree.TreeSelectionModel;
+
+import it.unical.mat.igpe17.game.constants.Asset;
 
 public class MyTree extends JPanel
 {
 
 	private static final long serialVersionUID = 1L;
 	private JTree tree;
-	private final Font currentFont;
-	private final Font bigFont; 
-
-	//Constructor
+	
 	public MyTree()
 	{
 		super(new GridLayout(1,0));
@@ -39,13 +36,7 @@ public class MyTree extends JPanel
 		addObjects(root);
 
 		tree = new JTree(root);
-		tree.setCellRenderer(new Render());
-		currentFont = tree.getFont();
-		//tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		bigFont = new Font(currentFont.getName(), currentFont.getStyle(), currentFont.getSize() + 15);
-		tree.setFont(bigFont);
-
-		
+		tree.setCellRenderer(new Render());		
 
 		JScrollPane treeView = new JScrollPane(tree);
 		Border blackline = BorderFactory.createLineBorder(Color.BLUE);
@@ -55,7 +46,7 @@ public class MyTree extends JPanel
 		add(treeView);
 
 		selectionListener();
-
+		
 	}
 
 	private void addGround(DefaultMutableTreeNode root){
@@ -125,7 +116,7 @@ public class MyTree extends JPanel
 			public void valueChanged(TreeSelectionEvent e) {
 				
 				String s = e.getPath().getLastPathComponent().toString();
-				MyPanel.IMAGE_NAME = Asset.getPath(s);
+				MyPanel.IMAGE_NAME = s;
 				
 			}
 		});
@@ -136,15 +127,24 @@ public class MyTree extends JPanel
 	{
 		
 		private JLabel label;
+		private Border border;
+		private Font font; 
+		
 
 		Render() 
 		{
 			label = new JLabel();
+			border = BorderFactory.createEmptyBorder ( 5, 2, 7, 2 );
+			font = new Font(Font.SANS_SERIF, Font.BOLD, 18);
+			
 		}
 
+		/*
+		 * Imposto l'icona ad ogni nodo del JTree 
+		 */
+		 
 		public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean ex,boolean l, int r, boolean foc)
 		{
-			
 			Object o = ((DefaultMutableTreeNode) value).getUserObject();		
 			ImageIcon img = new ImageIcon(Asset.getPath((String) o));
 			if (img != null) 
@@ -152,6 +152,8 @@ public class MyTree extends JPanel
 				label.setIcon(img);
 			}
 			label.setText((String) o);
+			label.setBorder(border);
+			label.setFont(font);
 				
 			return label;
 		}

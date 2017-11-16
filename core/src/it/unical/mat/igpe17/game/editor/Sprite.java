@@ -6,6 +6,8 @@ import java.awt.Point;
 
 import javax.swing.ImageIcon;
 
+import it.unical.mat.igpe17.game.constants.Asset;
+
 
 public class Sprite {
 
@@ -22,7 +24,7 @@ public class Sprite {
 		this.name = name;
 	}
 	public Image getImageByName(){
-		Image image = new ImageIcon(name).getImage();
+		Image image = new ImageIcon(Asset.getPath(name)).getImage();
 		return image;		
 	}
 	
