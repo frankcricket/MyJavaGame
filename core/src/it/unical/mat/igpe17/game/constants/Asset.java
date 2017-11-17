@@ -13,24 +13,24 @@ public class Asset {
 	
 	public static Map<String, String> map = new HashMap<String,String>();
 	
-	public static String BACKGROUND = "assets/Background.png";
+	public static String BACKGROUND = "asset/Background.png";
 	
-	public static String GROUND1 = "assets/resized/Ground1.png";
-	public static String GROUND2 = "assets/resized/Ground2.png";
-	public static String GROUND3 = "assets/resized/Ground3.png";
-	public static String GROUND4 = "assets/resized/Ground4.png";
-	public static String GROUND5 = "assets/resized/Ground5.png";
-	public static String GROUND6 = "assets/resized/Ground6.png";
-	public static String GROUND7 = "assets/resized/Ground7.png";
-	public static String GROUND8 = "assets/resized/Ground8.png";
-	public static String GROUND9 = "assets/resized/Ground9.png";
-	public static String GROUND10 = "assets/resized/Ground10.png";
-	public static String GROUND11 = "assets/resized/Ground11.png";
-	public static String GROUND12 = "assets/resized/Ground12.png";
-	public static String GROUND13 = "assets/resized/Ground13.png";
-	public static String GROUND14 = "assets/resized/Ground14.png";
-	public static String GROUND15 = "assets/resized/Ground15.png";
-	public static String GROUND16 = "assets/resized/Ground16.png";
+	public static String GROUND1 = "asset/resized/Ground1.png";
+	public static String GROUND2 = "asset/resized/Ground2.png";
+	public static String GROUND3 = "asset/resized/Ground3.png";
+	public static String GROUND4 = "asset/resized/Ground4.png";
+	public static String GROUND5 = "asset/resized/Ground5.png";
+	public static String GROUND6 = "asset/resized/Ground6.png";
+	public static String GROUND7 = "asset/resized/Ground7.png";
+	public static String GROUND8 = "asset/resized/Ground8.png";
+	public static String GROUND9 = "asset/resized/Ground9.png";
+	public static String GROUND10 = "asset/resized/Ground10.png";
+	public static String GROUND11 = "asset/resized/Ground11.png";
+	public static String GROUND12 = "asset/resized/Ground12.png";
+	public static String GROUND13 = "asset/resized/Ground13.png";
+	public static String GROUND14 = "asset/resized/Ground14.png";
+	public static String GROUND15 = "asset/resized/Ground15.png";
+	public static String GROUND16 = "asset/resized/Ground16.png";
 	
 	static{
 		map.put("1", GROUND1);
@@ -56,7 +56,7 @@ public class Asset {
 	}
 	
 	
-	public static String BIN = "assets/buttons/Bin.png";
-	public static String UNDO = "assets/buttons/Undo.png";
+	public static String BIN = "asset/buttons/Bin.png";
+	public static String UNDO = "asset/buttons/Undo.png";
 
 }
