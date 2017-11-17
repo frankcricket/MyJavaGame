@@ -46,7 +46,7 @@ public class MyFrame extends JFrame {
 	public MyFrame(String title){
 		setTitle(title);
 		setSize(WIDTH, HEIGHT);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setResizable(false);
 		
 		scrollFrame.setAlignmentX(JScrollPane.VERTICAL_SCROLLBAR_NEVER);

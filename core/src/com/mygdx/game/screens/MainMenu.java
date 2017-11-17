@@ -43,9 +43,9 @@ public class MainMenu implements Screen{
 		Gdx.input.setInputProcessor(stage);
 		
 		//creazione font 
-		white = new BitmapFont(Gdx.files.internal("assets/font/white.fnt"), false);
+		white = new BitmapFont(Gdx.files.internal("asset/font/white.fnt"), false);
 		
-		atlas = new TextureAtlas("assets/ui/atlas.pack");
+		atlas = new TextureAtlas("asset/ui/atlas.pack");
 		skin = new Skin(atlas);
 
 		table = new Table(skin);
@@ -68,7 +68,7 @@ public class MainMenu implements Screen{
 				
 //				((Game) Gdx.app.getApplicationListener()).setScreen(new Levels());
 				
-//				MyFrame f = new MyFrame("iajsxkja");
+				new MyFrame("Editor");
 				
 				
 			}
