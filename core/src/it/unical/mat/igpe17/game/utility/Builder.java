@@ -45,6 +45,9 @@ public class Builder {
 									type);
 		if(checkGround(type))
 			matrix[xpos][ypos] = 'g';
+		else{
+			matrix[xpos][ypos] = '-';
+		}
 		groundObjects.add(ground);
 									
 	}
