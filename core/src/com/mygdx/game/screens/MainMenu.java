@@ -88,8 +88,7 @@ public class MainMenu implements Screen{
 		exit.pad(20);
 		
 		//creazine heading
-		LabelStyle headingStyle = new LabelStyle(white, Color.WHITE);
-		heading = new Label(ZombieGame.NAME, headingStyle);
+		heading = new Label(ZombieGame.NAME, new LabelStyle(white, Color.WHITE));
 		
 		heading.setFontScale(2);
 		
@@ -132,7 +131,8 @@ public class MainMenu implements Screen{
 
 	@Override
 	public void resize(int width, int height) {
-		// TODO Auto-generated method stub
+		//stage.getViewport().update(screenWidth, screenHeight, centerCamera);
+		
 		
 	}
 
