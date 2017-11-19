@@ -84,10 +84,10 @@ public class Builder {
 		for(int i = 0; i < matrix[i].length; i++){
 			for(int j = 0; j < matrix.length; j++){
 				if(matrix[j][i] == 'g'){
-					p = new Player(new Vector2(j-2,i),
+					p = new Player(new Vector2(j-1,i),
 									new Vector2(GameConfig.SIZE_PLAYER_X, GameConfig.SIZE_PLAYER_Y),
 										'r');
-					matrix[j-2][i] = 'p';
+					matrix[j-1][i] = 'p';
 					stop = true;
 					break;
 				}

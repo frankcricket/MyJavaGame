@@ -2,6 +2,8 @@ package it.unical.mat.igpe17.game.constants;
 
 public class GameConfig {
 	
+	public static int BACKGROUND_MOVE_SPEED = 50; // pixels per second.
+	
 	public static final float SIZE_PLAYER_X = 26;
 
 	public static final float SIZE_PLAYER_Y = 7;

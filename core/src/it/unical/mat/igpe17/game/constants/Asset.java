@@ -14,6 +14,7 @@ public class Asset {
 	public static Map<String, String> map = new HashMap<String,String>();
 	
 	public static String BACKGROUND = "asset/Background.png";
+	public static String PLAYER = "asset/Player.png";
 	
 	public static String GROUND1 = "asset/resized/Ground1.png";
 	public static String GROUND2 = "asset/resized/Ground2.png";

@@ -26,22 +26,22 @@ public class StaticObject implements IObject, ICollidable{
 	}
 
 	@Override
-	public Vector2 getSize() {
+	public final Vector2 getSize() {
 		return size;
 	}
 
 	@Override
-	public Vector2 getPosition() {
+	public final Vector2 getPosition() {
 		return position;
 	}
 
 	@Override
-	public Vector2 getForce() {
+	public final Vector2 getForce() {
 		return null;
 	}
 
 	@Override
-	public Vector2 getVelocity() {
+	public final Vector2 getVelocity() {
 		return null;
 	}
 
