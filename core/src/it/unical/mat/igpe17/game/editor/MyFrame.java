@@ -22,7 +22,7 @@ public class MyFrame extends JFrame {
 
 	private static final int WIDTH = 1280;
 	private static final int HEIGHT = 720;
-
+	
 
 	static MyPanel drawing = new MyPanel();
 	JScrollPane scrollFrame = new JScrollPane(drawing);
@@ -48,6 +48,12 @@ public class MyFrame extends JFrame {
 		setSize(WIDTH, HEIGHT);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setResizable(false);
+		
+		//aggiunta icon alla finestra jframe
+		ImageIcon img = new ImageIcon("asset/menu_img/game_icon.png");
+		setIconImage(img.getImage());
+
+		
 		
 		scrollFrame.setAlignmentX(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
 		createFrame();
