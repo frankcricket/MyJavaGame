@@ -26,7 +26,7 @@ public class ChooseCharacter implements Screen{
 	private int choice = 0; // in questa variabile ci salviamo il tipo di personaggio che verrà scelto dall'utente
 	//sarà modificata nell'evento click del personaggio selezionato
 	
-	
+	//TODO fare get di choise
 
 	@Override
 	public void show() {
