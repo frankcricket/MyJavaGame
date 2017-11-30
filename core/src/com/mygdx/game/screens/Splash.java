@@ -38,7 +38,7 @@ public class Splash implements Screen {
 			//glielo diciamo ora!
 			@Override
 			public void onEvent(int arg0, BaseTween<?> arg1) {
-				((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenu()); //apre un  nuovo main menu
+				((Game) Gdx.app.getApplicationListener()).setScreen(MainMenu.getMainMenu()); //apre un  nuovo main menu
 				
 			}
 		}).start(tweenManager);

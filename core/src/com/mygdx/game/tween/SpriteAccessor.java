@@ -17,8 +17,7 @@ public class SpriteAccessor implements TweenAccessor<Sprite>{
 			return 1;
 		default:
 			assert false;
-			return -1;		
-		
+			return -1;
 		}
 	}
 
@@ -30,8 +29,6 @@ public class SpriteAccessor implements TweenAccessor<Sprite>{
 			break;
 		default:
 			assert false;
-			
-
 		}
 	}
 

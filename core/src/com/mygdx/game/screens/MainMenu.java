@@ -23,10 +23,19 @@ public class MainMenu implements Screen {
 
 	// Element that we need for our menu
 
-	private Stage stage;
-	private Skin skin; // aspetto di tutto ciò che faremo
-	private Table table;
+	private static MainMenu mainMenu = null;
 	
+	public static MainMenu getMainMenu(){
+		if (mainMenu == null)
+			mainMenu = new MainMenu();
+		return mainMenu;
+	}
+	
+	
+	private Stage stage;
+	private Skin skin; // aspetto di tutto cio' che faremo
+	private Table table;
+
 	@Override
 	public void show() {
 		stage = new Stage();
@@ -121,23 +130,22 @@ public class MainMenu implements Screen {
 		 */
 
 		// img background
-		Image backgroundMenu = new Image(new Texture("asset/menu_img/background_2.png"));
-		
-		// bottone  single player
+		Image backgroundMenu = new Image(new Texture("asset/menu_img/backgroud_2.png"));
+
+		// bottone single player
 		Image singlePlayer = new Image(new Texture("asset/menu_img/single_player.png"));
-		Image singlePlayer_2 = new Image(new Texture("asset/menu_img/single_player_2.png"));
+		Image singlePlayer_2 = new Image(new Texture("asset/menu_img/single_player_1.png"));
 		ImageButton singlePlayerB = new ImageButton(singlePlayer.getDrawable(), singlePlayer_2.getDrawable());
 		singlePlayerB.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
-				((Game) Gdx.app.getApplicationListener()).setScreen(new ChooseCharacter());
+				((Game) Gdx.app.getApplicationListener()).setScreen(ChooseCharacter.getChooseCharacter());
 			}
 
 		});
-		
-		
-		// bottone  multiplayer
+
+		// bottone multiplayer
 		Image multiplayer = new Image(new Texture("asset/menu_img/multiplayer.png"));
-		Image multiplayer_2 = new Image(new Texture("asset/menu_img/multiplayer_2.png"));
+		Image multiplayer_2 = new Image(new Texture("asset/menu_img/multiplayer_1.png"));
 		ImageButton multiplayerB = new ImageButton(multiplayer.getDrawable(), multiplayer_2.getDrawable());
 		multiplayerB.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
@@ -145,12 +153,11 @@ public class MainMenu implements Screen {
 			}
 
 		});
-		
-		
-		//bottone editor
-		
+
+		// bottone editor
+
 		Image editor = new Image(new Texture("asset/menu_img/editor.png"));
-		Image editor_2 = new Image(new Texture("asset/menu_img/editor_2.png"));
+		Image editor_2 = new Image(new Texture("asset/menu_img/editor_1.png"));
 		ImageButton editorB = new ImageButton(editor.getDrawable(), editor_2.getDrawable());
 		editorB.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
@@ -158,25 +165,23 @@ public class MainMenu implements Screen {
 			}
 
 		});
-		
-		
-		//bottone settings
-		
+
+		// bottone settings
+
 		Image settings = new Image(new Texture("asset/menu_img/settings.png"));
-		Image settings_2 = new Image(new Texture("asset/menu_img/settings_2.png"));
+		Image settings_2 = new Image(new Texture("asset/menu_img/settings_1.png"));
 		ImageButton settingsB = new ImageButton(settings.getDrawable(), settings_2.getDrawable());
 		settingsB.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
+				((Game) Gdx.app.getApplicationListener()).setScreen(Settings.getSettings());
 			}
 
 		});
-		
-		
-		
-		//bottone exit
-		
+
+		// bottone exit
+
 		Image exit = new Image(new Texture("asset/menu_img/exit.png"));
-		Image exit_2 = new Image(new Texture("asset/menu_img/exit_2.png"));
+		Image exit_2 = new Image(new Texture("asset/menu_img/exit_1.png"));
 		ImageButton exitB = new ImageButton(exit.getDrawable(), exit_2.getDrawable());
 		exitB.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
@@ -184,40 +189,38 @@ public class MainMenu implements Screen {
 			}
 
 		});
-		
-		
-		
-		
-		
-		//aggiungiamo tutto
-		table.setBackground(backgroundMenu.getDrawable());	
-		
-		
+
+		table.setFillParent(false);
+
+		// aggiungiamo tutto
+		table.setBackground(backgroundMenu.getDrawable());
+
 		table.add((singlePlayerB)).height(80f).row();
-		
-		table.add((multiplayerB)).height(80f).row();	
-		
+		// table.addActor(singlePlayerB);
+
+		table.add((multiplayerB)).height(80f).row();
+
 		table.add((editorB)).height(80f).row();
 
 		table.add((settingsB)).height(80f).row();
 
-		table.add((exitB)).height(80f).row();
+		table.add((exitB)).height(80f);
 
 		
 
-		
-		
-		//table.add(singlePlayerB).size(200, 200);
-		
-		//table.row();
 
-//		table.add(multiplayerB).size(200, 200);
-//		
-//		table.row();
-//		
-//		table.add(editorB).size(200, 200);
+		// table.add(singlePlayerB).size(200, 200);
 
-		table.debug();
+		// table.row();
+
+		// table.add(multiplayerB).size(200, 200);
+		//
+		// table.row();
+		//
+		// table.add(editorB).size(200, 200);
+
+		//table.debug();
+		
 		stage.addActor(table);
 
 	}
