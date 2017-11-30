@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
+import java.util.Vector;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -18,6 +19,7 @@ public class MySaveFile {
 	private FileWriter fw;
 	private JFileChooser fc = new JFileChooser();
 	protected static String IMAGE_NAME = Asset.BACKGROUND;
+	private Vector<Sprite> points;
 
 	public void save(){
 		try{
@@ -43,6 +45,88 @@ public class MySaveFile {
 		} catch (IOException e){
 			e.printStackTrace();
 		}
+	}
+	
+	public void saveNewFile(){
+		try{
+			fc.setDialogTitle("Save in...");
+			
+			if (fc.showSaveDialog(null) == JFileChooser.APPROVE_OPTION){
+				fw = new FileWriter(fc.getSelectedFile() + ".tmx");
+				bw = new BufferedWriter(fw);
+				
+				int width = MyPanel.row;
+				int height = (Asset.WIDTH / Asset.TILE);
+
+				points = MyPanel.getPoint();
+				startWrite(bw,width,height);
+				for (int i = 0; i < width; i++){
+					writePoints(bw,i,width,height);
+				}
+				endWrite(bw);
+				bw.close();
+				
+				JOptionPane.showMessageDialog(null, "Operation Completed!");
+			}
+
+		} catch (IOException e){
+			e.printStackTrace();
+		}
+	}
+	
+	private void startWrite(BufferedWriter bw, int width, int height)throws IOException{
+		bw.write("<?xml version= " + "\"" + "1.0" + "\"" + " encoding=" + "\"" + "UTF-8" + "\"" + "?>");
+		bw.newLine();
+		bw.write("<map version=" + "\"" +"1.0"+ "\"" +" tiledversion="+ "\"" +"2017.11.22"+ "\"" +" orientation="
+										+ "\"" +"orthogonal"+ "\"" +" renderorder="+ "\"" 
+									    +"right-down"+ "\"" +" width="+ "\"" +height+ "\"" +" height="+ "\"" +width+ "\"" 
+										+" tilewidth="+ "\"" +Asset.TILE+ "\"" +" tileheight="+ "\"" +Asset.TILE+ "\"" 
+									    +" infinite="+ "\"" +"0"+ "\"" +" nextobjectid="+ "\"" +"1"+ "\"" +">");
+		bw.newLine();
+		for(int i = 1; i <= 16; i++){
+			bw.write(" <tileset firstgid="+ "\"" +i+ "\"" +" source="+ "\"" +"tileset/Ground"+i+".tsx"+ "\"" +"/>");
+			bw.newLine();
+		}
+		bw.write(" <layer name="+ "\"" +"Livello tile 1"+ "\"" + " width="+ "\"" +height + "\"" + " height="+ "\"" +width + "\"" +">");
+		bw.newLine();
+		bw.write("  <data encoding="+ "\"" +"csv"+ "\"" +">");
+		bw.newLine();
+	}
+	
+	private void writePoints(BufferedWriter bw, int i,int width, int height) throws IOException{
+		for(int j = 0; j < height; j++){
+			Sprite p = checkPoint(i,j);
+			if(p == null){
+				if(i == width - 1 && j == height - 1)
+					bw.write("0");
+				else
+					bw.write("0,");
+			}
+			else
+			if(i == width - 1 && j == height - 1)
+				bw.write(p.getName());
+			else
+				bw.write(p.getName() + ",");
+		}
+		bw.newLine();
+		
+		
+		
+	}
+	private final Sprite checkPoint(int i, int j){
+		for(Sprite s : points){
+			if(s.getPoint().x == j && s.getPoint().y == i)
+				return s;
+		}
+		return null;		
+	}
+	
+	private void endWrite(BufferedWriter bw) throws IOException{
+		bw.write("</data>");
+		bw.newLine();
+		bw.write(" </layer>");
+		bw.newLine();
+		bw.write("</map>");
 	}
 
 

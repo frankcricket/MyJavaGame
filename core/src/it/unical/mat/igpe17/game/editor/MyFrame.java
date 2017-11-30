@@ -21,7 +21,7 @@ public class MyFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
 
 	private static final int WIDTH = 1280;
-	private static final int HEIGHT = 720;
+	private static final int HEIGHT = 900;
 	
 
 	static MyPanel drawing = new MyPanel();
@@ -141,7 +141,7 @@ public class MyFrame extends JFrame {
 
 		//panel sotto l'area di disegno
 		JPanel pp = new JPanel();
-		pp.setPreferredSize(new Dimension(WIDTH, 131));
+		pp.setPreferredSize(new Dimension(WIDTH,54));
 
 		//aggiungo i pannelli al frame
 		setJMenuBar(mymenu);	

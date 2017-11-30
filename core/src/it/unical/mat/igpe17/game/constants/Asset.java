@@ -5,13 +5,15 @@ import java.util.Map;
 
 public class Asset {
 	
-	public static int WIDTH = 1920;
-	public static int HEIGHT = 512;
+	public static int WIDTH = 1280;
+	public static int HEIGHT = 768;
 	
 	public static final int TILE = 64;
 	
 	
 	public static Map<String, String> map = new HashMap<String,String>();
+	
+	public static final String FIRST_LEVEL = "levels/firstLevel.tmx";
 	
 	public static String BACKGROUND = "asset/Background.png";
 	public static String PLAYER = "asset/Player.png";

@@ -1,0 +1,61 @@
+is_character_run.png
+size: 198, 390
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Run
+  rotate: false
+  xy: 1, 1
+  size: 64, 128
+  orig: 64, 128
+  offset: 0, 0
+  index: 0
+Run
+  rotate: false
+  xy: 67, 1
+  size: 64, 128
+  orig: 64, 128
+  offset: 0, 0
+  index: 1
+Run
+  rotate: false
+  xy: 133, 1
+  size: 64, 128
+  orig: 64, 128
+  offset: 0, 0
+  index: 2
+Run
+  rotate: false
+  xy: 1, 131
+  size: 64, 128
+  orig: 64, 128
+  offset: 0, 0
+  index: 3
+Run
+  rotate: false
+  xy: 1, 261
+  size: 64, 128
+  orig: 64, 128
+  offset: 0, 0
+  index: 4
+Run
+  rotate: false
+  xy: 67, 131
+  size: 64, 128
+  orig: 64, 128
+  offset: 0, 0
+  index: 5
+Run
+  rotate: false
+  xy: 133, 131
+  size: 64, 128
+  orig: 64, 128
+  offset: 0, 0
+  index: 6
+Run
+  rotate: false
+  xy: 67, 261
+  size: 64, 128
+  orig: 64, 128
+  offset: 0, 0
+  index: 7

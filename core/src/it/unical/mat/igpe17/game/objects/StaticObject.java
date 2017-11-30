@@ -36,33 +36,14 @@ public class StaticObject implements IObject, ICollidable{
 	}
 
 	@Override
-	public final Vector2 getForce() {
-		return null;
-	}
-
-	@Override
-	public final Vector2 getVelocity() {
-		return null;
-	}
-
-	@Override
 	public void setPosition(Vector2 position) {
 		this.position = position;
-	}
-
-	@Override
-	public void setVelocity(Vector2 velocity) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void setForce(Vector2 force) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
 	public void setSize(Vector2 size) {
 		this.size = size;
 	}
+
 
 }

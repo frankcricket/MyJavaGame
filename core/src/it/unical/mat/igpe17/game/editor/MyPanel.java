@@ -93,6 +93,10 @@ public class MyPanel extends JPanel implements MouseListener, MouseMotionListene
 
 		return ";"+(int)p.getY()+";" + (int)p.getX();
 	}
+	
+	public static final Vector<Sprite> getPoint(){
+		return points;
+	}
 
 
 	@Override

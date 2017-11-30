@@ -36,7 +36,8 @@ public class MyMenu extends JMenuBar {
 		save.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				MySaveFile mysavefile = new MySaveFile();
-				mysavefile.save();
+//				mysavefile.save();
+				mysavefile.saveNewFile();
 			}
 		});
 		

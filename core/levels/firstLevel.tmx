@@ -1,0 +1,35 @@
+<?xml version= "1.0" encoding="UTF-8"?>
+<map version="1.0" tiledversion="2017.11.22" orientation="orthogonal" renderorder="right-down" width="59" height="12" tilewidth="64" tileheight="64" infinite="0" nextobjectid="1">
+ <tileset firstgid="1" source="tiled_tileSet/Ground1.tsx"/>
+ <tileset firstgid="2" source="tiled_tileSet/Ground2.tsx"/>
+ <tileset firstgid="3" source="tiled_tileSet/Ground3.tsx"/>
+ <tileset firstgid="4" source="tiled_tileSet/Ground4.tsx"/>
+ <tileset firstgid="5" source="tiled_tileSet/Ground5.tsx"/>
+ <tileset firstgid="6" source="tiled_tileSet/Ground6.tsx"/>
+ <tileset firstgid="7" source="tiled_tileSet/Ground7.tsx"/>
+ <tileset firstgid="8" source="tiled_tileSet/Ground8.tsx"/>
+ <tileset firstgid="9" source="tiled_tileSet/Ground9.tsx"/>
+ <tileset firstgid="10" source="tiled_tileSet/Ground10.tsx"/>
+ <tileset firstgid="11" source="tiled_tileSet/Ground11.tsx"/>
+ <tileset firstgid="12" source="tiled_tileSet/Ground12.tsx"/>
+ <tileset firstgid="13" source="tiled_tileSet/Ground13.tsx"/>
+ <tileset firstgid="14" source="tiled_tileSet/Ground14.tsx"/>
+ <tileset firstgid="15" source="tiled_tileSet/Ground15.tsx"/>
+ <tileset firstgid="16" source="tiled_tileSet/Ground16.tsx"/>
+ <layer name="Livello tile 1" width="59" height="12">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,0,0,1,2,2,2,2,2,2,2,2,2,2,3,0,0,1,2,2,2,2,2,2,2,2,2,2,3,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+</map>

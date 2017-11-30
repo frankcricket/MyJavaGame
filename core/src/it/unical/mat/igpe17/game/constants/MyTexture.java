@@ -5,13 +5,16 @@ import java.util.Map;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class MyTexture {
 	
-	public Map<String,Texture> map = new HashMap<String,Texture>();
+	public static Map<String,Texture> map = new HashMap<String,Texture>();
 	
 	//TODO rendere flyweight questa classe
-	public MyTexture() {
+	static{
 		
 		map.put("1", new Texture(Gdx.files.internal(Asset.GROUND1)));
 		map.put("2", new Texture(Gdx.files.internal(Asset.GROUND2)));
@@ -30,13 +33,12 @@ public class MyTexture {
 		map.put("15", new Texture(Gdx.files.internal(Asset.GROUND15)));
 		map.put("16", new Texture(Gdx.files.internal(Asset.GROUND16)));
 		
-		map.put("100",new Texture(Gdx.files.internal(Asset.PLAYER)));
+		map.put("Player",new Texture(Gdx.files.internal(Asset.PLAYER)));
 		
 	}
 	
 	
-	
-	public final Texture getTexture(String key){
+	public static final Texture getTexture(String key){
 		return map.get(key);
 	}
 

@@ -11,17 +11,25 @@ import it.unical.mat.igpe17.game.player.Player;
 
 public class Builder {
 	
-	private int dimX;
-	private int dimY;
+	protected int dimX;
+	protected int dimY;
 	private char[][] matrix;
 	
 	private List<Ground> groundObjects = new LinkedList<Ground>();
 	
 	protected void convertDimension(String dim){
-		
-		String[] tmp = dim.split(" ");
-		dimX = Integer.parseInt(tmp[0]);
-		dimY = Integer.parseInt(tmp[1]);
+			dim = dim.substring(1);
+			String[] split = dim.split(" ");
+			
+			String width = split[4];
+			String height = split[5];
+			
+			width = width.substring(7, width.length()-1);
+			height = height.substring(8, height.length()-2);
+			
+			dimY = Integer.parseInt(width);
+			dimX = Integer.parseInt(height);
+			
 	}
 	protected void createMatrix(){
 		matrix = new char[dimX][dimY];
@@ -32,7 +40,7 @@ public class Builder {
 			}
 		}
 	}
-	
+	/*
 	protected void convertGround(String line){
 		
 		String[] tmp = line.split(";");
@@ -50,6 +58,21 @@ public class Builder {
 		}
 		groundObjects.add(ground);
 									
+	}
+	
+	*/
+	protected void initMatrix(String line, int row){
+		String[] split = line.split(",");
+		
+		for(int i = 0; i < split.length; i++){
+			if(!(split[i].equals("0"))){
+				if(checkGround(split[i]))
+					matrix[row][i] = 'g';
+				else{
+					matrix[row][i] = '-';
+				}
+			}
+		}
 	}
 	
 	private boolean checkGround(String tmp){
