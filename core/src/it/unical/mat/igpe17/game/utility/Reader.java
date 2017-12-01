@@ -44,7 +44,8 @@ public class Reader {
 					String tmp = input.nextLine();
 					if(tmp.equals("</data>"))
 						break;
-					builder.initMatrix(tmp,count);
+					//builder.initMatrix(tmp,count);
+					builder.convertGround(tmp,count);
 					count++;
 				}
 

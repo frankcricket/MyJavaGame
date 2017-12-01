@@ -16,14 +16,12 @@ public class Game {
 	private int row;
 	private int column;
 
-	private int cameraStart;
-	private int cameraEnd;
+	private float camera;
 	private List<Ground> groundObjects;
 
 	int point_x;
 	int point_y1;
 	int point_y2;
-	
 
 	// set di default
 	private static String LEVEL = "levels/firstLevel.tmx";
@@ -46,66 +44,68 @@ public class Game {
 
 		player = reader.getPlayer();
 
-		cameraStart = 0;
-		cameraEnd = Asset.WIDTH / Asset.TILE;
+		camera = 0f;
 
 		point_x = (int) player.getPosition().x;
-		point_y1 = -1; 
+		point_y1 = -1;
 		point_y2 = -1;
 	}
 
 	public void movePlayer(char dir, float dt) {
-
-		// posizione attuale del player sulla matrice
-		float x_player = player.getPosition().x;
-		float y_player = player.getPosition().y;
-
-		switch (dir) {
-		case 'l': {
-			if ((int)y_player > cameraStart) {
-				if (matrix[(int) x_player][(int) y_player - 1] == ' ') {
-					if (y_player <= point_y1) {
-						matrix[(int) x_player][(int) y_player + 1] = ' ';
-						matrix[(int) x_player][(int) y_player] = 'p';
-						point_y1 = (int) y_player - 1;
-						point_y2 = (int) y_player + 1;
-						print();
-					} else
-						player.movePlayer(new Vector2(0, -5.0f), dt);
-				}
-			}
-
-			break;
+		if (dir == 'r') {
+			movePlayerToRight(dt);
 		}
-		case 'r': {
-			if ((int) y_player < row) {
-				if (matrix[(int) x_player][(int) y_player + 1] == ' ') {
-					if (y_player >= point_y2) {
-						matrix[(int) x_player][(int) y_player] = ' ';
-						matrix[(int) x_player][(int) y_player+1] = 'p';
-						point_y2 = (int) y_player + 1;
-						point_y1 = (int) y_player - 1;
-						
-						
-						print();
-
-					} else
-						player.movePlayer(new Vector2(0, +15.0f), dt);
-				}
-				
-
-			}
-
-			break;
-
+		else if(dir == 'l'){
+			movePlayerToLeft(dt);
 		}
-		case 's': {
+		else if(dir == 's'){
 			player.jump(dt);
-
-			break;
 		}
-		default:
-			break;
+	}
+
+
+	private void movePlayerToLeft(float dt) {
+		float x = player.getPosition().x;		
+		float y = player.getPosition().y;
+		
+		x++;
+		y--;
+		if(y < camera - 0.95f){
+			return;
+		}
+		
+		for(Ground g: groundObjects){
+			if(g.getPosition().x == (int)x ){
+				if(g.getPosition().y == (int)y ){
+					if((g.getType().equals("1") || g.getType().equals("2") || g.getType().equals("3") || g.getType().equals("7") || g.getType().equals("11")
+							|| g.getType().equals("14") || g.getType().equals("15") || g.getType().equals("16"))){
+						
+						player.movePlayer(new Vector2(0, -9.0f), dt);
+						break;
+					}
+				}
+			}
+		}
+		
+	}
+
+	private void movePlayerToRight(float dt) {
+		float x = player.getPosition().x;		
+		float y = player.getPosition().y;
+		
+		if(y + 1 >= row)
+			return;
+		for(Ground g: groundObjects){
+			if(g.getPosition().x == (int)x + 1){
+				if(g.getPosition().y == (int)y + 1){
+					if((g.getType().equals("1") || g.getType().equals("2") || g.getType().equals("3") || g.getType().equals("7") || g.getType().equals("11")
+							|| g.getType().equals("14") || g.getType().equals("15") || g.getType().equals("16"))){
+						player.movePlayer(new Vector2(0, +9.0f), dt);
+
+						break;
+					}
+				}
+			}
 		}
 	}
 
@@ -140,9 +140,8 @@ public class Game {
 		return column;
 	}
 
-	public void updatePhysicCamera() {
-		cameraStart++;
-		cameraEnd++;
+	public void setCamera(float position) {
+		camera = position;
 	}
 
 	public static void main(String[] args) {

@@ -1,5 +1,7 @@
 package it.unical.mat.igpe17.game.guiTest;
 
+import java.util.List;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -19,6 +21,7 @@ import it.unical.mat.igpe17.game.constants.Asset;
 import it.unical.mat.igpe17.game.constants.MyAnimation;
 import it.unical.mat.igpe17.game.constants.MyTexture;
 import it.unical.mat.igpe17.game.logic.Game;
+import it.unical.mat.igpe17.game.objects.Ground;
 import it.unical.mat.igpe17.game.player.Player;
 
 public class Play implements Screen {
@@ -26,6 +29,9 @@ public class Play implements Screen {
 	private Game game;
 	private Background background;
 	private Player player;
+
+	private List<Ground> groundObjects;
+
 	private TiledMap map;
 	private OrthogonalTiledMapRenderer renderer;
 	private OrthographicCamera camera;
@@ -42,7 +48,8 @@ public class Play implements Screen {
 
 	float elapsedTime;
 	private int boundEndX = Asset.WIDTH;
-	
+	private float camera_pos;
+
 	@Override
 	public void show() {
 		game = new Game();
@@ -52,6 +59,8 @@ public class Play implements Screen {
 		mapTop = Asset.HEIGHT;
 
 		player = game.getPlayer();
+		groundObjects = game.getGround();
+
 		background = new Background();
 
 		map = new TmxMapLoader().load(Asset.FIRST_LEVEL);
@@ -64,6 +73,7 @@ public class Play implements Screen {
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, Asset.WIDTH, Asset.HEIGHT);
 		camera.update();
+		camera_pos = camera.position.x;
 	}
 
 	@Override
@@ -71,18 +81,17 @@ public class Play implements Screen {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		elapsedTime += delta;
-		
+
 		batch.setProjectionMatrix(camera.combined);
-		
-		background.update(delta);	
+
+		background.update(delta);
 		updatePlayer(delta);
-		
+
 		camera.update();
 		renderer.setView(camera);
-		
+
 		renderer.render();
-		
-		
+
 		// for (Ground g : groundObjects) {
 		// System.out.println(g.getPosition().x + "/" + g.getPosition().y + " "
 		// + ((7 - g.getPosition().x)) + "/"
@@ -91,77 +100,66 @@ public class Play implements Screen {
 		// ((7 - g.getPosition().x) * 64));
 		// }
 
-
 	}
 
-
-	
 	private void updatePlayer(float delta) {
-		
-		int xP,yP;
-		
+
 		boolean running = false;
+		int xP, yP;
 
 		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-			
 			game.movePlayer('r', delta);
 
 			running = true;
-			
+
 			xP = (int) ((player.getPosition().y) * Asset.TILE);
 			yP = (int) (((Asset.HEIGHT / Asset.TILE) - player.getPosition().x - 1) * Asset.TILE);
-			
+
 			Animation<TextureRegion> a = animations.getAnimation("player_run_right");
 			batch.begin();
-			batch.draw(a.getKeyFrame(elapsedTime,true), xP, yP);
+			batch.draw(a.getKeyFrame(elapsedTime, true), xP, yP);
 			batch.end();
-		} 
-		else 
-		if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+		} else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
 			game.movePlayer('l', delta);
 			running = true;
 			xP = (int) ((player.getPosition().y) * Asset.TILE);
 			yP = (int) (((Asset.HEIGHT / Asset.TILE) - player.getPosition().x - 1) * Asset.TILE);
 			Animation<TextureRegion> a = animations.getAnimation("player_run_left");
 			batch.begin();
-			batch.draw(a.getKeyFrame(elapsedTime,true), xP, yP);
+			batch.draw(a.getKeyFrame(elapsedTime, true), xP, yP);
 			batch.end();
-		}
-		else
-		if(Gdx.input.isKeyJustPressed(Input.Keys.S)){
+		} else if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {
 			running = true;
 			game.movePlayer('s', delta);
 			xP = (int) ((player.getPosition().y) * Asset.TILE);
 			yP = (int) (((Asset.HEIGHT / Asset.TILE) - player.getPosition().x - 1) * Asset.TILE);
-			sprite_player.setPosition(xP, yP);
+			Animation<TextureRegion> a = animations.getAnimation("player_jump");
 			batch.begin();
-			sprite_player.draw(batch);
+			batch.draw(a.getKeyFrame(elapsedTime, true), xP, yP);
 			batch.end();
 		}
-		else{
-			running = false;
-		}
-		
+
 		/*
-		 *  Update della camera fisica e logica
+		 * Update della camera fisica e logica
 		 */
-		
-		if ((player.getPosition().y >= (boundEndX / Asset.TILE) * 0.5)
+
+		if ((player.getPosition().y >= (boundEndX / Asset.TILE) * 0.3)
 				&& (camera.position.x + camera.viewportWidth / 2) < mapRight) {
-			
-			camera.position.x = camera.position.x + Asset.TILE;
-			game.updatePhysicCamera();
+
+			camera.position.x += camera.position.x * delta;
+			game.setCamera((camera.position.x - camera.viewportWidth / 2) / Asset.TILE);
+
 			updateCamera();
 
 			boundEndX += Asset.TILE * 2;
-			
+
 		}
-	
+
 		camera.update();
 		renderer.setView(camera);
-		
+
 		renderer.render();
-		if(!running){
+		if (!running) {
 			xP = (int) ((player.getPosition().y) * Asset.TILE);
 			yP = (int) (((Asset.HEIGHT / Asset.TILE) - player.getPosition().x - 1) * Asset.TILE);
 			sprite_player.setPosition(xP, yP);
@@ -169,8 +167,9 @@ public class Play implements Screen {
 			sprite_player.draw(batch);
 			batch.end();
 		}
+
 	}
-	
+
 	private void updateCamera() {
 
 		float cameraHalfWidth = camera.viewportWidth * .5f;
@@ -198,7 +197,6 @@ public class Play implements Screen {
 		}
 
 	}
-
 
 	@Override
 	public void resize(int width, int height) {

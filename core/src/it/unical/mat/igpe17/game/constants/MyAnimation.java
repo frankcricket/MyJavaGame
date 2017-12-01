@@ -25,6 +25,13 @@ public class MyAnimation {
 		animations.put("player_run_left", aTmp);
 		
 		/*
+		 * Player animation: jump
+		 */
+		
+		aTmp = createAnimation(8, new Texture("animations/player_jump.png"), 66, 128,.10f);
+		animations.put("player_jump", aTmp);
+		
+		/*
 		 * 
 		 */
 	}
