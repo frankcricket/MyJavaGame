@@ -52,10 +52,10 @@ public class MyTree extends JPanel
 	private void addGround(DefaultMutableTreeNode root){
 
 		DefaultMutableTreeNode ground = new DefaultMutableTreeNode("Ground");
-		
-		ImageIcon icon = new ImageIcon("asset/Ground1");
-		DefaultTreeCellRenderer render = new DefaultTreeCellRenderer();
-		render.setLeafIcon(icon);
+//		
+//		ImageIcon icon = new ImageIcon("asset/Ground1");
+//		DefaultTreeCellRenderer render = new DefaultTreeCellRenderer();
+//		render.setLeafIcon(icon);
 
 
 		DefaultMutableTreeNode g1 = new DefaultMutableTreeNode("1");
@@ -98,9 +98,41 @@ public class MyTree extends JPanel
 	
 	private void addObjects(DefaultMutableTreeNode root){
 		
-		DefaultMutableTreeNode obj = new DefaultMutableTreeNode("Objects");
+		DefaultMutableTreeNode obj = new DefaultMutableTreeNode("Obstacles");
 		
-		obj.add(new DefaultMutableTreeNode());
+		//obj.add(new DefaultMutableTreeNode());
+		
+		DefaultMutableTreeNode ob1 = new DefaultMutableTreeNode("17");
+		DefaultMutableTreeNode ob2 = new DefaultMutableTreeNode("18");
+		DefaultMutableTreeNode ob3 = new DefaultMutableTreeNode("19");
+		DefaultMutableTreeNode ob4 = new DefaultMutableTreeNode("20");
+		DefaultMutableTreeNode ob5 = new DefaultMutableTreeNode("21");
+		DefaultMutableTreeNode ob6 = new DefaultMutableTreeNode("22");
+		DefaultMutableTreeNode ob7 = new DefaultMutableTreeNode("23");
+		DefaultMutableTreeNode ob8 = new DefaultMutableTreeNode("24");
+		DefaultMutableTreeNode ob9 = new DefaultMutableTreeNode("25");
+		DefaultMutableTreeNode ob10 = new DefaultMutableTreeNode("26");
+		DefaultMutableTreeNode ob11 = new DefaultMutableTreeNode("27");
+		DefaultMutableTreeNode ob12 = new DefaultMutableTreeNode("28");
+		DefaultMutableTreeNode ob13 = new DefaultMutableTreeNode("29");
+		DefaultMutableTreeNode ob14 = new DefaultMutableTreeNode("30");
+		
+		obj.add(ob1);
+		obj.add(ob2);
+		obj.add(ob3);
+		obj.add(ob4);
+		obj.add(ob5);
+		obj.add(ob6);
+		obj.add(ob7);
+		obj.add(ob8);
+		obj.add(ob9);
+		obj.add(ob10);
+		obj.add(ob11);
+		obj.add(ob12);
+		obj.add(ob13);
+		obj.add(ob14);
+		
+		
 		
 		
 		root.add(obj);

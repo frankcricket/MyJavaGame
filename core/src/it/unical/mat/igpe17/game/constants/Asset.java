@@ -35,7 +35,27 @@ public class Asset {
 	public static String GROUND15 = "asset/resized/Ground15.png";
 	public static String GROUND16 = "asset/resized/Ground16.png";
 	
+	
+	public static String OBSTACLE1 = "asset/resized/Obstacles/obstacle(1).png";
+	public static String OBSTACLE2 = "asset/resized/Obstacles/obstacle(2).png";
+	public static String OBSTACLE3 = "asset/resized/Obstacles/obstacle(3).png";
+	public static String OBSTACLE4 = "asset/resized/Obstacles/obstacle(4).png";
+	public static String OBSTACLE5 = "asset/resized/Obstacles/obstacle(5).png";
+	public static String OBSTACLE6 = "asset/resized/Obstacles/obstacle(6).png";
+	public static String OBSTACLE7 = "asset/resized/Obstacles/obstacle(7).png";
+	public static String OBSTACLE8 = "asset/resized/Obstacles/obstacle(8).png";
+	public static String OBSTACLE9 = "asset/resized/Obstacles/obstacle(9).png";
+	public static String OBSTACLE10 = "asset/resized/Obstacles/obstacle(10).png";
+	public static String OBSTACLE11 = "asset/resized/Obstacles/obstacle(11).png";
+	public static String OBSTACLE12 = "asset/resized/Obstacles/obstacle(12).png";
+	public static String OBSTACLE13 = "asset/resized/Obstacles/obstacle(13).png";
+	public static String OBSTACLE14 = "asset/resized/Obstacles/obstacle(14).png";
+	
+	
 	static{
+		
+		//ground 
+		
 		map.put("1", GROUND1);
 		map.put("2", GROUND2);
 		map.put("3", GROUND3);
@@ -52,6 +72,26 @@ public class Asset {
 		map.put("14", GROUND14);
 		map.put("15", GROUND15);
 		map.put("16", GROUND16);
+		
+		
+		//obstacles
+		map.put("17", OBSTACLE1);
+		map.put("18", OBSTACLE2);
+		map.put("19", OBSTACLE3);
+		map.put("20", OBSTACLE4);
+		map.put("21", OBSTACLE5);
+		map.put("22", OBSTACLE6);
+		map.put("23", OBSTACLE7);
+		map.put("24", OBSTACLE8);
+		map.put("25", OBSTACLE9);
+		map.put("26", OBSTACLE10);
+		map.put("27", OBSTACLE11);
+		map.put("28", OBSTACLE12);
+		map.put("29", OBSTACLE13);
+		map.put("30", OBSTACLE14);
+		
+		
+		
 	}
 	
 	public static String getPath(String s){
