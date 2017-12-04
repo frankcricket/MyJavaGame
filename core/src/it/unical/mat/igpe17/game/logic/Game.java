@@ -59,7 +59,8 @@ public class Game {
 			movePlayerToLeft(dt);
 		}
 		else if(dir == 's'){
-			player.jump(dt);
+//			player.jump(dt);
+			makePlayerJump(dt);
 		}
 	}
 
@@ -74,18 +75,8 @@ public class Game {
 			return;
 		}
 		
-		for(Ground g: groundObjects){
-			if(g.getPosition().x == (int)x ){
-				if(g.getPosition().y == (int)y ){
-					if((g.getType().equals("1") || g.getType().equals("2") || g.getType().equals("3") || g.getType().equals("7") || g.getType().equals("11")
-							|| g.getType().equals("14") || g.getType().equals("15") || g.getType().equals("16"))){
-						
-						player.movePlayer(new Vector2(0, -9.0f), dt);
-						break;
-					}
-				}
-			}
-		}
+		if(checkCollisionGround((int)x, (int)y))
+			player.movePlayer(new Vector2(0, -9.0f), dt);
 		
 	}
 
@@ -95,19 +86,94 @@ public class Game {
 		
 		if(y + 1 >= row)
 			return;
+		if(checkCollisionGround((int)++x,(int) ++y))
+			player.movePlayer(new Vector2(0, +9.0f), dt);
+	}
+	
+	float posX = 0;
+	float posY = 0;
+	
+	float velocityX = .005f;
+	float velocityY = .005f;
+	
+	float gravity = 0.5f;
+	
+	boolean left = true;
+	
+	float initialPos = 0;
+	boolean justOnce = true;
+	
+	
+	private void makePlayerJump(float dt){
+		
+		if(player.IS_JUMPING){
+			
+			if(justOnce){
+				initialPos = player.getPosition().x;
+				justOnce = false;
+			}
+			
+			posX = player.getPosition().x;
+			posY = player.getPosition().y;
+			
+			if(posX + 2 <= 0)
+				return;
+			
+			if(posX > (initialPos - 2) && left){
+				posX -= velocityX *dt;
+				posY += velocityY *dt;
+				velocityX += gravity;		
+				velocityY += gravity;	
+			}
+			else{
+				left = false;
+			}
+			
+			if(!left){
+				posX += velocityX *dt;
+				posY += velocityY *dt;
+				velocityX += gravity;		
+				velocityY += gravity;
+			}
+	
+			player.setPosition(new Vector2(posX,posY));
+	
+			if(checkCollisionGround((int)player.getPosition().x, (int)player.getPosition().y))
+			{
+				player.setPosition(new Vector2(player.getPosition().x - 2,player.getPosition().y));
+				reset();
+				left = true;
+				justOnce = true;
+				player.IS_JUMPING = false;
+				return;
+			}
+			
+		}
+		
+	}
+	
+	private void reset() {
+		velocityX = .005f;
+		velocityY = .005f;
+		
+		gravity = 0.5f;
+	}
+	
+	private final boolean checkCollisionGround(int x, int y){
+		System.out.println(x + "  " + y);
 		for(Ground g: groundObjects){
-			if(g.getPosition().x == (int)x + 1){
-				if(g.getPosition().y == (int)y + 1){
+			if(g.getPosition().x == x){
+				if(g.getPosition().y == y){
 					if((g.getType().equals("1") || g.getType().equals("2") || g.getType().equals("3") || g.getType().equals("7") || g.getType().equals("11")
 							|| g.getType().equals("14") || g.getType().equals("15") || g.getType().equals("16"))){
-						player.movePlayer(new Vector2(0, +9.0f), dt);
-
-						break;
+								return true;
 					}
 				}
 			}
 		}
+		return false;
 	}
+	
 
 	public void setLevel(String level) {
 		LEVEL = level;

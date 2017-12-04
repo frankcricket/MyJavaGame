@@ -128,7 +128,8 @@ public class Play implements Screen {
 			batch.begin();
 			batch.draw(a.getKeyFrame(elapsedTime, true), xP, yP);
 			batch.end();
-		} else if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {
+		} else if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+			player.IS_JUMPING = true;
 			running = true;
 			game.movePlayer('s', delta);
 			xP = (int) ((player.getPosition().y) * Asset.TILE);
@@ -138,6 +139,7 @@ public class Play implements Screen {
 			batch.draw(a.getKeyFrame(elapsedTime, true), xP, yP);
 			batch.end();
 		}
+	
 
 		/*
 		 * Update della camera fisica e logica

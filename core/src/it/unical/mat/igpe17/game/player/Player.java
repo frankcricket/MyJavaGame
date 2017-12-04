@@ -12,6 +12,8 @@ public class Player extends DynamicObject implements IPlayer, IMovable {
 
 	private int points;
 	private Vector2 jumpVelocity;
+	
+	public static boolean IS_JUMPING = false;
 
 	public Player(Vector2 position, Vector2 size, char direction) {
 		super(position, size, direction);
@@ -26,32 +28,61 @@ public class Player extends DynamicObject implements IPlayer, IMovable {
 		if (getPosition().y < 0.0f)
 			setPosition(new Vector2(getPosition().x, 0f));
 	}
+	
+	
+	float posX = 0;
+	float posY = 0;
+	
+	float velocityX = .05f;
+	float velocityY = .05f;
+	
+	float gravity = 1.5f;
+	
+	boolean left = true;
 
 	@Override
 	public void jump(float dt) {
 		
-		Vector2 oldPos = getPosition();
-		System.out.println("Old pos: " + oldPos);
-		Vector2 newPos = getPosition().add(jumpVelocity).scl(dt);
-		oldPos.add(newPos);
-		setPosition(oldPos);
-		System.out.println("New pos: " + getPosition());
-		Vector2 vel = jumpVelocity;
-		vel.add(jumpVelocity.add(getForce().scl(dt)));
-		setJumpVelocity(vel);
-		checkBounds();
+		posX = getPosition().x;
+		posY = getPosition().y;
+		
+		if(posX > 8 && left){
+			
+			posX -= velocityX *dt;
+			posY += velocityY *dt;
+			velocityX += gravity;		
+			velocityY += gravity;	
+		}
+		else{
+			left = false;
+		}
+		
+		if(!left){
+			posX += velocityX *dt;
+			posY += velocityY *dt;
+			velocityX += gravity;		
+			velocityY += gravity;
+		}
+		
+		if(posX > 10) {
+			setPosition(new Vector2(10,0));
+			reset();
+			left = true;
+			return;
+		}
+		
+		
+		setPosition(new Vector2(posX,posY));
+
 
 
 	}
 
-	private void checkBounds() {
-
-		if ((this.getPosition().y + this.getSize().y) > Asset.HEIGHT/2) {
-				jumpVelocity.set(new Vector2(2, -2));
-
-		}
-
-
+	private void reset() {
+		velocityX = .05f;
+		velocityY = .05f;
+		
+		gravity = 1.5f;
 	}
 
 	@Override
