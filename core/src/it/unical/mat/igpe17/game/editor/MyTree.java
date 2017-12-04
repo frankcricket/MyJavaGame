@@ -177,7 +177,7 @@ public class MyTree extends JPanel
 		 
 		public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean ex,boolean l, int r, boolean foc)
 		{
-			Object o = ((DefaultMutableTreeNode) value).getUserObject();		
+			Object o = ((DefaultMutableTreeNode) value).getUserObject();
 			ImageIcon img = new ImageIcon(Asset.getPath((String) o));
 			if (img != null) 
 			{
