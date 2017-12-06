@@ -128,18 +128,20 @@ public class Play implements Screen {
 			batch.begin();
 			batch.draw(a.getKeyFrame(elapsedTime, true), xP, yP);
 			batch.end();
-		} else if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+		} else if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {
 			player.IS_JUMPING = true;
-			running = true;
-			game.movePlayer('s', delta);
-			xP = (int) ((player.getPosition().y) * Asset.TILE);
-			yP = (int) (((Asset.HEIGHT / Asset.TILE) - player.getPosition().x - 1) * Asset.TILE);
-			Animation<TextureRegion> a = animations.getAnimation("player_jump");
-			batch.begin();
-			batch.draw(a.getKeyFrame(elapsedTime, true), xP, yP);
-			batch.end();
+			while (player.IS_JUMPING) {
+				running = true;
+				delta = Gdx.graphics.getDeltaTime();
+				game.movePlayer('s', delta);
+				xP = (int) ((player.getPosition().y) * Asset.TILE);
+				yP = (int) (((Asset.HEIGHT / Asset.TILE) - player.getPosition().x - 1) * Asset.TILE);
+				Animation<TextureRegion> a = animations.getAnimation("player_jump");
+				batch.begin();
+				batch.draw(a.getKeyFrame(elapsedTime, true), xP, yP);
+				batch.end();
+			}
 		}
-	
 
 		/*
 		 * Update della camera fisica e logica

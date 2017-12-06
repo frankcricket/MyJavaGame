@@ -138,9 +138,9 @@ public class Game {
 	
 			player.setPosition(new Vector2(posX,posY));
 	
-			if(checkCollisionGround((int)player.getPosition().x, (int)player.getPosition().y))
+			if(checkCollisionGround((int)player.getPosition().x + 1, (int)player.getPosition().y))
 			{
-				player.setPosition(new Vector2(player.getPosition().x - 2,player.getPosition().y));
+				player.setPosition(new Vector2(player.getPosition().x - 1,player.getPosition().y));
 				reset();
 				left = true;
 				justOnce = true;
@@ -160,7 +160,6 @@ public class Game {
 	}
 	
 	private final boolean checkCollisionGround(int x, int y){
-		System.out.println(x + "  " + y);
 		for(Ground g: groundObjects){
 			if(g.getPosition().x == x){
 				if(g.getPosition().y == y){

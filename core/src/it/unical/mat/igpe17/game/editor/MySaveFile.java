@@ -87,6 +87,10 @@ public class MySaveFile {
 			bw.write(" <tileset firstgid="+ "\"" +i+ "\"" +" source="+ "\"" +"tileset/Ground"+i+".tsx"+ "\"" +"/>");
 			bw.newLine();
 		}
+		for(int i = 17; i <= 30; i++){
+			bw.write(" <tileset firstgid="+ "\"" +i+ "\"" +" source="+ "\"" +"tileset/obstacle"+i+".tsx"+ "\"" +"/>");
+			bw.newLine();
+		}
 		bw.write(" <layer name="+ "\"" +"Livello tile 1"+ "\"" + " width="+ "\"" +height + "\"" + " height="+ "\"" +width + "\"" +">");
 		bw.newLine();
 		bw.write("  <data encoding="+ "\"" +"csv"+ "\"" +">");

@@ -36,20 +36,20 @@ public class Asset {
 	public static String GROUND16 = "asset/resized/Ground16.png";
 	
 	
-	public static String OBSTACLE1 = "asset/Obstacles/obstacle1.png";
-	public static String OBSTACLE2 = "asset/Obstacles/obstacle2.png";
-	public static String OBSTACLE3 = "asset/Obstacles/obstacle3.png";
-	public static String OBSTACLE4 = "asset/Obstacles/obstacle4.png";
-	public static String OBSTACLE5 = "asset/Obstacles/obstacle5.png";
-	public static String OBSTACLE6 = "asset/Obstacles/obstacle6.png";
-	public static String OBSTACLE7 = "asset/Obstacles/obstacle7.png";
-	public static String OBSTACLE8 = "asset/Obstacles/obstacle8.png";
-	public static String OBSTACLE9 = "asset/Obstacles/obstacle9.png";
-	public static String OBSTACLE10 = "asset/Obstacles/obstacle10.png";
-	public static String OBSTACLE11 = "asset/Obstacles/obstacle11.png";
-	public static String OBSTACLE12 = "asset/Obstacles/obstacle12.png";
-	public static String OBSTACLE13 = "asset/Obstacles/obstacle13.png";
-	public static String OBSTACLE14 = "asset/Obstacles/obstacle14.png";
+	public static String OBSTACLE1 = "asset/Obstacles/obstacle17.png";
+	public static String OBSTACLE2 = "asset/Obstacles/obstacle18.png";
+	public static String OBSTACLE3 = "asset/Obstacles/obstacle19.png";
+	public static String OBSTACLE4 = "asset/Obstacles/obstacle20.png";
+	public static String OBSTACLE5 = "asset/Obstacles/obstacle21.png";
+	public static String OBSTACLE6 = "asset/Obstacles/obstacle22.png";
+	public static String OBSTACLE7 = "asset/Obstacles/obstacle23.png";
+	public static String OBSTACLE8 = "asset/Obstacles/obstacle24.png";
+	public static String OBSTACLE9 = "asset/Obstacles/obstacle25.png";
+	public static String OBSTACLE10 = "asset/Obstacles/obstacle26.png";
+	public static String OBSTACLE11 = "asset/Obstacles/obstacle27.png";
+	public static String OBSTACLE12 = "asset/Obstacles/obstacle28.png";
+	public static String OBSTACLE13 = "asset/Obstacles/obstacle29.png";
+	public static String OBSTACLE14 = "asset/Obstacles/obstacle30.png";
 	
 	
 	static{
