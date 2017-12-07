@@ -2,7 +2,6 @@ package it.unical.mat.igpe17.game.objects;
 
 import com.badlogic.gdx.math.Vector2;
 
-import it.unical.mat.igpe17.game.Interface.IMovable;
 import it.unical.mat.igpe17.game.constants.Asset;
 import it.unical.mat.igpe17.game.constants.GameConfig;
 
@@ -18,24 +17,24 @@ public class DynamicObject extends StaticObject {
 		velocity = new Vector2(0f, 100f);
 		force = GameConfig.GRAVITY;
 	}
-
-	public void move(final float dt) {
-		
-		
-		applyGravity(dt);
-
-		velocity.set(velocity.add(force.scl(dt)));
-
-		if ((int) (position.y + size.y) >= Asset.HEIGHT && velocity.y > 0) {
-			Vector2 nv = new Vector2(velocity.x, 0);
-			velocity.set(nv);
-		}
-
-		setPosition(getPosition().add(velocity.scl(dt)));
-		if (getPosition().y + getSize().y >= Asset.HEIGHT)
-			getPosition().y = ((int) Asset.HEIGHT - getSize().y);
-
-	}
+//
+//	public void move(final float dt) {
+//		
+//		
+//		applyGravity(dt);
+//
+//		velocity.set(velocity.add(force.scl(dt)));
+//
+//		if ((int) (position.y + size.y) >= Asset.HEIGHT && velocity.y > 0) {
+//			Vector2 nv = new Vector2(velocity.x, 0);
+//			velocity.set(nv);
+//		}
+//
+//		setPosition(getPosition().add(velocity.scl(dt)));
+//		if (getPosition().y + getSize().y >= Asset.HEIGHT)
+//			getPosition().y = ((int) Asset.HEIGHT - getSize().y);
+//
+//	}
 
 	void applyGravity(final double dt) {
 		if (force.y < GameConfig.GRAVITY.y)
@@ -52,9 +51,9 @@ public class DynamicObject extends StaticObject {
 		}
 	}
 
-	private Vector2 computeNewVelocity(Vector2 vel, Vector2 force, float dt) {
-		return vel.add(force.scl(dt));
-	}
+//	private Vector2 computeNewVelocity(Vector2 vel, Vector2 force, float dt) {
+//		return vel.add(force.scl(dt));
+//	}
 
 	public void setDirection(char dir) {
 		this.direction = dir;

@@ -112,11 +112,12 @@ public class Builder {
 	protected final Player getPlayer() {
 		Player p = null;	
 		
-		Ground tmp_ground = groundObjects.get(0);
+		Ground tmp_ground = new Ground(new Vector2(11,0), null, null);
 	
 		for(Ground g : groundObjects){
 			if(g.getType().equals("1") || g.getType().equals("14"))
-				if(g.getPosition().x > g.getPosition().x)
+				if(g.getPosition().x > tmp_ground.getPosition().x &&
+						g.getPosition().y < tmp_ground.getPosition().y)
 					tmp_ground = g;
 		}
 		

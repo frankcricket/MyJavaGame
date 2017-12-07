@@ -55,7 +55,7 @@ public class Play implements Screen {
 		game = new Game();
 		game.loadLevel();
 
-		mapRight = game.getRow() * Asset.TILE;
+		mapRight = game.getColumn() * Asset.TILE;
 		mapTop = Asset.HEIGHT;
 
 		player = game.getPlayer();
@@ -103,7 +103,6 @@ public class Play implements Screen {
 	}
 
 	private void updatePlayer(float delta) {
-
 		boolean running = false;
 		int xP, yP;
 
@@ -128,9 +127,9 @@ public class Play implements Screen {
 			batch.begin();
 			batch.draw(a.getKeyFrame(elapsedTime, true), xP, yP);
 			batch.end();
-		} else if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {
-			player.IS_JUMPING = true;
-			while (player.IS_JUMPING) {
+		} else if (Gdx.input.isKeyJustPressed(Input.Keys.X)) {
+			player.JUMPING = true;
+			/*
 				running = true;
 				delta = Gdx.graphics.getDeltaTime();
 				game.movePlayer('s', delta);
@@ -140,7 +139,26 @@ public class Play implements Screen {
 				batch.begin();
 				batch.draw(a.getKeyFrame(elapsedTime, true), xP, yP);
 				batch.end();
+				
+				*/
+			
+			while(player.JUMPING){
+				game.movePlayer('x', delta);
+//				try {
+//					Thread.sleep(10);
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+				xP = (int) ((player.getPosition().y) * Asset.TILE);
+				yP = (int) (((Asset.HEIGHT / Asset.TILE) - player.getPosition().x - 1) * Asset.TILE);
+				Animation<TextureRegion> a = animations.getAnimation("player_jump");
+				batch.begin();
+				batch.draw(a.getKeyFrame(elapsedTime, true), xP, yP);
+				batch.end();
 			}
+			
+			
 		}
 
 		/*
@@ -158,11 +176,11 @@ public class Play implements Screen {
 			boundEndX += Asset.TILE * 2;
 
 		}
-
-		camera.update();
-		renderer.setView(camera);
-
-		renderer.render();
+//
+//		camera.update();
+//		renderer.setView(camera);
+//
+//		renderer.render();
 		if (!running) {
 			xP = (int) ((player.getPosition().y) * Asset.TILE);
 			yP = (int) (((Asset.HEIGHT / Asset.TILE) - player.getPosition().x - 1) * Asset.TILE);
