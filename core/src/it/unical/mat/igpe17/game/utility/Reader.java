@@ -45,7 +45,7 @@ public class Reader {
 					if(tmp.equals("</data>"))
 						break;
 					//builder.initMatrix(tmp,count);
-					builder.convertGround(tmp,count);
+					builder.convertWorldObjects(tmp,count);
 					count++;
 				}
 

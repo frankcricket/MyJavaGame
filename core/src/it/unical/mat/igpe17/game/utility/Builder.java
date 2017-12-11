@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import it.unical.mat.igpe17.game.constants.GameConfig;
 import it.unical.mat.igpe17.game.objects.Ground;
 import it.unical.mat.igpe17.game.player.Player;
+import it.unical.mat.igpe17.game.player.PlayerState;
 
 public class Builder {
 
@@ -42,18 +43,24 @@ public class Builder {
 		}
 	}
 
-	protected void convertGround(String line, int row) {
+	protected void convertWorldObjects(String line, int row) {
 
+		/*
+		 * In input una linea contenente gli oggetti da visualizzare, tra cui terreno e ostacoli.
+		 * Se l'elemento split[i] è un numero compreso tra 1 e 16, allora memorizzo il terreno corrispondente
+		 * altrimenti memorizzo un ostacolo
+		 */
 		String[] split = line.split(",");
 		for (int i = 0; i < split.length; i++) {
 			if (!(split[i].equals("0"))) {
-				Ground ground = new Ground(new Vector2(row, i),
-						new Vector2(GameConfig.SIZE_GROUND_X, GameConfig.SIZE_GROUND_Y), split[i]);
-				
-				groundObjects.add(ground);
+				if (Integer.parseInt(split[i]) >= 1 && Integer.parseInt(split[i]) <= 16) {
+					Ground ground = new Ground(new Vector2(row, i),
+							new Vector2(GameConfig.SIZE_GROUND_X, GameConfig.SIZE_GROUND_Y), split[i]);
+
+					groundObjects.add(ground);
+				}//TODO aggiungere gli ostacoli
 			}
 		}
-
 
 	}
 
@@ -90,40 +97,39 @@ public class Builder {
 		return groundObjects;
 	}
 
-//	protected final Player getPlayer() {
-//		Player p = null;
-//		boolean stop = false;
-//		for (int i = 0; i < matrix[i].length; i++) {
-//			for (int j = 0; j < matrix.length; j++) {
-//				if (matrix[j][i] == 'g') {
-//					p = new Player(new Vector2(j - 1, i),
-//							new Vector2(GameConfig.SIZE_PLAYER_X, GameConfig.SIZE_PLAYER_Y), 'r');
-//					matrix[j - 1][i] = 'p';
-//					stop = true;
-//					break;
-//				}
-//			}
-//			if (stop)
-//				break;
-//		}
-//		return p;
-//	}
-	
+	// protected final Player getPlayer() {
+	// Player p = null;
+	// boolean stop = false;
+	// for (int i = 0; i < matrix[i].length; i++) {
+	// for (int j = 0; j < matrix.length; j++) {
+	// if (matrix[j][i] == 'g') {
+	// p = new Player(new Vector2(j - 1, i),
+	// new Vector2(GameConfig.SIZE_PLAYER_X, GameConfig.SIZE_PLAYER_Y), 'r');
+	// matrix[j - 1][i] = 'p';
+	// stop = true;
+	// break;
+	// }
+	// }
+	// if (stop)
+	// break;
+	// }
+	// return p;
+	// }
+
 	protected final Player getPlayer() {
-		Player p = null;	
-		
-		Ground tmp_ground = new Ground(new Vector2(11,0), null, null);
-	
-		for(Ground g : groundObjects){
-			if(g.getType().equals("1") || g.getType().equals("14"))
-				if(g.getPosition().x > tmp_ground.getPosition().x &&
-						g.getPosition().y < tmp_ground.getPosition().y)
+		Player p = null;
+
+		Ground tmp_ground = new Ground(new Vector2(11, 0), null, null);
+
+		for (Ground g : groundObjects) {
+			if (g.getType().equals("1") || g.getType().equals("14"))
+				if (g.getPosition().x > tmp_ground.getPosition().x && g.getPosition().y < tmp_ground.getPosition().y)
 					tmp_ground = g;
 		}
-		
+
 		p = new Player(new Vector2(tmp_ground.getPosition().x - 1, tmp_ground.getPosition().y),
-				new Vector2(GameConfig.SIZE_PLAYER_X, GameConfig.SIZE_PLAYER_Y), 'r');
-		
+				new Vector2(GameConfig.SIZE_PLAYER_X, GameConfig.SIZE_PLAYER_Y), 'r', PlayerState.IDLING);
+
 		return p;
 	}
 

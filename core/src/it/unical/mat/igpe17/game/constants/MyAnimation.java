@@ -5,7 +5,6 @@ import java.util.Map;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class MyAnimation {
@@ -28,8 +27,18 @@ public class MyAnimation {
 		 * Player animation: jump
 		 */
 		
-		aTmp = createAnimation(8, new Texture("animations/player_jump.png"), 66, 128,.10f);
-		animations.put("player_jump", aTmp);
+		aTmp = createAnimation(8, new Texture("animations/player_jump_right.png"), 64, 128,.08f);
+		animations.put("player_jump_right", aTmp);
+		aTmp = createAnimation(8, new Texture("animations/player_jump_left.png"), 64, 128,.08f);
+		animations.put("player_jump_left", aTmp);
+		
+		/*
+		 * Player animation: idle
+		 */
+		aTmp = createAnimation(8, new Texture("animations/player_idle_right.png"), 64, 128,.11f);
+		animations.put("player_idle_right", aTmp);
+		aTmp = createAnimation(8, new Texture("animations/player_idle_left.png"), 64, 128,.11f);
+		animations.put("player_idle_left", aTmp);
 		
 		/*
 		 * 

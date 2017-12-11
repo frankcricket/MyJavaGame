@@ -4,22 +4,43 @@ import com.badlogic.gdx.math.Vector2;
 
 import it.unical.mat.igpe17.game.Interface.ICollidable;
 import it.unical.mat.igpe17.game.Interface.IPlayer;
+import it.unical.mat.igpe17.game.constants.GameConfig;
 import it.unical.mat.igpe17.game.objects.DynamicObject;
 
 public class Player extends DynamicObject implements IPlayer {
 
-	private int points;
-	private Vector2 force;
-	private Vector2 velocity;
-	
-	public static boolean JUMPING = true;
+	private PlayerState state;
 
-	public Player(Vector2 position, Vector2 size, char direction) {
+	private Vector2 velocity;
+	private Vector2 playerForce;
+	
+	/* variabile per il salto in verticale, senza allungamento */
+	public static boolean VERTICAL_JUMP;
+	private float posX;
+	private float posY;
+	
+	private int points;
+
+	public Player(Vector2 position, Vector2 size, char direction, PlayerState state) {
 		super(position, size, direction);
 
-		force = new Vector2(-0.01f,0);
-		velocity = new Vector2(0,0);
+		this.state = state;
+
+		velocity = new Vector2(0, 0);
+		velocity.x = (-1) * GameConfig.PLAYER_JUMP_POS_VELOCITY.x;
+		velocity.y = GameConfig.PLAYER_JUMP_POS_VELOCITY.y;
+
+		playerForce = new Vector2();
+		playerForce.x = GameConfig.JUMP_NEG_FORCE.x;
+		playerForce.y = GameConfig.JUMP_NEG_FORCE.y;
+
+		VERTICAL_JUMP = false;
+		
+		posX = 0;
+		posY = 0;
+		
 		points = 0;
+	
 	}
 
 	public void movePlayer(Vector2 velocity, float dt) {
@@ -28,81 +49,70 @@ public class Player extends DynamicObject implements IPlayer {
 		if (getPosition().y < 0.0f)
 			setPosition(new Vector2(getPosition().x, 0f));
 	}
-	
-	
-//	float posX = 0;
-//	float posY = 0;
-//	
-//	float velocityX = .05f;
-//	float velocityY = .05f;
-//	
-//	float gravity = 1.5f;
-//	
-//	boolean left = true;
-//
-//	@Override
-//	public void jump(float dt) {
-//		
-//		posX = getPosition().x;
-//		posY = getPosition().y;
-//		
-//		if(posX > 8 && left){
-//			
-//			posX -= velocityX *dt;
-//			posY += velocityY *dt;
-//			velocityX += gravity;		
-//			velocityY += gravity;	
-//		}
-//		else{
-//			left = false;
-//		}
-//		
-//		if(!left){
-//			posX += velocityX *dt;
-//			posY += velocityY *dt;
-//			velocityX += gravity;		
-//			velocityY += gravity;
-//		}
-//		
-//		if(posX > 10) {
-//			setPosition(new Vector2(10,0));
-//			reset();
-//			left = true;
-//			return;
-//		}
-//		
-//		
-//		setPosition(new Vector2(posX,posY));
-//
-//
-//
-//	}
 
-//	private void reset() {
-//		velocityX = .05f;
-//		velocityY = .05f;
-//		
-//		gravity = 1.5f;
-//	}
 	
 	
+	/**
+	 * Gestione del salto in baso alla direzione del player
+	 * 
+	 * @param r il personaggio si muove a destra
+	 * @param l il personaggio si muove a sinistra
+	 */
 	@Override
 	public void jump(float dt) {
-//		System.out.println("current pos: " + getPosition());
-		Vector2 tmpPos = getPosition();
-		Vector2 newPos = tmpPos.add(force.x*dt,0);
-		setPosition(newPos);
-//		System.out.println("force : " + force);
-//		
-//		System.out.println("new pos: " + getPosition());
 
+		if (getDirection() == 'r') {
+
+			posX = getPosition().x;
+			posY = getPosition().y;
+
+			posX += velocity.x * dt;
+			posY += velocity.y * dt;
+			velocity.x += GameConfig.GRAVITY.x;
+			velocity.y += GameConfig.GRAVITY.x;
+
+			setPosition(new Vector2(posX, posY));
+
+		} else {
+
+			posX = getPosition().x;
+			posY = getPosition().y;
+
+			posX += velocity.x * dt;
+			posY -= velocity.y * dt;
+			velocity.x += GameConfig.GRAVITY.x;
+			velocity.y += GameConfig.GRAVITY.x;
+
+			setPosition(new Vector2(posX, posY));
+		}
 	}
-	
-	public void setForce(float x){
-		force.x = x;
+
+	/*
+	 * Gestione del salto lungo l'asse verticale, senza spostamento sull'asse x
+	 */
+	public void verticalJump(float dt) {
+		Vector2 tmpPos = getPosition();
+		Vector2 newPos = tmpPos.add(playerForce.x * dt, 0);
+		setPosition(newPos);
 	}
+
 	
+	/*
+	 * Funzione di reset della velocità per il salto
+	 */
+	public void reset() {
+		velocity.x = (-1) * GameConfig.PLAYER_JUMP_POS_VELOCITY.x;
+		velocity.y = GameConfig.PLAYER_JUMP_POS_VELOCITY.y;
+	}
+
 	
+	/*
+	 * Funzione di inversione della velocità per la discesa del salto
+	 */
+	public void swap() {
+		velocity.x = GameConfig.PLAYER_JUMP_POS_VELOCITY.x;
+		velocity.y = GameConfig.PLAYER_JUMP_POS_VELOCITY.y;
+	}
 
 	@Override
 	public boolean collide(ICollidable object) {
@@ -111,16 +121,29 @@ public class Player extends DynamicObject implements IPlayer {
 		return false;
 	}
 
-	public void score(final int _score) {
-		points += _score;
+	
+
+	public void setForce(Vector2 force) {
+		this.playerForce.x = force.x;
+		this.playerForce.y = force.y;
 	}
 
 	/**
 	 * @return the points
 	 */
-	public int getPoints() {
+	public final int getPoints() {
 		return points;
 	}
+	public void score(final int _score) {
+		points += _score;
+	}
 
+	public final PlayerState getState() {
+		return state;
+	}
+
+	public void setState(PlayerState state) {
+		this.state = state;
+	}
 
 }

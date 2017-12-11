@@ -1,28 +1,24 @@
 package it.unical.mat.igpe17.game.guiTest;
 
-import java.util.List;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
 import it.unical.mat.igpe17.game.constants.Asset;
+import it.unical.mat.igpe17.game.constants.GameConfig;
 import it.unical.mat.igpe17.game.constants.MyAnimation;
-import it.unical.mat.igpe17.game.constants.MyTexture;
 import it.unical.mat.igpe17.game.logic.Game;
-import it.unical.mat.igpe17.game.objects.Ground;
+import it.unical.mat.igpe17.game.player.JumpListener;
 import it.unical.mat.igpe17.game.player.Player;
+import it.unical.mat.igpe17.game.player.PlayerState;
 
 public class Play implements Screen {
 
@@ -30,25 +26,19 @@ public class Play implements Screen {
 	private Background background;
 	private Player player;
 
-	private List<Ground> groundObjects;
-
 	private TiledMap map;
 	private OrthogonalTiledMapRenderer renderer;
 	private OrthographicCamera camera;
 
 	private MyAnimation animations;
 	private SpriteBatch batch;
-	private Sprite sprite_player;
 
 	// Camera bounds
 	private int mapLeft = 0;
 	private int mapRight;
-	private int mapBottom = 0;
-	private int mapTop;
 
 	float elapsedTime;
 	private int boundEndX = Asset.WIDTH;
-	private float camera_pos;
 
 	@Override
 	public void show() {
@@ -56,24 +46,20 @@ public class Play implements Screen {
 		game.loadLevel();
 
 		mapRight = game.getColumn() * Asset.TILE;
-		mapTop = Asset.HEIGHT;
 
 		player = game.getPlayer();
-		groundObjects = game.getGround();
 
 		background = new Background();
 
 		map = new TmxMapLoader().load(Asset.FIRST_LEVEL);
 
 		batch = new SpriteBatch();
-		sprite_player = new Sprite(MyTexture.getTexture("Player"));
 		animations = new MyAnimation();
 
 		renderer = new OrthogonalTiledMapRenderer(map);
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, Asset.WIDTH, Asset.HEIGHT);
 		camera.update();
-		camera_pos = camera.position.x;
 	}
 
 	@Override
@@ -85,122 +71,80 @@ public class Play implements Screen {
 		batch.setProjectionMatrix(camera.combined);
 
 		background.update(delta);
-		updatePlayer(delta);
-
+		updatePlayer(delta);		
+		renderPlayer();
+		
 		camera.update();
 		renderer.setView(camera);
 
 		renderer.render();
 
-		// for (Ground g : groundObjects) {
-		// System.out.println(g.getPosition().x + "/" + g.getPosition().y + " "
-		// + ((7 - g.getPosition().x)) + "/"
-		// + (g.getPosition().y));
-		// batch.draw(texture.getTexture(g.getType()), (g.getPosition().y) * 64,
-		// ((7 - g.getPosition().x) * 64));
-		// }
-
 	}
 
-	private void updatePlayer(float delta) {
-		boolean running = false;
-		int xP, yP;
 
-		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+	
+	private void updatePlayer(final float delta) {
+
+		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && ! (player.getState() == PlayerState.JUMPING)) {
+			player.setDirection('r');
+			player.setState(PlayerState.RUNNING);
 			game.movePlayer('r', delta);
-
-			running = true;
-
-			xP = (int) ((player.getPosition().y) * Asset.TILE);
-			yP = (int) (((Asset.HEIGHT / Asset.TILE) - player.getPosition().x - 1) * Asset.TILE);
-
-			Animation<TextureRegion> a = animations.getAnimation("player_run_right");
-			batch.begin();
-			batch.draw(a.getKeyFrame(elapsedTime, true), xP, yP);
-			batch.end();
-		} else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-			game.movePlayer('l', delta);
-			running = true;
-			xP = (int) ((player.getPosition().y) * Asset.TILE);
-			yP = (int) (((Asset.HEIGHT / Asset.TILE) - player.getPosition().x - 1) * Asset.TILE);
-			Animation<TextureRegion> a = animations.getAnimation("player_run_left");
-			batch.begin();
-			batch.draw(a.getKeyFrame(elapsedTime, true), xP, yP);
-			batch.end();
-		} else if (Gdx.input.isKeyJustPressed(Input.Keys.X)) {
-			player.JUMPING = true;
-			/*
-				running = true;
-				delta = Gdx.graphics.getDeltaTime();
-				game.movePlayer('s', delta);
-				xP = (int) ((player.getPosition().y) * Asset.TILE);
-				yP = (int) (((Asset.HEIGHT / Asset.TILE) - player.getPosition().x - 1) * Asset.TILE);
-				Animation<TextureRegion> a = animations.getAnimation("player_jump");
-				batch.begin();
-				batch.draw(a.getKeyFrame(elapsedTime, true), xP, yP);
-				batch.end();
-				
-				*/
 			
-			while(player.JUMPING){
-				game.movePlayer('x', delta);
-//				try {
-//					Thread.sleep(10);
-//				} catch (InterruptedException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-				xP = (int) ((player.getPosition().y) * Asset.TILE);
-				yP = (int) (((Asset.HEIGHT / Asset.TILE) - player.getPosition().x - 1) * Asset.TILE);
-				Animation<TextureRegion> a = animations.getAnimation("player_jump");
-				batch.begin();
-				batch.draw(a.getKeyFrame(elapsedTime, true), xP, yP);
-				batch.end();
+			if(Gdx.input.isKeyJustPressed(Input.Keys.X)){
+				player.setState(PlayerState.JUMPING);
+				Thread t = new Thread(new JumpListener(game));
+				t.start();
+			}
+
+		} else if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && ! (player.getState() == PlayerState.JUMPING)) {
+			player.setDirection('l');
+			player.setState(PlayerState.RUNNING);
+			game.movePlayer('l', delta);
+			
+			if(Gdx.input.isKeyJustPressed(Input.Keys.X)){
+				player.setState(PlayerState.JUMPING);
+				Thread t = new Thread(new JumpListener(game));
+				t.start();
 			}
 			
-			
+		} else if (Gdx.input.isKeyJustPressed(Input.Keys.X)) {
+			player.setState(PlayerState.JUMPING);
+			player.VERTICAL_JUMP = true;
+			Thread t = new Thread(new JumpListener(game));
+			t.start();
 		}
-
+		
+		/**
+		 * Se il personaggio è fermo, viene impostato il suo stato come
+		 * @param state IDLING
+		 */
+		if(!(Gdx.input.isKeyPressed(Input.Keys.RIGHT))
+				&& !(Gdx.input.isKeyPressed(Input.Keys.LEFT))
+				&& !(player.getState() == PlayerState.JUMPING)){
+			player.setState(PlayerState.IDLING);
+		}
+		
 		/*
 		 * Update della camera fisica e logica
 		 */
+		if (((camera.position.x + camera.viewportWidth / 2) < mapRight	
+				&& (player.getPosition().y)*Asset.TILE >= boundEndX * 0.03)) {
 
-		if ((player.getPosition().y >= (boundEndX / Asset.TILE) * 0.3)
-				&& (camera.position.x + camera.viewportWidth / 2) < mapRight) {
-
-			camera.position.x += camera.position.x * delta;
+			camera.position.x += GameConfig.PLAYER_POS_VELOCITY.y;
 			game.setCamera((camera.position.x - camera.viewportWidth / 2) / Asset.TILE);
 
 			updateCamera();
-
-			boundEndX += Asset.TILE * 2;
-
+			
+			boundEndX += Asset.TILE*2;
 		}
-//
-//		camera.update();
-//		renderer.setView(camera);
-//
-//		renderer.render();
-		if (!running) {
-			xP = (int) ((player.getPosition().y) * Asset.TILE);
-			yP = (int) (((Asset.HEIGHT / Asset.TILE) - player.getPosition().x - 1) * Asset.TILE);
-			sprite_player.setPosition(xP, yP);
-			batch.begin();
-			sprite_player.draw(batch);
-			batch.end();
-		}
-
 	}
 
 	private void updateCamera() {
 
 		float cameraHalfWidth = camera.viewportWidth * .5f;
-		float cameraHalfHeight = camera.viewportHeight * .5f;
 
 		float cameraLeft = camera.position.x - cameraHalfWidth;
 		float cameraRight = camera.position.x + cameraHalfWidth;
-		float cameraBottom = camera.position.y - cameraHalfHeight;
-		float cameraTop = camera.position.y + cameraHalfHeight;
 
 		if (camera.viewportWidth > mapRight) {
 			camera.position.x = mapRight / 2;
@@ -210,18 +154,57 @@ public class Play implements Screen {
 			camera.position.x = mapRight - cameraHalfWidth;
 		}
 
-		if (camera.viewportHeight > mapTop) {
-			camera.position.y = mapTop / 2;
-		} else if (cameraBottom <= mapBottom) {
-			camera.position.y = mapBottom + cameraHalfHeight;
-		} else if (cameraTop >= mapTop) {
-			camera.position.y = mapTop - cameraHalfHeight;
-		}
-
 	}
+	
+	/*
+	 * Visualizzazione delle animazioni in base allo stato del player
+	 */
+	private void renderPlayer(){
+		
+		switch(player.getDirection()){
+		case 'r':{
+			if(player.getState() == PlayerState.IDLING){
+				drawAnimation("player_idle_right");
+			}else if (player.getState() == PlayerState.RUNNING){
+				drawAnimation("player_run_right");
+			}else if(player.getState() == PlayerState.JUMPING){
+				drawAnimation("player_jump_right");
+			}
+			
+			break;
+		}//end of case 'r'
+		case 'l':{
+			if(player.getState() == PlayerState.IDLING){
+				drawAnimation("player_idle_left");
+			}else if (player.getState() == PlayerState.RUNNING){
+				drawAnimation("player_run_left");
+
+			}else if(player.getState() == PlayerState.JUMPING){
+				drawAnimation("player_jump_left");
+			}
+		
+			break;
+		}
+		default:
+			break;
+		}//end of switch
+		
+	}
+	
+	private void drawAnimation(String name){
+		int xP = (int) ((player.getPosition().y) * Asset.TILE);
+		int yP = (int) (((Asset.HEIGHT / Asset.TILE) - player.getPosition().x - 1) * Asset.TILE);
+
+		Animation<TextureRegion> a = animations.getAnimation(name);
+		batch.begin();
+		batch.draw(a.getKeyFrame(elapsedTime, true), xP, yP);
+		batch.end();
+	}
+	
 
 	@Override
 	public void resize(int width, int height) {
+	
 	}
 
 	@Override
