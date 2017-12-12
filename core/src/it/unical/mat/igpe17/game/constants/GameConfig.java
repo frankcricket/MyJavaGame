@@ -34,4 +34,9 @@ public class GameConfig {
 
 	public static final float SIZE_GROUND_Y = 128;
 
+	public static final int SIZE_ENEMY_X = 1;
+
+	public static final int SIZE_ENEMY_Y = 2;
+
+
 }

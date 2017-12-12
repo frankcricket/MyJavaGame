@@ -25,6 +25,7 @@ public class Play implements Screen {
 	private Game game;
 	private Background background;
 	private Player player;
+	List<Enemy> enemies = game.getEnemy();
 
 	private TiledMap map;
 	private OrthogonalTiledMapRenderer renderer;
@@ -199,6 +200,18 @@ public class Play implements Screen {
 		batch.begin();
 		batch.draw(a.getKeyFrame(elapsedTime, true), xP, yP);
 		batch.end();
+	}
+	
+	private void printEnemy(){
+		for (int i = 0; i < game.getNumEnemy(); i++){
+			if (enemies.get(i).ge)
+			
+		}
+	}
+	
+	
+	private void updateEnemy(float delta){
+		game.moveEnemy(delta);
 	}
 	
 
