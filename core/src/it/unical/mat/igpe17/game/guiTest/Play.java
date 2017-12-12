@@ -1,5 +1,7 @@
 package it.unical.mat.igpe17.game.guiTest;
 
+import java.util.List;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -12,10 +14,12 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
+
 import it.unical.mat.igpe17.game.constants.Asset;
 import it.unical.mat.igpe17.game.constants.GameConfig;
 import it.unical.mat.igpe17.game.constants.MyAnimation;
 import it.unical.mat.igpe17.game.logic.Game;
+import it.unical.mat.igpe17.game.player.Enemy;
 import it.unical.mat.igpe17.game.player.JumpListener;
 import it.unical.mat.igpe17.game.player.Player;
 import it.unical.mat.igpe17.game.player.PlayerState;
@@ -25,7 +29,9 @@ public class Play implements Screen {
 	private Game game;
 	private Background background;
 	private Player player;
-	List<Enemy> enemies = game.getEnemy();
+	
+	List<Enemy> enemies;
+	
 
 	private TiledMap map;
 	private OrthogonalTiledMapRenderer renderer;
@@ -49,7 +55,7 @@ public class Play implements Screen {
 		mapRight = game.getColumn() * Asset.TILE;
 
 		player = game.getPlayer();
-
+		enemies = game.getEnemy();
 		background = new Background();
 
 		map = new TmxMapLoader().load(Asset.FIRST_LEVEL);
@@ -74,6 +80,9 @@ public class Play implements Screen {
 		background.update(delta);
 		updatePlayer(delta);		
 		renderPlayer();
+		
+		updateEnemy(delta);
+		renderEnemy();
 		
 		camera.update();
 		renderer.setView(camera);
@@ -192,6 +201,7 @@ public class Play implements Screen {
 		
 	}
 	
+	//stampa qualsiasi tipo di animazione
 	private void drawAnimation(String name){
 		int xP = (int) ((player.getPosition().y) * Asset.TILE);
 		int yP = (int) (((Asset.HEIGHT / Asset.TILE) - player.getPosition().x - 1) * Asset.TILE);
@@ -202,9 +212,25 @@ public class Play implements Screen {
 		batch.end();
 	}
 	
-	private void printEnemy(){
-		for (int i = 0; i < game.getNumEnemy(); i++){
-			if (enemies.get(i).ge)
+	private void drawAnimationEnemy(String name, float x, float y){
+		int xP = (int) ((y) * Asset.TILE);
+		int yP = (int) (((Asset.HEIGHT / Asset.TILE) - x - 1) * Asset.TILE);
+
+		Animation<TextureRegion> a = animations.getAnimation(name);
+		batch.begin();
+		batch.draw(a.getKeyFrame(elapsedTime, true), xP, yP);
+		batch.end();
+	}
+	
+	private void renderEnemy(){
+		for (Enemy e: enemies){
+			if (e.getDirection() == 'l'){
+				drawAnimationEnemy("enemy_run_left", e.getPosition().x , e.getPosition().y);
+			}
+			else{
+				//TODO da cambiare a dx
+				drawAnimationEnemy("enemy_run_left", e.getPosition().x , e.getPosition().y);
+			}
 			
 		}
 	}

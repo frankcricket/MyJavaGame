@@ -17,5 +17,12 @@ public class DynamicObject extends StaticObject {
 	public final char getDirection() {
 		return this.direction;
 	}
+	
+	public void move(Vector2 velocity, float dt) {
+
+		setPosition(getPosition().add(velocity.scl(dt)));
+		if (getPosition().y < 0.0f)
+			setPosition(new Vector2(getPosition().x, 0f));
+	}
 
 }

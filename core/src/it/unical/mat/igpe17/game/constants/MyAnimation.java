@@ -41,8 +41,11 @@ public class MyAnimation {
 		animations.put("player_idle_left", aTmp);
 		
 		/*
-		 * 
+		 *   Enemy animation: running
 		 */
+		
+		aTmp = createAnimation(8, new Texture("animations/enemy_run_left.png"), 64, 128,.11f);
+		animations.put("enemy_run_left", aTmp);
 	}
 
 	private Animation<TextureRegion> createAnimation(int elements, Texture image, int width, int height, float speed) {

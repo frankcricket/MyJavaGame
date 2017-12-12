@@ -43,12 +43,7 @@ public class Player extends DynamicObject implements IPlayer {
 	
 	}
 
-	public void movePlayer(Vector2 velocity, float dt) {
-
-		setPosition(getPosition().add(velocity.scl(dt)));
-		if (getPosition().y < 0.0f)
-			setPosition(new Vector2(getPosition().x, 0f));
-	}
+	
 
 	
 	

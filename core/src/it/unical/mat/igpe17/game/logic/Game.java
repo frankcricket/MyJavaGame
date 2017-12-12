@@ -6,6 +6,7 @@ import java.util.List;
 import com.badlogic.gdx.math.Vector2;
 
 import it.unical.mat.igpe17.game.constants.GameConfig;
+import it.unical.mat.igpe17.game.objects.DynamicObject;
 import it.unical.mat.igpe17.game.objects.Ground;
 import it.unical.mat.igpe17.game.player.Enemy;
 import it.unical.mat.igpe17.game.player.Player;
@@ -40,6 +41,7 @@ public class Game {
 	public Game() {
 		player = null;
 		groundObjects = null;
+	
 	}
 
 	/*
@@ -54,6 +56,7 @@ public class Game {
 		groundObjects = reader.getGround();
 
 		player = reader.getPlayer();
+		generaNemici();
 
 		camera = 0f;
 	}
@@ -101,7 +104,7 @@ public class Game {
 			Vector2 tmp = new Vector2();
 			tmp.x = GameConfig.PLAYER_NEG_VELOCITY.x;
 			tmp.y = GameConfig.PLAYER_NEG_VELOCITY.y;
-			player.movePlayer(tmp, dt);
+			player.move(tmp, dt);
 
 		}
 
@@ -125,13 +128,13 @@ public class Game {
 			tmp.x = GameConfig.PLAYER_POS_VELOCITY.x;
 			tmp.y = GameConfig.PLAYER_POS_VELOCITY.y;
 
-			player.movePlayer(tmp, dt);
+			player.move(tmp, dt);
 		} else {
 			Vector2 tmp = new Vector2();
 			tmp.x = GameConfig.PLAYER_POS_VELOCITY.y;
 			tmp.y = GameConfig.PLAYER_POS_VELOCITY.y;
 
-			player.movePlayer(tmp, dt);
+			player.move(tmp, dt);
 
 		}
 	}
@@ -284,10 +287,11 @@ public class Game {
 		// controllare che le posizioni che ho randomizzato si trovino su un
 		// oggetto terreno
 
+		System.out.println(x + " " + y);
 		if (checkGroundCollision(x + 1, y)) {
 
 			Enemy tmp = new Enemy(new Vector2(x, y), new Vector2(GameConfig.SIZE_ENEMY_X, GameConfig.SIZE_ENEMY_Y),
-					'z');
+					'l');
 
 			enemy.add(tmp);
 			return true;
@@ -298,25 +302,31 @@ public class Game {
 	}
 
 	public void moveEnemy(float dt) {
-		for (int i = 0; i < enemy.size(); i++) {
+		for (Enemy e : enemy) {
 
 			// prendiamo le coordinate di un nemico per volta
 
-			float x = enemy.get(i).getPosition().x;
-			float y = enemy.get(i).getPosition().y;	
+			float x = e.getPosition().x;
+			float y = e.getPosition().y;	
 
 			// il nemico comincia a muoversi sempre verso sx, ovvero verso il
 			// player...
 
 			// ...se è presente sempre del terreno
 			if (checkGroundCollision((int) x, (int) y + 1)){
-				enemy.get(i).setPosition(new Vector2(0, -5.0f));// altrimenti
-				enemy.get(i).setDirection('s');
+				Vector2 tmp = new Vector2();
+				tmp.x = GameConfig.PLAYER_NEG_VELOCITY.x;
+				tmp.y = GameConfig.PLAYER_NEG_VELOCITY.y;
+				((DynamicObject) enemy).move(tmp, dt);
+				e.setDirection('l');
 
 			}
 			else if (checkGroundCollision((int) ++x, (int) ++y)){
-				enemy.get(i).setPosition(new Vector2(0, +5.0f));
-				enemy.get(i).setDirection('d');
+				Vector2 tmp = new Vector2();
+				tmp.x = GameConfig.PLAYER_POS_VELOCITY.x;
+				tmp.y = GameConfig.PLAYER_POS_VELOCITY.y;
+				player.move(tmp, dt);
+				e.setDirection('r');
 			}
 
 		}
@@ -335,6 +345,8 @@ public class Game {
 			
 		}
 		
+		if (enemy == null)
+			System.out.println("ciao");
 		
 	}
 

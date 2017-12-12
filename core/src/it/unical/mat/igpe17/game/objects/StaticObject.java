@@ -1,8 +1,5 @@
 package it.unical.mat.igpe17.game.objects;
 
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 import com.badlogic.gdx.math.Vector2;
 
 import it.unical.mat.igpe17.game.Interface.ICollidable;
