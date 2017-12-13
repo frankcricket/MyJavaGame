@@ -30,7 +30,7 @@ public class Play implements Screen {
 	private Background background;
 	private Player player;
 	
-	List<Enemy> enemies;
+	private List<Enemy> enemies;
 	
 
 	private TiledMap map;
@@ -46,6 +46,8 @@ public class Play implements Screen {
 
 	float elapsedTime;
 	private int boundEndX = Asset.WIDTH;
+	
+	private Thread jump_player;
 
 	@Override
 	public void show() {
@@ -54,19 +56,31 @@ public class Play implements Screen {
 
 		mapRight = game.getColumn() * Asset.TILE;
 
+		background = new Background();
 		player = game.getPlayer();
 		enemies = game.getEnemy();
-		background = new Background();
 
+		/*
+		 * mappa e animazioni
+		 */
 		map = new TmxMapLoader().load(Asset.FIRST_LEVEL);
-
 		batch = new SpriteBatch();
 		animations = new MyAnimation();
 
+		/*
+		 * camera
+		 */
 		renderer = new OrthogonalTiledMapRenderer(map);
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, Asset.WIDTH, Asset.HEIGHT);
 		camera.update();
+		
+		/*
+		 * Faccio partire il Thread che si occuperà del salto del player
+		 */
+		jump_player = new Thread(new JumpListener(game));
+		jump_player.start();
+		game.resumeJumpPlayer();
 	}
 
 	@Override
@@ -101,9 +115,7 @@ public class Play implements Screen {
 			game.movePlayer('r', delta);
 			
 			if(Gdx.input.isKeyJustPressed(Input.Keys.X)){
-				player.setState(PlayerState.JUMPING);
-				Thread t = new Thread(new JumpListener(game));
-				t.start();
+				game.resumeJumpPlayer();
 			}
 
 		} else if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && ! (player.getState() == PlayerState.JUMPING)) {
@@ -112,16 +124,13 @@ public class Play implements Screen {
 			game.movePlayer('l', delta);
 			
 			if(Gdx.input.isKeyJustPressed(Input.Keys.X)){
-				player.setState(PlayerState.JUMPING);
-				Thread t = new Thread(new JumpListener(game));
-				t.start();
+				game.resumeJumpPlayer();
+
 			}
 			
-		} else if (Gdx.input.isKeyJustPressed(Input.Keys.X)) {
-			player.setState(PlayerState.JUMPING);
+		} else if (Gdx.input.isKeyJustPressed(Input.Keys.X) && ! (player.getState() == PlayerState.JUMPING)) {
+			game.resumeJumpPlayer();
 			player.VERTICAL_JUMP = true;
-			Thread t = new Thread(new JumpListener(game));
-			t.start();
 		}
 		
 		/**
@@ -140,7 +149,7 @@ public class Play implements Screen {
 		if (((camera.position.x + camera.viewportWidth / 2) < mapRight	
 				&& (player.getPosition().y)*Asset.TILE >= boundEndX * 0.03)) {
 
-			camera.position.x += GameConfig.PLAYER_POS_VELOCITY.y;
+			camera.position.x += GameConfig.PLAYER_POS_VELOCITY.y*1.1;
 			game.setCamera((camera.position.x - camera.viewportWidth / 2) / Asset.TILE);
 
 			updateCamera();

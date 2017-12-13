@@ -9,25 +9,24 @@ public class JumpListener implements Runnable{
 	
 	public JumpListener(Game game) {
 		this.game = game;
-	}
-
+	}	
+	
 	@Override
 	public void run() {
 		
 		while(true){
-			if(game.getPlayer().getState() == PlayerState.JUMPING){
-				try {
-					float delta = Gdx.graphics.getDeltaTime();
-					game.makePlayerJump(delta);
-					Thread.sleep(27);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}else {
-				break;
+				
+			try {
+				float delta = Gdx.graphics.getDeltaTime();
+				game.makePlayerJump(delta);
+				Thread.sleep(27);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
+
 		}
-		
+
 	}
+	
 
 }

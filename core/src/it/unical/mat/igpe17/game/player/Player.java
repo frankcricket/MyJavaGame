@@ -42,10 +42,6 @@ public class Player extends DynamicObject implements IPlayer {
 		points = 0;
 	
 	}
-
-	
-
-	
 	
 	/**
 	 * Gestione del salto in baso alla direzione del player
@@ -139,6 +135,7 @@ public class Player extends DynamicObject implements IPlayer {
 
 	public void setState(PlayerState state) {
 		this.state = state;
+		
 	}
 
 }

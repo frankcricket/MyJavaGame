@@ -2,6 +2,10 @@ package it.unical.mat.igpe17.game.logic;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.badlogic.gdx.math.Vector2;
 
@@ -20,16 +24,9 @@ public class Game {
 
 	private Player player;
 	private List<Ground> groundObjects;
+	
 	private final int NUM_ENEMY = 10;
-
-	public int getNumEnemy() {
-		return NUM_ENEMY;
-	}
-	private List<Enemy> enemy = new LinkedList<Enemy>();
-
-	public List<Enemy> getEnemy() {
-		return enemy;
-	}
+	private List<Enemy> enemy;
 
 	private int row;
 	private int column;
@@ -37,25 +34,31 @@ public class Game {
 
 	boolean setStartPosition = true;
 	Vector2 startPosition = new Vector2();
+	
+	private Lock lock;
+	private Condition condition;
 
 	public Game() {
 		player = null;
 		groundObjects = null;
-	
+		enemy = new LinkedList<Enemy>();
+		
+		lock = new ReentrantLock();
+		condition = lock.newCondition();
 	}
-
+	
 	/*
 	 * Creo il livello, il primo è impostato da default
 	 */
 	public void loadLevel() {
+		
 		Reader reader = new Reader(LEVEL);
 		reader.parse();
 		row = reader.getColumn();
 		column = reader.getRow();
-
 		groundObjects = reader.getGround();
-
 		player = reader.getPlayer();
+		
 		generaNemici();
 
 		camera = 0f;
@@ -142,43 +145,57 @@ public class Game {
 	public static boolean jumping = false;
 
 	public void makePlayerJump(float delta) {
-		int xp = (int) player.getPosition().x;
-		int yp = (int) player.getPosition().y;
+		lock.lock();
+		try{
+			while(player.getState() != PlayerState.JUMPING){
+				try {
+					condition.await();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}			
+			int xp = (int) player.getPosition().x;
+			int yp = (int) player.getPosition().y;
 
-		// memorizzo la posizione del player prima del salto
-		if (setStartPosition) {
-			startPosition.x = player.getPosition().x;
-			startPosition.y = player.getPosition().y;
-			setStartPosition = false;
-		}
-
-		// salto solo in verticale
-		if (player.VERTICAL_JUMP) {
-			if ((xp < startPosition.x - 3) || playerIsCollidingWithGround(xp, yp)) {
-				player.setForce(GameConfig.JUMP_POS_FORCE);
+			// memorizzo la posizione del player prima del salto
+			if (setStartPosition) {
+				startPosition.x = player.getPosition().x;
+				startPosition.y = player.getPosition().y;
+				setStartPosition = false;
 			}
-			player.verticalJump(delta);
-		} else {
-			if ((xp < startPosition.x - 3) || playerIsCollidingWithGround(xp, yp))
-				player.swap();
 
-			player.jump(delta);
+			// salto solo in verticale
+			if (player.VERTICAL_JUMP) {
+				if ((xp < startPosition.x - 3) || playerIsCollidingWithGround(xp, yp)) {
+					player.setForce(GameConfig.JUMP_POS_FORCE);
+				}
+				player.verticalJump(delta);
+			} else {
+				if ((xp < startPosition.x - 3) || playerIsCollidingWithGround(xp, yp))
+					player.swap();
+
+				player.jump(delta);
+			}
+
+			// il player deve rimanere dentro la camera
+			checkPlayerBounds();
+
+			// verifico che ritorni sul terreno e si fermi
+			if (checkGroundCollision((int) (player.getPosition().x) + 1, Math.round((player.getPosition().y)))) {
+				player.setPosition(new Vector2((int) player.getPosition().x, player.getPosition().y));
+				setStartPosition = true;
+				jumping = false;
+				player.VERTICAL_JUMP = false;
+				player.setForce(GameConfig.JUMP_NEG_FORCE);
+				player.setState(PlayerState.IDLING);
+				player.reset();
+				return;
+			}
+		}finally{
+			lock.unlock();
 		}
-
-		// il player deve rimanere dentro la camera
-		checkPlayerBounds();
-
-		// verifico che ritorni sul terreno e si fermi
-		if (checkGroundCollision((int) (player.getPosition().x) + 1, Math.round((player.getPosition().y)))) {
-			player.setPosition(new Vector2((int) player.getPosition().x, player.getPosition().y));
-			setStartPosition = true;
-			jumping = false;
-			player.VERTICAL_JUMP = false;
-			player.setForce(GameConfig.JUMP_NEG_FORCE);
-			player.setState(PlayerState.IDLING);
-			player.reset();
-			return;
-		}
+		
+		
 	}
 
 	private final boolean checkGroundCollision(int x, int y) {
@@ -277,7 +294,7 @@ public class Game {
 	private boolean generaPosEnemy() {
 		// due numeri random compresi tra i margini del livello
 		// aggiunti alla lista di nemici
-		java.util.Random random = new java.util.Random();
+		Random random = new Random();
 
 		int n = getColumn();
 		int n2 = getRow();
@@ -287,11 +304,11 @@ public class Game {
 		// controllare che le posizioni che ho randomizzato si trovino su un
 		// oggetto terreno
 
-		System.out.println(x + " " + y);
 		if (checkGroundCollision(x + 1, y)) {
 
-			Enemy tmp = new Enemy(new Vector2(x, y), new Vector2(GameConfig.SIZE_ENEMY_X, GameConfig.SIZE_ENEMY_Y),
-					'l');
+			Enemy tmp = new Enemy(new Vector2(x, y),
+									new Vector2(GameConfig.SIZE_ENEMY_X, GameConfig.SIZE_ENEMY_Y),
+									'l');
 
 			enemy.add(tmp);
 			return true;
@@ -317,7 +334,7 @@ public class Game {
 				Vector2 tmp = new Vector2();
 				tmp.x = GameConfig.PLAYER_NEG_VELOCITY.x;
 				tmp.y = GameConfig.PLAYER_NEG_VELOCITY.y;
-				((DynamicObject) enemy).move(tmp, dt);
+				e.move(tmp, dt);
 				e.setDirection('l');
 
 			}
@@ -325,7 +342,7 @@ public class Game {
 				Vector2 tmp = new Vector2();
 				tmp.x = GameConfig.PLAYER_POS_VELOCITY.x;
 				tmp.y = GameConfig.PLAYER_POS_VELOCITY.y;
-				player.move(tmp, dt);
+				e.move(tmp, dt);
 				e.setDirection('r');
 			}
 
@@ -344,15 +361,14 @@ public class Game {
 			}
 			
 		}
-		
-		if (enemy == null)
-			System.out.println("ciao");
-		
 	}
-
 
 	public void setLevel(String level) {
 		LEVEL = level;
+	}
+	
+	public int getNumEnemy() {
+		return NUM_ENEMY;
 	}
 
 	public final List<Ground> getGround() {
@@ -361,6 +377,10 @@ public class Game {
 
 	public final Player getPlayer() {
 		return player;
+	}
+	
+	public final List<Enemy> getEnemy() {
+		return enemy;
 	}
 
 	public final int getRow() {
@@ -373,6 +393,13 @@ public class Game {
 
 	public void setCamera(float position) {
 		camera = position;
+	}
+
+	public void resumeJumpPlayer() {
+		lock.lock();
+		player.setState(PlayerState.JUMPING);
+		condition.signal();
+		lock.unlock();
 	}
 
 }
