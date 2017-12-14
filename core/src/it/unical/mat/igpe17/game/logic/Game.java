@@ -7,6 +7,10 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter.DEFAULT;
+
+import com.badlogic.gdx.maps.Map;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Vector2;
 
 import it.unical.mat.igpe17.game.constants.GameConfig;
@@ -24,7 +28,7 @@ public class Game {
 
 	private Player player;
 	private List<Ground> groundObjects;
-	
+
 	private final int NUM_ENEMY = 10;
 	private List<Enemy> enemy;
 
@@ -34,7 +38,7 @@ public class Game {
 
 	boolean setStartPosition = true;
 	Vector2 startPosition = new Vector2();
-	
+
 	private Lock lock;
 	private Condition condition;
 
@@ -42,23 +46,23 @@ public class Game {
 		player = null;
 		groundObjects = null;
 		enemy = new LinkedList<Enemy>();
-		
+
 		lock = new ReentrantLock();
 		condition = lock.newCondition();
 	}
-	
+
 	/*
 	 * Creo il livello, il primo è impostato da default
 	 */
 	public void loadLevel() {
-		
+
 		Reader reader = new Reader(LEVEL);
 		reader.parse();
 		row = reader.getColumn();
 		column = reader.getRow();
 		groundObjects = reader.getGround();
 		player = reader.getPlayer();
-		
+
 		generaNemici();
 
 		camera = 0f;
@@ -146,14 +150,14 @@ public class Game {
 
 	public void makePlayerJump(float delta) {
 		lock.lock();
-		try{
-			while(player.getState() != PlayerState.JUMPING){
+		try {
+			while (player.getState() != PlayerState.JUMPING) {
 				try {
 					condition.await();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-			}			
+			}
 			int xp = (int) player.getPosition().x;
 			int yp = (int) player.getPosition().y;
 
@@ -191,11 +195,10 @@ public class Game {
 				player.reset();
 				return;
 			}
-		}finally{
+		} finally {
 			lock.unlock();
 		}
-		
-		
+
 	}
 
 	private final boolean checkGroundCollision(int x, int y) {
@@ -205,6 +208,20 @@ public class Game {
 					if ((g.getType().equals("1") || g.getType().equals("2") || g.getType().equals("3")
 							|| g.getType().equals("7") || g.getType().equals("11") || g.getType().equals("14")
 							|| g.getType().equals("15") || g.getType().equals("16"))) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	private final boolean checkFinalGroundCollision(int x, int y) {
+		for (Ground g : groundObjects) {
+			if (g.getPosition().x == x) {
+				if (g.getPosition().y == y) {
+					if ((g.getType().equals("1") || g.getType().equals("3") || g.getType().equals("14")
+							|| g.getType().equals("16"))) {
 						return true;
 					}
 				}
@@ -289,8 +306,7 @@ public class Game {
 		}
 
 	}
-	
-	
+
 	private boolean generaPosEnemy() {
 		// due numeri random compresi tra i margini del livello
 		// aggiunti alla lista di nemici
@@ -306,14 +322,13 @@ public class Game {
 
 		if (checkGroundCollision(x + 1, y)) {
 
-			Enemy tmp = new Enemy(new Vector2(x, y),
-									new Vector2(GameConfig.SIZE_ENEMY_X, GameConfig.SIZE_ENEMY_Y),
-									'l');
+			Enemy tmp = new Enemy(new Vector2(x, y), new Vector2(GameConfig.SIZE_ENEMY_X, GameConfig.SIZE_ENEMY_Y),
+					'l');
 
 			enemy.add(tmp);
 			return true;
 		}
-		
+
 		return false;
 
 	}
@@ -328,45 +343,147 @@ public class Game {
 
 			// il nemico comincia a muoversi sempre verso sx, ovvero verso il
 			// player...
-
-			// ...se è presente sempre del terreno
-			if (checkGroundCollision((int) x, (int) y + 1)){
-				Vector2 tmp = new Vector2();
-				tmp.x = GameConfig.PLAYER_NEG_VELOCITY.x;
-				tmp.y = GameConfig.PLAYER_NEG_VELOCITY.y;
-				e.move(tmp, dt);
-				e.setDirection('l');
-
+			switch(e.getDirection()){
+			case 'l':
+			{
+				if (checkGroundCollision((int)++x, Math.round(y))){
+					Vector2 tmp = new Vector2();
+					tmp.x = GameConfig.PLAYER_NEG_VELOCITY.x;
+					tmp.y = GameConfig.PLAYER_NEG_VELOCITY.y;
+					e.move(tmp, dt);
+					int x1 = (int)(e.getPosition().x)++;
+					int y1 = Math.round(e.getPosition().y);
+				
+				if (checkFinalGroundCollision(x1, y1)){
+					
+					e.setDirection('r');
+				}
 			}
-			else if (checkGroundCollision((int) ++x, (int) ++y)){
-				Vector2 tmp = new Vector2();
-				tmp.x = GameConfig.PLAYER_POS_VELOCITY.x;
-				tmp.y = GameConfig.PLAYER_POS_VELOCITY.y;
-				e.move(tmp, dt);
-				e.setDirection('r');
+				break;
 			}
-
+			case 'r':
+			{
+				if (checkGroundCollision((int) ++x, (int) ++y)){
+					Vector2 tmp = new Vector2();
+					tmp.x = GameConfig.PLAYER_POS_VELOCITY.x;
+					tmp.y = GameConfig.PLAYER_POS_VELOCITY.y;
+					e.move(tmp, dt);
+					int x1 = (int)(e.getPosition().x)++;
+					int y1 = (int)(e.getPosition().y)++;
+					if (checkFinalGroundCollision(x1, y1)){
+						
+						e.setDirection('l');
+					}
+			}
+			break;
+			}
+			default:
+				break;
+			}
 		}
-
 	}
-	
-	public void generaNemici(){
-		for (int i =0; i < NUM_ENEMY; i++){
+		
+
+	// // ...se è presente sempre del terreno
+	// if (checkGroundCollision((int)++x, Math.round(y))){
+	// Vector2 tmp = new Vector2();
+	// tmp.x = GameConfig.PLAYER_NEG_VELOCITY.x;
+	// tmp.y = GameConfig.PLAYER_NEG_VELOCITY.y;
+	// e.move(tmp, dt);
+	//
+	// if (checkFinalGroundCollision((int) ++tmp.x, (int)tmp.y)){
+	// Vector2 tmp1 = new Vector2();
+	// tmp1.x = GameConfig.PLAYER_POS_VELOCITY.x;
+	// tmp1.y = GameConfig.PLAYER_POS_VELOCITY.y;
+	// e.move(tmp1, dt);
+	// e.setDirection('r');
+	// }
+	// }
+	// else if (checkGroundCollision((int) ++x, (int) ++y)){
+	// Vector2 tmp = new Vector2();
+	// tmp.x = GameConfig.PLAYER_POS_VELOCITY.x;
+	// tmp.y = GameConfig.PLAYER_POS_VELOCITY.y;
+	// e.move(tmp, dt);
+	// e.setDirection('r');
+	// if (checkFinalGroundCollision((int)++tmp.x, (int)++tmp.y)){
+	// Vector2 tmp1 = new Vector2();
+	// tmp1.x = GameConfig.PLAYER_NEG_VELOCITY.x;
+	// tmp1.y = GameConfig.PLAYER_NEG_VELOCITY.y;
+	// e.move(tmp1, dt);
+	// e.setDirection('l');
+	// }
+	// }
+	//
+	// }
+	//
+	// }
+
+	// public void moveEnemy(float dt) {
+	// for (Enemy e : enemy) {
+	//
+	// // prendiamo le coordinate di un nemico per volta
+	//
+	// float x = e.getPosition().x;
+	// float y = e.getPosition().y;
+	//
+	// // il nemico comincia a muoversi sempre verso sx, ovvero verso il
+	// // player...
+	//
+	// // ...se è presente sempre del terreno
+	// if (checkGroundCollision((int) x++, Math.round(y))){
+	//
+	// Vector2 tmp = new Vector2();
+	// tmp.x = GameConfig.PLAYER_NEG_VELOCITY.x;
+	// tmp.y = GameConfig.PLAYER_NEG_VELOCITY.y;
+	// e.move(tmp, dt);
+	// e.setDirection('l');
+	//
+	//// if (checkFinalGroundCollision((int)tmp.x, (int)tmp.y+1)){
+	//// Vector2 tmp1 = new Vector2();
+	//// tmp1.x = GameConfig.PLAYER_POS_VELOCITY.x;
+	//// tmp1.y = GameConfig.PLAYER_POS_VELOCITY.y;
+	//// e.move(tmp1, dt);
+	//// e.setDirection('r');
+	//// }
+	//
+	// }
+	// else if (checkGroundCollision((int) ++x, (int) ++y)){
+	// Vector2 tmp = new Vector2();
+	// tmp.x = GameConfig.PLAYER_POS_VELOCITY.x;
+	// tmp.y = GameConfig.PLAYER_POS_VELOCITY.y;
+	// e.move(tmp, dt);
+	// e.setDirection('r');
+	//
+	//// if (checkFinalGroundCollision((int)++tmp.x, (int)++tmp.y)){
+	//// Vector2 tmp1 = new Vector2();
+	//// tmp1.x = GameConfig.PLAYER_NEG_VELOCITY.x;
+	//// tmp1.y = GameConfig.PLAYER_NEG_VELOCITY.y;
+	//// e.move(tmp1, dt);
+	//// e.setDirection('l');
+	//// }
+	// }
+	//
+	// }
+	//
+	// }
+
+	public void generaNemici() {
+		for (int i = 0; i < NUM_ENEMY; i++) {
 			boolean stop = false;
-			
-			while (!stop){
-				
+
+			while (!stop) {
+
 				stop = generaPosEnemy();
-				
+
 			}
-			
+
 		}
 	}
 
 	public void setLevel(String level) {
 		LEVEL = level;
 	}
-	
+
 	public int getNumEnemy() {
 		return NUM_ENEMY;
 	}
@@ -378,7 +495,7 @@ public class Game {
 	public final Player getPlayer() {
 		return player;
 	}
-	
+
 	public final List<Enemy> getEnemy() {
 		return enemy;
 	}
