@@ -1,4 +1,4 @@
-package it.unical.mat.igpe17.game.player;
+package it.unical.mat.igpe17.game.actors;
 
 public enum PlayerState {
 	

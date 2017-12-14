@@ -14,15 +14,14 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
-
+import it.unical.mat.igpe17.game.actors.Enemy;
+import it.unical.mat.igpe17.game.actors.JumpListener;
+import it.unical.mat.igpe17.game.actors.Player;
+import it.unical.mat.igpe17.game.actors.PlayerState;
 import it.unical.mat.igpe17.game.constants.Asset;
 import it.unical.mat.igpe17.game.constants.GameConfig;
 import it.unical.mat.igpe17.game.constants.MyAnimation;
 import it.unical.mat.igpe17.game.logic.Game;
-import it.unical.mat.igpe17.game.player.Enemy;
-import it.unical.mat.igpe17.game.player.JumpListener;
-import it.unical.mat.igpe17.game.player.Player;
-import it.unical.mat.igpe17.game.player.PlayerState;
 
 public class Play implements Screen {
 
@@ -95,8 +94,8 @@ public class Play implements Screen {
 		updatePlayer(delta);		
 		renderPlayer();
 		
-		updateEnemy(delta);
-		renderEnemy();
+//		updateEnemy(delta);
+//		renderEnemy();
 		
 		camera.update();
 		renderer.setView(camera);

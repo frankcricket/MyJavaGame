@@ -5,18 +5,19 @@ import java.util.List;
 
 import com.badlogic.gdx.math.Vector2;
 
+import it.unical.mat.igpe17.game.actors.Player;
+import it.unical.mat.igpe17.game.actors.PlayerState;
 import it.unical.mat.igpe17.game.constants.GameConfig;
 import it.unical.mat.igpe17.game.objects.Ground;
-import it.unical.mat.igpe17.game.player.Player;
-import it.unical.mat.igpe17.game.player.PlayerState;
+import it.unical.mat.igpe17.game.objects.Obstacle;
 
 public class Builder {
 
 	protected int dimX;
 	protected int dimY;
-	private char[][] matrix;
 
 	private List<Ground> groundObjects = new LinkedList<Ground>();
+	private List<Obstacle> obstacleObjects = new LinkedList<Obstacle>();
 
 	protected void convertDimension(String dim) {
 		dim = dim.substring(1);
@@ -33,16 +34,6 @@ public class Builder {
 
 	}
 
-	protected void createMatrix() {
-		matrix = new char[dimX][dimY];
-
-		for (int i = 0; i < matrix.length; i++) {
-			for (int j = 0; j < matrix[i].length; j++) {
-				matrix[i][j] = ' ';
-			}
-		}
-	}
-
 	protected void convertWorldObjects(String line, int row) {
 
 		/*
@@ -55,66 +46,29 @@ public class Builder {
 			if (!(split[i].equals("0"))) {
 				if (Integer.parseInt(split[i]) >= 1 && Integer.parseInt(split[i]) <= 16) {
 					Ground ground = new Ground(new Vector2(row, i),
-							new Vector2(GameConfig.SIZE_GROUND_X, GameConfig.SIZE_GROUND_Y), split[i]);
+												new Vector2(GameConfig.SIZE_GROUND_X, GameConfig.SIZE_GROUND_Y),
+												split[i]);
 
 					groundObjects.add(ground);
-				}//TODO aggiungere gli ostacoli
-			}
-		}
-
-	}
-
-	protected void initMatrix(String line, int row) {
-		String[] split = line.split(",");
-
-		for (int i = 0; i < split.length; i++) {
-			if (!(split[i].equals("0"))) {
-				if (checkGround(split[i]))
-					matrix[row][i] = 'g';
-				else {
-					matrix[row][i] = '-';
+				} else {
+					Obstacle obs = new Obstacle(new Vector2(row,i), 
+													new Vector2(GameConfig.SIZE_OBSTALCE_X, GameConfig.SIZE_OBSTALCE_Y),
+													split[i]);
+					
+					obstacleObjects.add(obs);
 				}
 			}
 		}
-	}
-
-	private boolean checkGround(String tmp) {
-
-		if (tmp.equals("1") || tmp.equals("2") || tmp.equals("3") || tmp.equals("7") || tmp.equals("11")
-				|| tmp.equals("14") || tmp.equals("15") || tmp.equals("16")) {
-
-			return true;
-		}
-		return false;
 
 	}
-
-	protected final char[][] getMatrix() {
-		return matrix;
-	}
-
+	
 	protected final List<Ground> getGround() {
 		return groundObjects;
 	}
-
-	// protected final Player getPlayer() {
-	// Player p = null;
-	// boolean stop = false;
-	// for (int i = 0; i < matrix[i].length; i++) {
-	// for (int j = 0; j < matrix.length; j++) {
-	// if (matrix[j][i] == 'g') {
-	// p = new Player(new Vector2(j - 1, i),
-	// new Vector2(GameConfig.SIZE_PLAYER_X, GameConfig.SIZE_PLAYER_Y), 'r');
-	// matrix[j - 1][i] = 'p';
-	// stop = true;
-	// break;
-	// }
-	// }
-	// if (stop)
-	// break;
-	// }
-	// return p;
-	// }
+	
+	protected final List<Obstacle> getObstacle() {
+		return obstacleObjects;
+	}
 
 	protected final Player getPlayer() {
 		Player p = null;

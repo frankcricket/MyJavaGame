@@ -24,15 +24,15 @@ public class GameConfig {
 
 	public static final int SIZE_PLAYER_X = 1;
 
-	public static final int SIZE_PLAYER_Y = 2; // TODO sistemare le size
+	public static final int SIZE_PLAYER_Y = 2; 
 
-	public static final float SIZE_OBSTALCE_Y = 4;
+	public static final int SIZE_OBSTALCE_Y = 1;
 
-	public static final float SIZE_OBSTALCE_X = 24;
+	public static final int SIZE_OBSTALCE_X = 1;
 
-	public static final float SIZE_GROUND_X = 128;
+	public static final float SIZE_GROUND_X = 1;
 
-	public static final float SIZE_GROUND_Y = 128;
+	public static final float SIZE_GROUND_Y = 1;
 
 	public static final int SIZE_ENEMY_X = 1;
 

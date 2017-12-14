@@ -13,12 +13,13 @@ import com.badlogic.gdx.maps.Map;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Vector2;
 
+import it.unical.mat.igpe17.game.actors.Enemy;
+import it.unical.mat.igpe17.game.actors.Player;
+import it.unical.mat.igpe17.game.actors.PlayerState;
 import it.unical.mat.igpe17.game.constants.GameConfig;
 import it.unical.mat.igpe17.game.objects.DynamicObject;
 import it.unical.mat.igpe17.game.objects.Ground;
-import it.unical.mat.igpe17.game.player.Enemy;
-import it.unical.mat.igpe17.game.player.Player;
-import it.unical.mat.igpe17.game.player.PlayerState;
+import it.unical.mat.igpe17.game.objects.Obstacle;
 import it.unical.mat.igpe17.game.utility.Reader;
 
 public class Game {
@@ -28,6 +29,7 @@ public class Game {
 
 	private Player player;
 	private List<Ground> groundObjects;
+	private List<Obstacle> obstacleObjects;
 
 	private final int NUM_ENEMY = 10;
 	private List<Enemy> enemy;
@@ -61,6 +63,7 @@ public class Game {
 		row = reader.getColumn();
 		column = reader.getRow();
 		groundObjects = reader.getGround();
+		obstacleObjects = reader.getObstacle();
 		player = reader.getPlayer();
 
 		generaNemici();
@@ -93,21 +96,20 @@ public class Game {
 	private void movePlayerToLeft(float dt) {
 		float x = player.getPosition().x;
 		float y = player.getPosition().y;
-
-		x++;
-		y--;
+		
 		/*
 		 * Se l'ascissa del player supera a sinistra il limite della camera,
 		 * return della funzione
 		 */
-		if (y < (camera - 0.95f)) {
+		if (y - 1 < (camera - 0.95f)) {
 			return;
 		}
 
 		/*
 		 * Se il player può andare a sinistra, viene settata la nuova posizione
 		 */
-		if (checkGroundCollision((int) x, (int) y + 1)) {
+		if (checkGroundCollision(((int) x) + 1, (int) y)  && 
+				checkObstaclesCollision((int)x , (int)y,false)) {
 			Vector2 tmp = new Vector2();
 			tmp.x = GameConfig.PLAYER_NEG_VELOCITY.x;
 			tmp.y = GameConfig.PLAYER_NEG_VELOCITY.y;
@@ -118,6 +120,7 @@ public class Game {
 	}
 
 	private void movePlayerToRight(float dt) {
+		
 		float x = player.getPosition().x;
 		float y = player.getPosition().y;
 
@@ -130,20 +133,14 @@ public class Game {
 		/*
 		 * Se il player può andare a destra, viene settata la nuova posizione
 		 */
-		if (checkGroundCollision((int) ++x, (int) ++y)) {
+		if (checkGroundCollision(((int)x) + 1, ((int)y) + 1 ) && 
+				checkObstaclesCollision((int)x,((int)y) + 1,false)) {
 			Vector2 tmp = new Vector2();
 			tmp.x = GameConfig.PLAYER_POS_VELOCITY.x;
 			tmp.y = GameConfig.PLAYER_POS_VELOCITY.y;
 
 			player.move(tmp, dt);
-		} else {
-			Vector2 tmp = new Vector2();
-			tmp.x = GameConfig.PLAYER_POS_VELOCITY.y;
-			tmp.y = GameConfig.PLAYER_POS_VELOCITY.y;
-
-			player.move(tmp, dt);
-
-		}
+		} 
 	}
 
 	public static boolean jumping = false;
@@ -185,7 +182,8 @@ public class Game {
 			checkPlayerBounds();
 
 			// verifico che ritorni sul terreno e si fermi
-			if (checkGroundCollision((int) (player.getPosition().x) + 1, Math.round((player.getPosition().y)))) {
+			if (checkGroundCollision(((int)player.getPosition().x) + 1, Math.round((player.getPosition().y)))
+					|| checkObstaclesCollision(((int)player.getPosition().x) + 1, Math.round((player.getPosition().y)),true)) {
 				player.setPosition(new Vector2((int) player.getPosition().x, player.getPosition().y));
 				setStartPosition = true;
 				jumping = false;
@@ -214,6 +212,30 @@ public class Game {
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * @return true se non c'è collisione con l'ostacolo
+	 */
+	private final boolean checkObstaclesCollision(int x, int y, boolean top){
+		if(top){
+			for(Obstacle o : obstacleObjects){
+				if(o.getPosition().x == x && o.getPosition().y == y){
+					if(o.getType().equals("25"))
+						return true;
+				}
+			}
+			return false;
+		} else {
+			for(Obstacle o : obstacleObjects){
+				if(o.getPosition().x == x && o.getPosition().y == y){
+					return false;
+				}
+				
+			}
+		}
+		
+		return true;
 	}
 
 	private final boolean checkFinalGroundCollision(int x, int y) {

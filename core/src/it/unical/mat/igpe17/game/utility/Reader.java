@@ -5,8 +5,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
 
+import it.unical.mat.igpe17.game.actors.Player;
 import it.unical.mat.igpe17.game.objects.Ground;
-import it.unical.mat.igpe17.game.player.Player;
+import it.unical.mat.igpe17.game.objects.Obstacle;
 
 public class Reader {
 
@@ -31,7 +32,6 @@ public class Reader {
 					String tmp = input.nextLine();
 					if (tmp.startsWith(" <layer")) {
 						builder.convertDimension(tmp);
-						builder.createMatrix();
 						tmp = input.nextLine();
 						break;
 					}
@@ -66,12 +66,12 @@ public class Reader {
 		this.path = path;
 	}
 
-	public final char[][] getMatrix() {
-		return builder.getMatrix();
-	}
-
 	public final List<Ground> getGround() {
 		return builder.getGround();
+	}
+	
+	public final List<Obstacle> getObstacle() {
+		return builder.getObstacle();
 	}
 
 	public final Player getPlayer() {
