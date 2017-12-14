@@ -351,10 +351,10 @@ public class Game {
 					tmp.x = GameConfig.PLAYER_NEG_VELOCITY.x;
 					tmp.y = GameConfig.PLAYER_NEG_VELOCITY.y;
 					e.move(tmp, dt);
-					int x1 = (int)(e.getPosition().x)++;
-					int y1 = Math.round(e.getPosition().y);
-				
-				if (checkFinalGroundCollision(x1, y1)){
+					int x1 = (int)(e.getPosition().x);
+					int y1 = (int)(e.getPosition().y);
+
+				if (checkFinalGroundCollision(++x1, y1)){
 					
 					e.setDirection('r');
 				}
@@ -368,9 +368,9 @@ public class Game {
 					tmp.x = GameConfig.PLAYER_POS_VELOCITY.x;
 					tmp.y = GameConfig.PLAYER_POS_VELOCITY.y;
 					e.move(tmp, dt);
-					int x1 = (int)(e.getPosition().x)++;
-					int y1 = (int)(e.getPosition().y)++;
-					if (checkFinalGroundCollision(x1, y1)){
+					int x1 = (int)(e.getPosition().x);
+					int y1 = (int)(e.getPosition().y);
+					if (checkFinalGroundCollision(++x1, y1)){
 						
 						e.setDirection('l');
 					}
