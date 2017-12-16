@@ -18,6 +18,9 @@ public class Asset {
 	public static String BACKGROUND = "asset/Background.png";
 	public static String PLAYER = "asset/Player.png";
 	
+	
+	//ground
+	
 	public static String GROUND1 = "asset/resized/Ground1.png";
 	public static String GROUND2 = "asset/resized/Ground2.png";
 	public static String GROUND3 = "asset/resized/Ground3.png";
@@ -35,6 +38,7 @@ public class Asset {
 	public static String GROUND15 = "asset/resized/Ground15.png";
 	public static String GROUND16 = "asset/resized/Ground16.png";
 	
+	//obstacle
 	
 	public static String OBSTACLE1 = "asset/Obstacles/obstacle17.png";
 	public static String OBSTACLE2 = "asset/Obstacles/obstacle18.png";
@@ -51,10 +55,18 @@ public class Asset {
 	public static String OBSTACLE13 = "asset/Obstacles/obstacle29.png";
 	public static String OBSTACLE14 = "asset/Obstacles/obstacle30.png";
 	
+	//enemies
+	
+	public static String ENEMY1 = "asset/Enemies/enemy1.png";
+	public static String ENEMY2 = "asset/Enemies/enemy2.png";
+	public static String ENEMY3 = "asset/Enemies/enemy3.png";
+
+
+	
 	
 	static{
 		
-		//ground 
+		// aggiunta ground 
 		
 		map.put("1", GROUND1);
 		map.put("2", GROUND2);
@@ -74,7 +86,7 @@ public class Asset {
 		map.put("16", GROUND16);
 		
 		
-		//obstacles
+		// aggiunta obstacles
 		map.put("17", OBSTACLE1);
 		map.put("18", OBSTACLE2);
 		map.put("19", OBSTACLE3);
@@ -89,6 +101,13 @@ public class Asset {
 		map.put("28", OBSTACLE12);
 		map.put("29", OBSTACLE13);
 		map.put("30", OBSTACLE14);
+		
+		
+		//aggiunta nemici
+		
+		map.put("31", ENEMY1);
+		map.put("32", ENEMY2);
+		map.put("33", ENEMY3);
 		
 		
 		

@@ -34,6 +34,7 @@ public class MyTree extends JPanel
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Editor Tree");
 		addGround(root);
 		addObjects(root);
+		addEnemies(root);
 
 		tree = new JTree(root);
 		tree.setCellRenderer(new Render());		
@@ -138,6 +139,25 @@ public class MyTree extends JPanel
 		root.add(obj);
 		
 	}
+	
+	private void addEnemies(DefaultMutableTreeNode root){
+		
+		DefaultMutableTreeNode enem = new DefaultMutableTreeNode("Enemies");
+		
+		//obj.add(new DefaultMutableTreeNode());
+		
+		DefaultMutableTreeNode enem1 = new DefaultMutableTreeNode("31");
+		DefaultMutableTreeNode enem2 = new DefaultMutableTreeNode("32");
+		DefaultMutableTreeNode enem3 = new DefaultMutableTreeNode("33");
+		
+		
+		enem.add(enem1);
+		enem.add(enem2);
+		enem.add(enem3);
+		
+		root.add(enem);
+	}
+
 
 
 	public void selectionListener(){

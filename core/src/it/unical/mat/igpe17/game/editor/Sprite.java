@@ -37,6 +37,10 @@ public class Sprite {
 	public Point getPoint() {
 		return point;
 	}
+	
+	public void setPoint(Point p) {
+		point = p;
+	}
 
 	
 }

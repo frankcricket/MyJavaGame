@@ -12,14 +12,26 @@ import java.util.Vector;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
-
 import it.unical.mat.igpe17.game.constants.Asset;
 
 public class MySaveFile {
 
 	private int dimension;
 	private Vector<Sprite> points;
+	private Vector<Sprite> pointsTmp = new Vector<Sprite>();
+	
+	private void copyPoints(){
+		for (int i = 0; i < points.size(); i++){
+			String string = points.get(i).getName();
+			int xtmp = points.get(i).getPoint().x;
+			int ytmp = points.get(i).getPoint().y;
+			Sprite spriteTmp = new Sprite(new Point(xtmp, ytmp), string);
+			pointsTmp.add(spriteTmp);
+		}
+	}
+	
 /*
+ * 
 	public void save() {
 		try {
 			JFileChooser fc = new JFileChooser();
@@ -30,8 +42,8 @@ public class MySaveFile {
 				BufferedWriter bw = new BufferedWriter(fw);
 				bw.write("" + MyPanel.row + " " + (Asset.WIDTH / Asset.TILE)); // TODO  fixare
 				bw.newLine();
-				for (int i = 0; i < MyPanel.points.size(); i++) {
-					bw.write(MyPanel.points.get(i).getName() + MyPanel.toString(MyPanel.points.get(i).getPoint()));
+				for (int i = 0; i < MyPanel.pointsTmp.size(); i++) {
+					bw.write(MyPanel.pointsTmp.get(i).getName() + MyPanel.toString(MyPanel.pointsTmp.get(i).getPoint()));
 					bw.newLine();
 				}
 				bw.write("/");
@@ -60,6 +72,24 @@ public class MySaveFile {
 				int height = (Asset.WIDTH / Asset.TILE);
 
 				points = MyPanel.getPoint();
+				copyPoints();
+
+				for (int i = 0; i < pointsTmp.size(); i++){
+					if (pointsTmp.get(i).getName().equals("31")
+							|| pointsTmp.get(i).getName().equals("32")
+							|| pointsTmp.get(i).getName().equals("33")) {
+						int xtmp = pointsTmp.get(i).getPoint().x;
+						int ytmp= pointsTmp.get(i).getPoint().y;
+						
+						String name = pointsTmp.get(i).getName();
+						
+						ytmp ++;
+						
+						pointsTmp.get(i).setPoint(new Point(xtmp, ytmp));
+						System.out.println("okkkkk");
+					}
+				}
+				
 				startWrite(bw, width, height);
 				for (int i = 0; i < width; i++) {
 					writePoints(bw, i, width, height);
@@ -100,6 +130,19 @@ public class MySaveFile {
 					+ "\"" + "/>");
 			bw.newLine();
 		}
+		
+		/*
+		 * Inclusione nemici: 31-33
+		 */
+		
+		for (int i = 31; i <= 33; i++){
+			bw.write(" <tileset firstgid=" + "\"" + i + "\"" + " source=" + "\"" + "tileset/enemy" + i + ".tsx"
+					+ "\"" + "/>");
+			bw.newLine();
+		}
+		
+		
+		
 		bw.write(" <layer name=" + "\"" + "Livello tile 1" + "\"" + " width=" + "\"" + height + "\"" + " height=" + "\""
 				+ width + "\"" + ">");
 		bw.newLine();
@@ -124,8 +167,10 @@ public class MySaveFile {
 
 	}
 
+	
 	private final Sprite checkPoint(int i, int j) {
-		for (Sprite s : points) {
+		
+		for (Sprite s : pointsTmp) {
 			if (s.getPoint().x == j && s.getPoint().y == i)
 				return s;
 		}

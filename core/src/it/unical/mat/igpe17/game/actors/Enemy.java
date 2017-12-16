@@ -10,8 +10,36 @@ public class Enemy extends DynamicObject {
 
 	private int lives = 3; // quante vite ha il nostro nemico
 
+	private int range = 5;
+	
+	private int movesLeft = 0;
+	public int getMovesLeft() {
+		return movesLeft;
+	}
+
+	public void setMovesLeft(int movesLeft) {
+		this.movesLeft = movesLeft;
+	}
+
+	public int getMovesRight() {
+		return movesRight;
+	}
+
+	public void setMovesRight(int movesRight) {
+		this.movesRight = movesRight;
+	}
+
+	private int movesRight = 0;
+
+
 	public int getLives() {
 		return lives;
+	}
+	
+	private String type;
+
+	public String getType() {
+		return type;
 	}
 
 	public void setLives(int lives) {
@@ -28,9 +56,10 @@ public class Enemy extends DynamicObject {
 		this.isAlive = isAlive;
 	}
 
-	public Enemy(Vector2 position, Vector2 size, char direction) {
+	public Enemy(Vector2 position, Vector2 size, char direction, String type) {
 		super(position, size, direction);
 		velocity = new Vector2(0,0);
+		this.type = type;
 	}
 	
 

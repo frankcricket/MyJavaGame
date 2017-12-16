@@ -37,6 +37,9 @@ public class GameConfig {
 	public static final int SIZE_ENEMY_X = 1;
 
 	public static final int SIZE_ENEMY_Y = 2;
+	
+	public static final int SIZE_MOVE_ENEMY = 50;
+	
 
 
 }

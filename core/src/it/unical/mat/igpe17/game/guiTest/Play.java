@@ -94,8 +94,8 @@ public class Play implements Screen {
 		updatePlayer(delta);		
 		renderPlayer();
 		
-//		updateEnemy(delta);
-//		renderEnemy();
+		updateEnemy(delta);
+		renderEnemy();
 		
 		camera.update();
 		renderer.setView(camera);
@@ -230,8 +230,10 @@ public class Play implements Screen {
 		batch.end();
 	}
 	
+	//TODO da mettere le animazioni per tutti i nemici
 	private void renderEnemy(){
 		for (Enemy e: enemies){
+			
 			if (e.getDirection() == 'l'){
 				drawAnimationEnemy("enemy_run_left", e.getPosition().x , e.getPosition().y);
 			}

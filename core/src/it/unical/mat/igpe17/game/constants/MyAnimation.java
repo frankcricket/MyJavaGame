@@ -8,44 +8,92 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class MyAnimation {
-	
-	private Map<String,Animation<TextureRegion>> animations = new HashMap<String, Animation<TextureRegion>>();
-	
+
+	private Map<String, Animation<TextureRegion>> animations = new HashMap<String, Animation<TextureRegion>>();
+
 	private Animation<TextureRegion> aTmp;
-	
+
 	public MyAnimation() {
 
 		/*
-		 * Player animation: running
+		 * Player1 animation: running
 		 */
-		aTmp = createAnimation(8, new Texture("animations/player_run_right.png"), 66, 128,.10f);
+		aTmp = createAnimation(8, new Texture("animations/player_run_right.png"), 66, 128, .10f);
 		animations.put("player_run_right", aTmp);
-		aTmp = createAnimation(8, new Texture("animations/player_run_left.png"), 66, 128,.10f);
+		aTmp = createAnimation(8, new Texture("animations/player_run_left.png"), 66, 128, .10f);
 		animations.put("player_run_left", aTmp);
-		
+
 		/*
-		 * Player animation: jump
+		 * Player1 animation: jump
 		 */
-		
-		aTmp = createAnimation(8, new Texture("animations/player_jump_right.png"), 64, 128,.08f);
+
+		aTmp = createAnimation(8, new Texture("animations/player_jump_right.png"), 64, 128, .08f);
 		animations.put("player_jump_right", aTmp);
-		aTmp = createAnimation(8, new Texture("animations/player_jump_left.png"), 64, 128,.08f);
+		aTmp = createAnimation(8, new Texture("animations/player_jump_left.png"), 64, 128, .08f);
 		animations.put("player_jump_left", aTmp);
-		
+
 		/*
-		 * Player animation: idle
+		 * Player1 animation: idle
 		 */
-		aTmp = createAnimation(8, new Texture("animations/player_idle_right.png"), 64, 128,.11f);
+		aTmp = createAnimation(8, new Texture("animations/player_idle_right.png"), 64, 128, .11f);
 		animations.put("player_idle_right", aTmp);
-		aTmp = createAnimation(8, new Texture("animations/player_idle_left.png"), 64, 128,.11f);
+		aTmp = createAnimation(8, new Texture("animations/player_idle_left.png"), 64, 128, .11f);
 		animations.put("player_idle_left", aTmp);
-		
+
 		/*
-		 *   Enemy animation: running
+		 * player women: running
 		 */
-		
-		aTmp = createAnimation(8, new Texture("animations/enemy_run_left.png"), 64, 128,.11f);
+
+		aTmp = createAnimation(8, new Texture("animations/player_w_run_right.png"), 66, 128, .10f);
+		animations.put("player_run_right", aTmp);
+		aTmp = createAnimation(8, new Texture("animations/player_w_run_left.png"), 66, 128, .10f);
+		animations.put("player_run_left", aTmp);
+
+		/*
+		 * player women: idle
+		 */
+
+		aTmp = createAnimation(8, new Texture("animations/player_w_idle_right.png"), 66, 128, .10f);
+		animations.put("player_run_right", aTmp);
+		aTmp = createAnimation(8, new Texture("animations/player_w_idle_left.png"), 66, 128, .10f);
+		animations.put("player_run_left", aTmp);
+
+		/*
+		 * player women: jump
+		 */
+
+		aTmp = createAnimation(8, new Texture("animations/player_w_jump_right.png"), 66, 128, .10f);
+		animations.put("player_run_right", aTmp);
+		aTmp = createAnimation(8, new Texture("animations/player_w_jump_left.png"), 66, 128, .10f);
+		animations.put("player_run_left", aTmp);
+
+		/*
+		 * Enemy1 animation: running
+		 */
+
+		aTmp = createAnimation(8, new Texture("animations/enemy_run_left.png"), 64, 128, .11f);
 		animations.put("enemy_run_left", aTmp);
+		aTmp = createAnimation(8, new Texture("animations/enemy_run_right.png"), 64, 128, .11f);
+		animations.put("enemy_run_left", aTmp);
+
+		/*
+		 * enemy 2 : running
+		 */
+
+		aTmp = createAnimation(8, new Texture("animations/enemy2_m_run_right.png"), 66, 128, .10f);
+		animations.put("player_run_right", aTmp);
+		aTmp = createAnimation(8, new Texture("animations/enemy2_m_run_left.png"), 66, 128, .10f);
+		animations.put("player_run_left", aTmp);
+
+		/*
+		 * enemy 3 women : running
+		 */
+
+		aTmp = createAnimation(8, new Texture("animations/enemy1_w_run_right.png"), 66, 128, .10f);
+		animations.put("player_run_right", aTmp);
+		aTmp = createAnimation(8, new Texture("animations/enemy1_w_run_left.png"), 66, 128, .10f);
+		animations.put("player_run_left", aTmp);
+
 	}
 
 	private Animation<TextureRegion> createAnimation(int elements, Texture image, int width, int height, float speed) {

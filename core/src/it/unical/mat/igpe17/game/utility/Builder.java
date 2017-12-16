@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.badlogic.gdx.math.Vector2;
 
+import it.unical.mat.igpe17.game.actors.Enemy;
 import it.unical.mat.igpe17.game.actors.Player;
 import it.unical.mat.igpe17.game.actors.PlayerState;
 import it.unical.mat.igpe17.game.constants.GameConfig;
@@ -18,6 +19,10 @@ public class Builder {
 
 	private List<Ground> groundObjects = new LinkedList<Ground>();
 	private List<Obstacle> obstacleObjects = new LinkedList<Obstacle>();
+
+
+	private List<Enemy> enemiesObjects = new LinkedList<Enemy>();
+	
 
 	protected void convertDimension(String dim) {
 		dim = dim.substring(1);
@@ -50,13 +55,18 @@ public class Builder {
 												split[i]);
 
 					groundObjects.add(ground);
-				} else {
-					Obstacle obs = new Obstacle(new Vector2(row,i), 
-													new Vector2(GameConfig.SIZE_OBSTALCE_X, GameConfig.SIZE_OBSTALCE_Y),
-													split[i]);
+				} else if(Integer.parseInt(split[i]) >= 17 && Integer.parseInt(split[i]) <= 30) {
+					Obstacle obs = new Obstacle(new Vector2(row,i),  new Vector2(GameConfig.SIZE_OBSTALCE_X, GameConfig.SIZE_OBSTALCE_Y), split[i]);
 					
 					obstacleObjects.add(obs);
+				}else{
+					Enemy enemy = new Enemy(new Vector2(row, i),
+							new Vector2(GameConfig.SIZE_ENEMY_X, GameConfig.SIZE_ENEMY_Y),
+							 'l', split[i]);
+					
+					enemiesObjects.add(enemy);
 				}
+				
 			}
 		}
 
@@ -68,6 +78,10 @@ public class Builder {
 	
 	protected final List<Obstacle> getObstacle() {
 		return obstacleObjects;
+	}
+	
+	public List<Enemy> getEnemiesObjects() {
+		return enemiesObjects;
 	}
 
 	protected final Player getPlayer() {
