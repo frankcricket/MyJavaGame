@@ -28,6 +28,7 @@ public class Play implements Screen {
 	private Game game;
 	private Background background;
 	private Player player;
+	public static int player_type = 1;
 
 	private List<Enemy> enemies;
 
@@ -191,34 +192,69 @@ public class Play implements Screen {
 	 * Visualizzazione delle animazioni in base allo stato del player
 	 */
 	private void renderPlayer() {
+		
+		if(player_type == 1){
 
-		switch (player.getDirection()) {
-		case 'r': {
-			if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING ) {
-				drawAnimation("player_idle_right");
-			} else if (player.getState() == PlayerState.RUNNING) {
-				drawAnimation("player_run_right");
-			} else if (player.getState() == PlayerState.JUMPING) {
-				drawAnimation("player_jump_right");
+			switch (player.getDirection()) {
+			case 'r': {
+				if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING ) {
+					drawAnimation("player_idle_right");
+				} else if (player.getState() == PlayerState.RUNNING) {
+					drawAnimation("player_run_right");
+				} else if (player.getState() == PlayerState.JUMPING) {
+					drawAnimation("player_jump_right");
+				}
+	
+				break;
+			} // end of case 'r'
+			case 'l': {
+				if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING) {
+					drawAnimation("player_idle_left");
+				} else if (player.getState() == PlayerState.RUNNING) {
+					drawAnimation("player_run_left");
+	
+				} else if (player.getState() == PlayerState.JUMPING) {
+					drawAnimation("player_jump_left");
+				}
+	
+				break;
 			}
-
-			break;
-		} // end of case 'r'
-		case 'l': {
-			if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING) {
-				drawAnimation("player_idle_left");
-			} else if (player.getState() == PlayerState.RUNNING) {
-				drawAnimation("player_run_left");
-
-			} else if (player.getState() == PlayerState.JUMPING) {
-				drawAnimation("player_jump_left");
+			default:
+				break;
+			}// end of switch
+		} else {
+					/*
+					 * Animazioni del player femmina
+					 */
+			switch (player.getDirection()) {
+			case 'r': {
+				if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING ) {
+					drawAnimation("player_w_idle_right");
+				} else if (player.getState() == PlayerState.RUNNING) {
+					drawAnimation("player_w_run_right");
+				} else if (player.getState() == PlayerState.JUMPING) {
+					drawAnimation("player_w_jump_right");
+				}
+	
+				break;
+			} // end of case 'r'
+			case 'l': {
+				if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING) {
+					drawAnimation("player_w_idle_left");
+				} else if (player.getState() == PlayerState.RUNNING) {
+					drawAnimation("player_w_run_left");
+	
+				} else if (player.getState() == PlayerState.JUMPING) {
+					drawAnimation("player_w_jump_left");
+				}
+	
+				break;
 			}
-
-			break;
+			default:
+				break;
+			}// end of switch
+			
 		}
-		default:
-			break;
-		}// end of switch
 
 	}
 

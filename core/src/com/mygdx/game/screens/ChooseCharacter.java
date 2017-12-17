@@ -13,11 +13,15 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+
+import it.unical.mat.igpe17.game.guiTest.GameTest;
+import it.unical.mat.igpe17.game.guiTest.Play;
  
 public class ChooseCharacter implements Screen {
 	// private mainmenu
 
 	private static ChooseCharacter chooseCharacter = null;
+	private Play play;
 	
 	public static ChooseCharacter getChooseCharacter(){
 		if (chooseCharacter == null)
@@ -26,6 +30,7 @@ public class ChooseCharacter implements Screen {
 	}
 	
 	public ChooseCharacter() {
+		play = new Play();
 	}
 
 	public int Character = 0;
@@ -33,12 +38,6 @@ public class ChooseCharacter implements Screen {
 	private Stage stage;
 	private Skin skin; // aspetto di tutto ci√≤ che faremo
 	private Table table;
-
-	private int choice = 0; // in questa variabile ci salviamo il tipo di
-							// personaggio che verr‡ scelto dall'utente
-	// sar‡ modificata nell'evento click del personaggio selezionato
-
-	// TODO fare get di choise
 
 	@Override
 	public void show() {
@@ -56,7 +55,8 @@ public class ChooseCharacter implements Screen {
 		ImageButton character1B = new ImageButton(character1.getDrawable(), character1_2.getDrawable());
 		character1B.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
-				choice = 1;
+				play.player_type = 1;
+				((Game) Gdx.app.getApplicationListener()).setScreen(play);
 			}
 
 		});
@@ -66,7 +66,8 @@ public class ChooseCharacter implements Screen {
 		ImageButton character2B = new ImageButton(character2.getDrawable(), character2_2.getDrawable());
 		character2B.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
-				choice = 2;
+				play.player_type = 2;
+				((Game) Gdx.app.getApplicationListener()).setScreen(play);
 			}
 
 		});

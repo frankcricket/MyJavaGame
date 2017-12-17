@@ -44,9 +44,9 @@ public class MyAnimation {
 		 * player women: running
 		 */
 
-		aTmp = createAnimation(8, new Texture("animations/player_w_run_right.png"), 64, 128, .11f);
+		aTmp = createAnimation(8, new Texture("animations/player_w_run_right.png"), 64, 128, .10f);
 		animations.put("player_w_run_right", aTmp);
-		aTmp = createAnimation(8, new Texture("animations/player_w_run_left.png"), 64, 128, .11f);
+		aTmp = createAnimation(8, new Texture("animations/player_w_run_left.png"), 64, 128, .10f);
 		animations.put("player_w_run_left", aTmp);
 
 		/*
@@ -62,9 +62,9 @@ public class MyAnimation {
 		 * player women: jump
 		 */
 
-		aTmp = createAnimation(8, new Texture("animations/player_w_jump_right.png"), 64, 128, .11f);
+		aTmp = createAnimation(8, new Texture("animations/player_w_jump_right.png"), 64, 128, .08f);
 		animations.put("player_w_jump_right", aTmp);
-		aTmp = createAnimation(8, new Texture("animations/player_w_jump_left.png"), 64, 128, .11f);
+		aTmp = createAnimation(8, new Texture("animations/player_w_jump_left.png"), 64, 128, .08f);
 		animations.put("player_w_jump_left", aTmp);
 
 		/*
