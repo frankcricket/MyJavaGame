@@ -6,10 +6,13 @@ public class GameConfig {
 
 	public static int BACKGROUND_MOVE_SPEED = 50; // pixels per second.
 
-	public static Vector2 GRAVITY = new Vector2(0.3f, 0);
+	public static Vector2 GRAVITY = new Vector2(2f, 0);
 
-	public static Vector2 JUMP_POS_FORCE = new Vector2(+10.0f, 0f);
-	public static Vector2 JUMP_NEG_FORCE = new Vector2(-10.0f, 0f);
+	/*
+	 * Salto del player solo in verticale
+	 */
+	public static Vector2 JUMP_POS_FORCE = new Vector2(+5.0f, 0f);
+	public static Vector2 JUMP_NEG_FORCE = new Vector2(-3.0f, 0f);
 
 	/*
 	 * Movimento sull'asse delle ascisse
@@ -20,7 +23,9 @@ public class GameConfig {
 	/*
 	 * Velocità salto player
 	 */
-	public static Vector2 PLAYER_JUMP_POS_VELOCITY = new Vector2(18f, 10f);
+	public static final Vector2 POSITIVE_JUMP_VELOCITY = new Vector2(-14f, 9f);
+	public static final Vector2 NEGATIVE_JUMP_VELOCITY = new Vector2(+14f, 9f);
+	public static final Vector2 GRAVITY_JUMP = new Vector2(1f,0.05f);
 
 	public static final int SIZE_PLAYER_X = 1;
 

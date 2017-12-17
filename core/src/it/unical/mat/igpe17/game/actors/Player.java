@@ -27,8 +27,8 @@ public class Player extends DynamicObject implements IPlayer {
 		this.state = state;
 
 		velocity = new Vector2(0, 0);
-		velocity.x = (-1) * GameConfig.PLAYER_JUMP_POS_VELOCITY.x;
-		velocity.y = GameConfig.PLAYER_JUMP_POS_VELOCITY.y;
+		velocity.x =GameConfig.POSITIVE_JUMP_VELOCITY.x;
+		velocity.y = GameConfig.POSITIVE_JUMP_VELOCITY.y;
 
 		playerForce = new Vector2();
 		playerForce.x = GameConfig.JUMP_NEG_FORCE.x;
@@ -59,8 +59,8 @@ public class Player extends DynamicObject implements IPlayer {
 
 			posX += velocity.x * dt;
 			posY += velocity.y * dt;
-			velocity.x += GameConfig.GRAVITY.x;
-			velocity.y += GameConfig.GRAVITY.x;
+			velocity.x += GameConfig.GRAVITY_JUMP.x;
+			velocity.y += GameConfig.GRAVITY_JUMP.y;
 
 			setPosition(new Vector2(posX, posY));
 
@@ -71,8 +71,8 @@ public class Player extends DynamicObject implements IPlayer {
 
 			posX += velocity.x * dt;
 			posY -= velocity.y * dt;
-			velocity.x += GameConfig.GRAVITY.x;
-			velocity.y += GameConfig.GRAVITY.x;
+			velocity.x += GameConfig.GRAVITY_JUMP.x;
+			velocity.y += GameConfig.GRAVITY_JUMP.y;
 
 			setPosition(new Vector2(posX, posY));
 		}
@@ -92,8 +92,8 @@ public class Player extends DynamicObject implements IPlayer {
 	 * Funzione di reset della velocità per il salto
 	 */
 	public void reset() {
-		velocity.x = (-1) * GameConfig.PLAYER_JUMP_POS_VELOCITY.x;
-		velocity.y = GameConfig.PLAYER_JUMP_POS_VELOCITY.y;
+		velocity.x = GameConfig.POSITIVE_JUMP_VELOCITY.x;
+		velocity.y = GameConfig.POSITIVE_JUMP_VELOCITY.y;
 	}
 
 	
@@ -101,8 +101,8 @@ public class Player extends DynamicObject implements IPlayer {
 	 * Funzione di inversione della velocità per la discesa del salto
 	 */
 	public void swap() {
-		velocity.x = GameConfig.PLAYER_JUMP_POS_VELOCITY.x;
-		velocity.y = GameConfig.PLAYER_JUMP_POS_VELOCITY.y;
+		velocity.x = GameConfig.NEGATIVE_JUMP_VELOCITY.x;
+		velocity.y = GameConfig.NEGATIVE_JUMP_VELOCITY.y;
 	}
 
 	@Override

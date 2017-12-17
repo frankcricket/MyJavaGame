@@ -18,8 +18,8 @@ public class JumpListener implements Runnable{
 				
 			try {
 				float delta = Gdx.graphics.getDeltaTime();
-				game.makePlayerJump(delta);
-				Thread.sleep(27);
+				game.movePlayer(delta);
+				Thread.sleep(10);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

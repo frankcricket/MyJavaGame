@@ -2,22 +2,18 @@ package it.unical.mat.igpe17.game.logic;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter.DEFAULT;
 
-import com.badlogic.gdx.maps.Map;
-import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Vector2;
 
 import it.unical.mat.igpe17.game.actors.Enemy;
 import it.unical.mat.igpe17.game.actors.Player;
 import it.unical.mat.igpe17.game.actors.PlayerState;
+import it.unical.mat.igpe17.game.constants.Asset;
 import it.unical.mat.igpe17.game.constants.GameConfig;
-import it.unical.mat.igpe17.game.objects.DynamicObject;
 import it.unical.mat.igpe17.game.objects.Ground;
 import it.unical.mat.igpe17.game.objects.Obstacle;
 import it.unical.mat.igpe17.game.utility.Reader;
@@ -37,9 +33,14 @@ public class Game {
 	private int row;
 	private int column;
 	private float camera;
+	private float end_camera = Asset.WIDTH;
 
 	boolean setStartPosition = true;
 	Vector2 startPosition = new Vector2();
+	
+	private float pos_fall = GameConfig.PLAYER_POS_VELOCITY.y;
+	private float neg_fall = GameConfig.PLAYER_NEG_VELOCITY.y;
+	public static boolean PLAYER_IS_FALLING = false;
 
 	private Lock lock;
 	private Condition condition;
@@ -72,128 +73,243 @@ public class Game {
 		camera = 0f;
 	}
 
-	public void movePlayer(char dir, float dt) {
-
-		switch (dir) {
-		case 'r': {
-			movePlayerToRight(dt);
+	public void movePlayer(float dt) {
+		switch (player.getState()) {
+		case RUNNING: {
+			if(player.getDirection() == 'r')
+				movePlayerToRight(dt);
+			else
+				movePlayerToLeft(dt);
 			break;
 		}
-		case 'l': {
-			movePlayerToLeft(dt);
-			break;
-		}
-		case 'x': {
-			startPosition = player.getPosition();
+		case JUMPING: {
 			makePlayerJump(dt);
 			break;
 		}
 		default:
 			break;
 		}
-
 	}
+	
+	//queste due variabili vengono utilizzate per capire se il player sta cadendo
+	private boolean check_g1_l;
+	private boolean check_g2_l;
 
 	private void movePlayerToLeft(float dt) {
+		lock.lock();
+		
 		float x = player.getPosition().x;
 		float y = player.getPosition().y;
+		
+		check_g1_l = false;
+		check_g2_l = true;
+		
+		try{
+			while(player.getState() != PlayerState.RUNNING){
+				condition.await();
+			}
+			
+			/*
+			 * Se l'ascissa del player supera a sinistra il limite della camera,
+			 * return della funzione
+			 */
+			if (y - 1 < (camera - 0.95f)) {
+				return;
+			}
+			if(player.getPosition().x >= row + GameConfig.SIZE_PLAYER_X){
+				player.setState(PlayerState.DEAD);
+				neg_fall = GameConfig.PLAYER_NEG_VELOCITY.y;
+				check_g1_l = false;
+				check_g2_l = false;
+				return;
+			}
+			
+			if(checkObstaclesCollision((int)x, ((int)y), false)){
+				return;
+			}
 
-		/*
-		 * Se l'ascissa del player supera a sinistra il limite della camera,
-		 * return della funzione
-		 */
-		if (y - 1 < (camera - 0.95f)) {
-			return;
-		}
-
-		/*
-		 * Se il player può andare a sinistra, viene settata la nuova posizione
-		 */
-		if (checkGroundCollision(((int) x) + 1, (int) y) && checkObstaclesCollision((int) x, (int) y, false)) {
-			Vector2 tmp = new Vector2();
-			tmp.x = GameConfig.PLAYER_NEG_VELOCITY.x;
-			tmp.y = GameConfig.PLAYER_NEG_VELOCITY.y;
-			player.move(tmp, dt);
-
+			/*
+			 * Se il player può andare a sinistra, viene settata la nuova posizione
+			 */
+			if (checkGroundCollision(((int) x) + 1, Math.round(y))
+					|| checkObstaclesCollision(((int) x) + 1, Math.round(y), true)) {
+				check_g1_l = true;
+				if(!playerIsCollidingWithGround(x, y)){
+					Vector2 tmp = new Vector2();
+					tmp.x = GameConfig.PLAYER_NEG_VELOCITY.x;
+					tmp.y = GameConfig.PLAYER_NEG_VELOCITY.y;
+					player.move(tmp, dt);
+					PLAYER_IS_FALLING = false;
+					
+					neg_fall = GameConfig.PLAYER_NEG_VELOCITY.y;
+					check_g2_l = true;
+				}
+			}
+			if(!check_g1_l && check_g2_l){
+				
+				if(neg_fall >= -1.8f){
+					neg_fall = 0;
+				}
+				Vector2 tmp = new Vector2();
+				tmp.x = GameConfig.GRAVITY.x;
+				tmp.y = neg_fall;
+				player.move(tmp, dt);
+				PLAYER_IS_FALLING = true;
+				neg_fall += 0.05f;
+			}
+			
+		} catch (InterruptedException e){
+			
+		} finally{
+			lock.unlock();
 		}
 
 	}
+	
+	//queste due variabili vengono utilizzate per capire se il player sta cadendo
+	private boolean check_g1_r;
+	private boolean check_g2_r;
 
 	private void movePlayerToRight(float dt) {
-
+		lock.lock();
+		
 		float x = player.getPosition().x;
 		float y = player.getPosition().y;
-
-		/*
-		 * Se l'ascissa del player supera a destra il limite della camera,
-		 * return della funzione
-		 */
-		if (y + 1 >= column)
-			return;
-		/*
-		 * Se il player può andare a destra, viene settata la nuova posizione
-		 */
-		if (checkGroundCollision(((int) x) + 1, ((int) y) + 1)
-				&& checkObstaclesCollision((int) x, ((int) y) + 1, false)) {
-			Vector2 tmp = new Vector2();
-			tmp.x = GameConfig.PLAYER_POS_VELOCITY.x;
-			tmp.y = GameConfig.PLAYER_POS_VELOCITY.y;
-
-			player.move(tmp, dt);
+		
+		check_g1_r = false;
+		check_g2_r = true;
+		
+		try{
+			//il thread va in await fintantochè il suo stato non diventa running
+			while(player.getState() != PlayerState.RUNNING ){
+				condition.await();
+			}
+			
+				
+			/*
+			 * Se l'ascissa del player supera a destra il limite della camera,
+			 * return della funzione
+			 */
+			if (y + 1 >= column)
+				return;
+			
+			//se la posizione x del player supera la dimensione della riga, viene posto il suo stato come DEAD
+			if(player.getPosition().x  >= row + GameConfig.SIZE_PLAYER_Y){
+				player.setState(PlayerState.DEAD);
+				pos_fall = GameConfig.PLAYER_POS_VELOCITY.y;
+				
+				check_g1_r = false;
+				check_g2_r = false;
+				return;
+			}
+			/*
+			 * Se il player può andare a destra, viene settata la nuova posizione
+			 */
+			if(checkObstaclesCollision((int)x, ((int)y)+1, false)){
+				return;
+			}
+			if (checkGroundCollision(((int)x) + 1, Math.round(y))
+					|| checkObstaclesCollision(((int)x) + 1, Math.round(y), true)) {
+				check_g1_r = true;
+				if(!playerIsCollidingWithGround(x, y)){
+					Vector2 tmp = new Vector2();
+					tmp.x = GameConfig.PLAYER_POS_VELOCITY.x;
+					tmp.y = GameConfig.PLAYER_POS_VELOCITY.y;
+					player.move(tmp, dt);
+					PLAYER_IS_FALLING = false;
+					pos_fall = GameConfig.PLAYER_POS_VELOCITY.y;
+					check_g2_r = true;
+				}
+			}
+			if(!check_g1_r && check_g2_r){
+				if (pos_fall <= 1.8f) {
+					pos_fall = 0;
+				}
+				Vector2 tmp = new Vector2();
+				tmp.x = GameConfig.GRAVITY.x;
+				tmp.y = pos_fall;
+				player.move(tmp, dt);
+				pos_fall -= 0.05f;
+				PLAYER_IS_FALLING = true;
+			}
+			
+		} catch(InterruptedException e){
+			
+		} finally{
+			lock.unlock();
 		}
+		
+
+		
 	}
 
-	public static boolean jumping = false;
+	private boolean obstacleFound = false;
 
 	public void makePlayerJump(float delta) {
 		lock.lock();
 		try {
 			while (player.getState() != PlayerState.JUMPING) {
-				try {
-					condition.await();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+				condition.await();
+
 			}
-			int xp = (int) player.getPosition().x;
-			int yp = (int) player.getPosition().y;
+			float xp = player.getPosition().x;
+			float yp = player.getPosition().y;
+			
+			//se il player cadend supera la dimensione dello schermo, muore
+			if(player.getPosition().x  >= row + GameConfig.SIZE_PLAYER_Y){
+				player.setState(PlayerState.DEAD);
+				return;
+			}
 
 			// memorizzo la posizione del player prima del salto
 			if (setStartPosition) {
 				startPosition.x = player.getPosition().x;
 				startPosition.y = player.getPosition().y;
+				
 				setStartPosition = false;
+			}
+			// il player deve rimanere dentro la camera
+			if(playerIsCollidingWithGround(xp, yp) || checkPlayerBounds()){
+				obstacleFound = true;
 			}
 
 			// salto solo in verticale
-			if (player.VERTICAL_JUMP) {
-				if ((xp < startPosition.x - 3) || playerIsCollidingWithGround(xp, yp)) {
+			if (player.VERTICAL_JUMP || obstacleFound) {
+				if ((((int)xp < startPosition.x - 2)) || obstacleFound){
 					player.setForce(GameConfig.JUMP_POS_FORCE);
 				}
 				player.verticalJump(delta);
 			} else {
-				if ((xp < startPosition.x - 3) || playerIsCollidingWithGround(xp, yp))
+				if (((int)xp < startPosition.x - 2.6))
 					player.swap();
+				
+				if(!obstacleFound)
+					player.jump(delta);
 
-				player.jump(delta);
-			}
-
-			// il player deve rimanere dentro la camera
-			checkPlayerBounds();
-
+			}// end of else
+			
+			
+			xp = player.getPosition().x;
+			yp = player.getPosition().y;
+			
 			// verifico che ritorni sul terreno e si fermi
-			if (checkGroundCollision(((int) player.getPosition().x) + 1, Math.round((player.getPosition().y)))
-					|| checkObstaclesCollision(((int) player.getPosition().x) + 1, Math.round((player.getPosition().y)),
-							true)) {
+			if (checkGroundCollision(((int)player.getPosition().x) + 1, Math.round((player.getPosition().y)))
+					|| checkObstaclesCollision((int)xp +1, (int)yp, true)){
 				player.setPosition(new Vector2((int) player.getPosition().x, player.getPosition().y));
+				
 				setStartPosition = true;
-				jumping = false;
 				player.VERTICAL_JUMP = false;
-				player.setForce(GameConfig.JUMP_NEG_FORCE);
+				PLAYER_IS_FALLING = false;
+				obstacleFound = false;
+				
+				player.setForce(GameConfig.JUMP_NEG_FORCE);					
 				player.setState(PlayerState.IDLING);
 				player.reset();
 				return;
 			}
+			
+		}catch (InterruptedException e) {
+			e.printStackTrace();
 		} finally {
 			lock.unlock();
 		}
@@ -218,25 +334,25 @@ public class Game {
 	/**
 	 * @return true se non c'è collisione con l'ostacolo
 	 */
-	private final boolean checkObstaclesCollision(int x, int y, boolean top) {
-		if (top) {
-			for (Obstacle o : obstacleObjects) {
-				if (o.getPosition().x == x && o.getPosition().y == y) {
-					if (o.getType().equals("25"))
+	private final boolean checkObstaclesCollision(int x, int y, boolean top){
+		if(top){
+			for(Obstacle o : obstacleObjects){
+				if(o.getPosition().x == x && o.getPosition().y == y){
+					if(o.getType().equals("25"))
 						return true;
 				}
 			}
 			return false;
 		} else {
-			for (Obstacle o : obstacleObjects) {
-				if (o.getPosition().x == x && o.getPosition().y == y) {
-					return false;
+			for(Obstacle o : obstacleObjects){
+				if(o.getPosition().x == x && o.getPosition().y == y){
+					return true;
 				}
-
+				
 			}
 		}
-
-		return true;
+		
+		return false;
 	}
 
 	private final boolean checkFinalGroundCollision(int x, int y) {
@@ -253,55 +369,63 @@ public class Game {
 		return false;
 	}
 
-	private boolean playerIsCollidingWithGround(int x, int y) {
+	private boolean playerIsCollidingWithGround(float x, float y) {
 
-		int tmpX = x - GameConfig.SIZE_PLAYER_X;
-		int tmpY = y;
+		int tmp_x;
+		int tmp_y;
+		
+		tmp_x = (int)x - GameConfig.SIZE_PLAYER_Y +1;
+		tmp_y = (int)y;
 
 		/*
 		 * Collisione con oggetti che si trovano sopra il player
 		 */
-		for (Ground g : groundObjects) {
-			if (g.getPosition().x == tmpX && g.getPosition().y == tmpY)
-				return true;
+		if(player.getState() == PlayerState.JUMPING){		
+			for (Ground g : groundObjects) {
+				if (g.getPosition().x == tmp_x && g.getPosition().y == tmp_y)
+					return true;
+			}
+//			return false;
 		}
 
 		/*
 		 * Collisione a sinistra del player
 		 */
-		tmpX = x;
-		tmpY = y;
+		tmp_x = (int)x;
+		tmp_y = (int)y;
 		if (player.getDirection() == 'l') {
-			for (int i = 0; i < GameConfig.SIZE_PLAYER_X; i++) {
+			for (int i = 0; i < GameConfig.SIZE_PLAYER_Y; i++) {
 				for (Ground g : groundObjects) {
-					if (g.getPosition().x == tmpX && g.getPosition().y == tmpY) {
+					if (g.getPosition().x == tmp_x && g.getPosition().y == tmp_y) {
+						player.setPosition(new Vector2((int)player.getPosition().x,Math.round(player.getPosition().y)));
 						return true;
 					}
 				}
-				x--;
+				tmp_x--;
 			}
 		}
 
 		/*
 		 * Collisione a destra del player
 		 */
-		tmpX = x;
-		tmpY = y;
+		tmp_x = (int)x;
+		tmp_y = (int)y + GameConfig.SIZE_PLAYER_X;
 		if (player.getDirection() == 'r') {
-			for (int i = 0; i < GameConfig.SIZE_PLAYER_X; i++) {
+			for (int i = 0; i < GameConfig.SIZE_PLAYER_Y; i++) {
 				for (Ground g : groundObjects) {
-					if (g.getPosition().x == tmpX && g.getPosition().y == tmpY) {
+					if (g.getPosition().x == tmp_x && g.getPosition().y == tmp_y) {
+//						player.setPosition(new Vector2((int)player.getPosition().x,(int)(player.getPosition().y)));
 						return true;
 					}
 				}
-				x--;
+				tmp_x--;
 			}
 		}
 
 		return false;
 	}
 
-	private void checkPlayerBounds() {
+	private boolean checkPlayerBounds() {
 
 		float x = player.getPosition().x;
 		float y = player.getPosition().y;
@@ -310,23 +434,28 @@ public class Game {
 		 * Posizione del player dentro la camera: lato sinistro
 		 */
 
-		if (y < camera) {
-			player.setPosition(new Vector2(x, camera));
+		if (y -1 < (camera - 0.89f) && !player.VERTICAL_JUMP) {
+			return true;
 		}
 
 		/*
 		 * Posizione del player dentro la camera: lato superiore
 		 */
-		if (x - GameConfig.SIZE_PLAYER_Y <= 0) {
-			player.setPosition(new Vector2(x - GameConfig.SIZE_PLAYER_Y, y));
+		if (((int)x - GameConfig.SIZE_PLAYER_Y ) + 1 < 0) {
+//			player.setPosition(new Vector2(x - GameConfig.SIZE_PLAYER_Y, y));
+			return true;
 		}
+
 
 		/*
 		 * Posizione del player dentro la camera: lato destro
 		 */
 		if (y + GameConfig.SIZE_PLAYER_X > column) {
 			player.setPosition(new Vector2(x, column - 1));
+			return true;
 		}
+		
+		return false;
 
 	}
 	
@@ -459,16 +588,32 @@ public class Game {
 	public final int getColumn() {
 		return column;
 	}
+	
+	public float getCamera() {
+		return camera;
+	}
 
 	public void setCamera(float position) {
 		camera = position;
 	}
+	
+	public float getEndCamer(){
+		return end_camera;
+	}
+	public void setEndCamera(float position) {
+		end_camera = position;
+	}
 
-	public void resumeJumpPlayer() {
+	public void resumeCondition() {
 		lock.lock();
-		player.setState(PlayerState.JUMPING);
-		condition.signal();
+		condition.signalAll();
 		lock.unlock();
+	}
+	
+	public final boolean isOver(){
+		if(player.getState() == PlayerState.DEAD)
+			return true;
+		return false;
 	}
 
 }

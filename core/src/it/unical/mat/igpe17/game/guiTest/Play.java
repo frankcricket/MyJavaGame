@@ -43,7 +43,6 @@ public class Play implements Screen {
 	private int mapRight;
 
 	float elapsedTime;
-	private int boundEndX = Asset.WIDTH;
 
 	private Thread jump_player;
 
@@ -78,7 +77,6 @@ public class Play implements Screen {
 		 */
 		jump_player = new Thread(new JumpListener(game));
 		jump_player.start();
-		game.resumeJumpPlayer();
 	}
 
 	@Override
@@ -93,8 +91,8 @@ public class Play implements Screen {
 		updatePlayer(delta);
 		renderPlayer();
 
-		updateEnemy(delta);
-		renderEnemy();
+//		updateEnemy(delta);
+//		renderEnemy();
 
 		camera.update();
 		renderer.setView(camera);
@@ -104,54 +102,71 @@ public class Play implements Screen {
 	}
 
 	private void updatePlayer(final float delta) {
+		
+		if(!game.isOver()){
 
-		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && !(player.getState() == PlayerState.JUMPING)) {
-			player.setDirection('r');
-			player.setState(PlayerState.RUNNING);
-			game.movePlayer('r', delta);
+			if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) 
+					&& !(player.getState() == PlayerState.JUMPING)
+					&& !game.PLAYER_IS_FALLING) {
+				player.setDirection('r');
+				player.setState(PlayerState.RUNNING);
+				game.resumeCondition();
+				if(Gdx.input.isKeyJustPressed(Input.Keys.X)){
+					player.setState(PlayerState.JUMPING);
+					game.resumeCondition();
+				}
+	
+			} else if (Gdx.input.isKeyPressed(Input.Keys.LEFT) 
+					&& !(player.getState() == PlayerState.JUMPING)
+					&& !game.PLAYER_IS_FALLING) {
+				player.setDirection('l');
+				player.setState(PlayerState.RUNNING);
+				game.resumeCondition();
+				if(Gdx.input.isKeyJustPressed(Input.Keys.X)){
+					player.setState(PlayerState.JUMPING);
+					game.resumeCondition();
+				}
 
-			if (Gdx.input.isKeyJustPressed(Input.Keys.X)) {
-				game.resumeJumpPlayer();
+			} else if(Gdx.input.isKeyJustPressed(Input.Keys.X) 
+					&& !(player.getState() == PlayerState.JUMPING)
+					&& !game.PLAYER_IS_FALLING){
+				player.setState(PlayerState.JUMPING);
+				player.VERTICAL_JUMP = true;
+				game.resumeCondition();
+				
 			}
-
-		} else if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && !(player.getState() == PlayerState.JUMPING)) {
-			player.setDirection('l');
-			player.setState(PlayerState.RUNNING);
-			game.movePlayer('l', delta);
-
-			if (Gdx.input.isKeyJustPressed(Input.Keys.X)) {
-				game.resumeJumpPlayer();
-
-			}
-
-		} else if (Gdx.input.isKeyJustPressed(Input.Keys.X) && !(player.getState() == PlayerState.JUMPING)) {
-			game.resumeJumpPlayer();
-			player.VERTICAL_JUMP = true;
-		}
-
+			
+//			System.out.println(player.getState());
 		/**
 		 * Se il personaggio è fermo, viene impostato il suo stato come
-		 * 
-		 * @param state
-		 *            IDLING
+		 * @param state IDLING
 		 */
-		if (!(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) && !(Gdx.input.isKeyPressed(Input.Keys.LEFT))
-				&& !(player.getState() == PlayerState.JUMPING)) {
-			player.setState(PlayerState.IDLING);
+		if(!(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) 
+				&& !(Gdx.input.isKeyPressed(Input.Keys.LEFT))
+				&& !(player.getState() == PlayerState.JUMPING)){
+			if(!game.PLAYER_IS_FALLING)
+				player.setState(PlayerState.IDLING);
 		}
-
+		
 		/*
 		 * Update della camera fisica e logica
 		 */
-		if (((camera.position.x + camera.viewportWidth / 2) < mapRight
-				&& (player.getPosition().y) * Asset.TILE >= boundEndX * 0.03)) {
+		if (((camera.position.x + camera.viewportWidth / 2) < mapRight	
+				&& (player.getPosition().y)*Asset.TILE >= game.getEndCamer() * 0.04)) {
 
-			camera.position.x += GameConfig.PLAYER_POS_VELOCITY.y * 1.1;
+			if(player.getState() == PlayerState.JUMPING && player.getDirection() == 'r'){
+				camera.position.x += GameConfig.POSITIVE_JUMP_VELOCITY.y *0.7;
+			}
+			else{
+				camera.position.x += GameConfig.PLAYER_POS_VELOCITY.y*1.4;
+			}
 			game.setCamera((camera.position.x - camera.viewportWidth / 2) / Asset.TILE);
 
 			updateCamera();
-
-			boundEndX += Asset.TILE * 2;
+			
+			game.setEndCamera(game.getEndCamer() + Asset.TILE*2);
+		}
+		
 		}
 	}
 
@@ -179,7 +194,7 @@ public class Play implements Screen {
 
 		switch (player.getDirection()) {
 		case 'r': {
-			if (player.getState() == PlayerState.IDLING) {
+			if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING ) {
 				drawAnimation("player_idle_right");
 			} else if (player.getState() == PlayerState.RUNNING) {
 				drawAnimation("player_run_right");
@@ -190,7 +205,7 @@ public class Play implements Screen {
 			break;
 		} // end of case 'r'
 		case 'l': {
-			if (player.getState() == PlayerState.IDLING) {
+			if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING) {
 				drawAnimation("player_idle_left");
 			} else if (player.getState() == PlayerState.RUNNING) {
 				drawAnimation("player_run_left");
