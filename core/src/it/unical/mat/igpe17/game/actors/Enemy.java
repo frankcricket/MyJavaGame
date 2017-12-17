@@ -9,10 +9,12 @@ public class Enemy extends DynamicObject {
 	private Vector2 velocity;
 
 	private int lives = 3; // quante vite ha il nostro nemico
-
-	private int range = 5;
 	
+	//mosse che fa automaticamente a sx il nemico
 	private int movesLeft = 0;
+	//mosee che fa automaticamente a dx il nemico
+	private int movesRight = 0;
+	
 	public int getMovesLeft() {
 		return movesLeft;
 	}
@@ -29,13 +31,11 @@ public class Enemy extends DynamicObject {
 		this.movesRight = movesRight;
 	}
 
-	private int movesRight = 0;
-
-
 	public int getLives() {
 		return lives;
 	}
 	
+	//stringa che ritorna il tipo di nemico che abbiamo letto dal livello
 	private String type;
 
 	public String getType() {

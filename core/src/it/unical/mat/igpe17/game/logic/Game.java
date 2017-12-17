@@ -365,78 +365,6 @@ public class Game {
 			float x = e.getPosition().x;
 			float y = e.getPosition().y;
 
-			// numero di mosse a sx
-//			int movesLeft = 0;
-
-			// numero di mosse a dx
-//			int movesRight = 0;
-
-			// il nemico comincia a muoversi sempre verso sx, ovvero verso il
-			// player...
-
-			// switch(e.getDirection()){
-			// case 'l':
-			// {
-			// if (checkGroundCollision((int)++x,(int) y)){
-			//
-			// if (movesLeft == 5){
-			// e.setDirection('r');
-			// movesLeft = 0;
-			//
-			// }
-			// else{
-			//
-			//
-			// Vector2 tmp = new Vector2();
-			// tmp.x = GameConfig.PLAYER_NEG_VELOCITY.x;
-			// tmp.y = GameConfig.PLAYER_NEG_VELOCITY.y;
-			//
-			//
-			// e.move(tmp, dt);
-			// movesLeft++;
-			//
-			// int x1 = (int)(e.getPosition().x);
-			// int y1 = (int)(e.getPosition().y);
-			//
-			// if (checkFinalGroundCollision(++x1, y1)){
-			//
-			// e.setDirection('r');
-			// }
-			// }}
-			// else
-			// e.setDirection('r');
-			// break;
-			// }
-			// case 'r':
-			// {
-			// if (checkGroundCollision((int) ++x, (int) ++y)){
-			//
-			// if (movesRight == 5 ){
-			// e.setDirection('l');
-			// movesRight = 0;
-			//
-			// }
-			// else{
-			//
-			// Vector2 tmp = new Vector2();
-			// tmp.x = GameConfig.PLAYER_POS_VELOCITY.x;
-			// tmp.y = GameConfig.PLAYER_POS_VELOCITY.y;
-			// e.move(tmp, dt);
-			// movesRight++;
-			// int x1 = (int)(e.getPosition().x);
-			// int y1 = (int)(e.getPosition().y);
-			//
-			// if (checkFinalGroundCollision(++x1, y1)){
-			//
-			// e.setDirection('l');
-			// }
-			// }
-			// }
-			// break;
-			// }
-			// default:
-			// break;
-			// }
 
 			switch (e.getDirection()) {
 			
@@ -456,7 +384,7 @@ public class Game {
 					tmp.y = GameConfig.PLAYER_NEG_VELOCITY.y;
 					e.move(tmp, dt);
 					e.setMovesLeft(e.getMovesLeft()+1);
-//					System.out.println(movesLeft +" ");
+//					System.out.println(movesLeft +" ")
 					
 				
 					
@@ -503,102 +431,6 @@ public class Game {
 		}
 	
 	}
-
-	// // ...se è presente sempre del terreno
-	// if (checkGroundCollision((int)++x, Math.round(y))){
-	// Vector2 tmp = new Vector2();
-	// tmp.x = GameConfig.PLAYER_NEG_VELOCITY.x;
-	// tmp.y = GameConfig.PLAYER_NEG_VELOCITY.y;
-	// e.move(tmp, dt);
-	//
-	// if (checkFinalGroundCollision((int) ++tmp.x, (int)tmp.y)){
-	// Vector2 tmp1 = new Vector2();
-	// tmp1.x = GameConfig.PLAYER_POS_VELOCITY.x;
-	// tmp1.y = GameConfig.PLAYER_POS_VELOCITY.y;
-	// e.move(tmp1, dt);
-	// e.setDirection('r');
-	// }
-	// }
-	// else if (checkGroundCollision((int) ++x, (int) ++y)){
-	// Vector2 tmp = new Vector2();
-	// tmp.x = GameConfig.PLAYER_POS_VELOCITY.x;
-	// tmp.y = GameConfig.PLAYER_POS_VELOCITY.y;
-	// e.move(tmp, dt);
-	// e.setDirection('r');
-	// if (checkFinalGroundCollision((int)++tmp.x, (int)++tmp.y)){
-	// Vector2 tmp1 = new Vector2();
-	// tmp1.x = GameConfig.PLAYER_NEG_VELOCITY.x;
-	// tmp1.y = GameConfig.PLAYER_NEG_VELOCITY.y;
-	// e.move(tmp1, dt);
-	// e.setDirection('l');
-	// }
-	// }
-	//
-	// }
-	//
-	// }
-
-	// public void moveEnemy(float dt) {
-	// for (Enemy e : enemy) {
-	//
-	// // prendiamo le coordinate di un nemico per volta
-	//
-	// float x = e.getPosition().x;
-	// float y = e.getPosition().y;
-	//
-	// // il nemico comincia a muoversi sempre verso sx, ovvero verso il
-	// // player...
-	//
-	// // ...se è presente sempre del terreno
-	// if (checkGroundCollision((int) x++, Math.round(y))){
-	//
-	// Vector2 tmp = new Vector2();
-	// tmp.x = GameConfig.PLAYER_NEG_VELOCITY.x;
-	// tmp.y = GameConfig.PLAYER_NEG_VELOCITY.y;
-	// e.move(tmp, dt);
-	// e.setDirection('l');
-	//
-	//// if (checkFinalGroundCollision((int)tmp.x, (int)tmp.y+1)){
-	//// Vector2 tmp1 = new Vector2();
-	//// tmp1.x = GameConfig.PLAYER_POS_VELOCITY.x;
-	//// tmp1.y = GameConfig.PLAYER_POS_VELOCITY.y;
-	//// e.move(tmp1, dt);
-	//// e.setDirection('r');
-	//// }
-	//
-	// }
-	// else if (checkGroundCollision((int) ++x, (int) ++y)){
-	// Vector2 tmp = new Vector2();
-	// tmp.x = GameConfig.PLAYER_POS_VELOCITY.x;
-	// tmp.y = GameConfig.PLAYER_POS_VELOCITY.y;
-	// e.move(tmp, dt);
-	// e.setDirection('r');
-	//
-	//// if (checkFinalGroundCollision((int)++tmp.x, (int)++tmp.y)){
-	//// Vector2 tmp1 = new Vector2();
-	//// tmp1.x = GameConfig.PLAYER_NEG_VELOCITY.x;
-	//// tmp1.y = GameConfig.PLAYER_NEG_VELOCITY.y;
-	//// e.move(tmp1, dt);
-	//// e.setDirection('l');
-	//// }
-	// }
-	//
-	// }
-	//
-	// }
-
-	// public void generaNemici() {
-	// for (int i = 0; i < NUM_ENEMY; i++) {
-	// boolean stop = false;
-	//
-	// while (!stop) {
-	//
-	// stop = generaPosEnemy();
-	//
-	// }
-	//
-	// }
-	// }
 
 	public void setLevel(String level) {
 		LEVEL = level;
