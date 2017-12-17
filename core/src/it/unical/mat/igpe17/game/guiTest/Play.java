@@ -282,28 +282,46 @@ public class Play implements Screen {
 	// TODO da mettere le animazioni per tutti i nemici
 	private void renderEnemy() {
 		for (Enemy e : enemies) {
-			if (e.getType() == "32") {
+			
+			switch (e.getType()){
+			
+			case "32" :{
 				if (e.getDirection() == 'l') {
 					drawAnimationEnemy("enemy_run_left", e.getPosition().x, e.getPosition().y);
 				} else {
-					// TODO da cambiare a dx
 					drawAnimationEnemy("enemy_run_right", e.getPosition().x, e.getPosition().y);
 				}
-			}else if (e.getType() == "31"){
+			break;
+				
+			}
+			
+			case "31":{
 				if (e.getDirection() == 'l') {
 					drawAnimationEnemy("enemy2_m_run_left", e.getPosition().x, e.getPosition().y);
 				} else {
-					// TODO da cambiare a dx
+					//System.out.println("31");
 					drawAnimationEnemy("enemy2_m_run_right", e.getPosition().x, e.getPosition().y);
 				}
-			}else{
+				
+				break;
+			}
+			
+			case "33": {
 				if (e.getDirection() == 'l') {
 					drawAnimationEnemy("enemy1_w_run_left", e.getPosition().x, e.getPosition().y);
 				} else {
-					// TODO da cambiare a dx
+					
 					drawAnimationEnemy("enemy1_w_run_right", e.getPosition().x, e.getPosition().y);
 				}
+				
+				break;
+				
 			}
+			
+			default:
+				break;
+			}
+
 		}
 	}
 
