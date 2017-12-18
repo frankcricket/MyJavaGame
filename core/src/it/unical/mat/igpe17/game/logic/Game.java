@@ -489,21 +489,29 @@ public class Game {
 	public void moveEnemy(float dt) {
 		for (Enemy e : enemy) {
 
+			if(e.getJustOnce()){
+			    e.setStartingPos((int)e.getPosition().y);
+			    e.setJustOnce(false);
+                        }
+
 			// prendiamo le coordinate di un nemico per volta
 
-			float x = e.getPosition().x;
-			float y = e.getPosition().y;
+			int x = (int)e.getPosition().x;
+			int y = (int)e.getPosition().y;
 
 
 			switch (e.getDirection()) {
 			
 			case 'l': {
-				if (e.getMovesLeft() == GameConfig.SIZE_MOVE_ENEMY) {
+				if ((e.getStartingPos() - y) == e.getMoves()) {
 					e.setDirection('r');
-					e.setMovesLeft(0);
-					System.out.println("l");
+					if(!e.getSelectedYet())
+					{
+					   e.setSelectedYet(true);
+					   e.setMoves(e.getMoves()*2);
+					}
+					e.setStartingPos((int)e.getPosition().y);
 					break;
-
 				}
 				
 				if (checkGroundCollision((int) ++x, (int) y)) {
@@ -512,28 +520,17 @@ public class Game {
 					tmp.x = GameConfig.PLAYER_NEG_VELOCITY.x;
 					tmp.y = GameConfig.PLAYER_NEG_VELOCITY.y;
 					e.move(tmp, dt);
-					e.setMovesLeft(e.getMovesLeft()+1);
-//					System.out.println(movesLeft +" ")
-					
-				
-					
-					int x1 = (int) (e.getPosition().x);
-					int y1 = (int) (e.getPosition().y);
-					
-					
-					
-					if (checkFinalGroundCollision(++x1, y1)) {
-						e.setDirection('r');
-					}
+				} else {
+					e.setDirection('r');
 				}
+		
 				break;
 			}
 			case 'r': {
 				
-				if (e.getMovesRight() == GameConfig.SIZE_MOVE_ENEMY ) {
+				if ((y- e.getStartingPos()) == e.getMoves()) {
 					e.setDirection('l');
-					e.setMovesRight(0);
-					System.out.println("r");
+					e.setStartingPos((int)e.getPosition().y);
 					break;
 				}
 				
@@ -543,13 +540,9 @@ public class Game {
 					tmp.x = GameConfig.PLAYER_POS_VELOCITY.x;
 					tmp.y = GameConfig.PLAYER_POS_VELOCITY.y;
 					e.move(tmp, dt);
-					e.setMovesRight(e.getMovesRight()+1);
-					int x1 = (int) (e.getPosition().x);
-					int y1 = (int) (e.getPosition().y);
-
-					if (checkFinalGroundCollision(++x1, y1)) {
-						e.setDirection('l');
-					}
+				}
+				else {
+					e.setDirection('l');
 				}
 
 				break;
@@ -560,6 +553,7 @@ public class Game {
 		}
 	
 	}
+
 
 	public void setLevel(String level) {
 		LEVEL = level;

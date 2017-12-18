@@ -92,8 +92,8 @@ public class Play implements Screen {
 		updatePlayer(delta);
 		renderPlayer();
 
-//		updateEnemy(delta);
-//		renderEnemy();
+		updateEnemy(delta);
+		renderEnemy();
 
 		camera.update();
 		renderer.setView(camera);
