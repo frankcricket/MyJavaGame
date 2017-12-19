@@ -21,7 +21,7 @@ public class ChooseCharacter implements Screen {
 	// private mainmenu
 
 	private static ChooseCharacter chooseCharacter = null;
-	private Play play;
+	private static Play play;
 	
 	public static ChooseCharacter getChooseCharacter(){
 		if (chooseCharacter == null)
@@ -56,7 +56,7 @@ public class ChooseCharacter implements Screen {
 		character1B.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				play.player_type = 1;
-				((Game) Gdx.app.getApplicationListener()).setScreen(play);
+				((Game) Gdx.app.getApplicationListener()).setScreen(new Loading());
 			}
 
 		});
@@ -67,7 +67,7 @@ public class ChooseCharacter implements Screen {
 		character2B.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				play.player_type = 2;
-				((Game) Gdx.app.getApplicationListener()).setScreen(play);
+				((Game) Gdx.app.getApplicationListener()).setScreen(new Loading());
 			}
 
 		});
@@ -101,6 +101,10 @@ public class ChooseCharacter implements Screen {
 
 		table.debug();
 		stage.addActor(table);
+	}
+	
+	public static Play getPlay(){
+		return play;
 	}
 
 	@Override

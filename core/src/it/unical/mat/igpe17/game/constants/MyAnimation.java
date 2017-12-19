@@ -94,6 +94,12 @@ public class MyAnimation {
 		aTmp = createAnimation(8, new Texture("animations/enemy1_w_run_left.png"), 64, 128, .11f);
 		animations.put("enemy1_w_run_left", aTmp);
 
+		
+		/*
+		 * animazione loading
+		 */
+		aTmp = createAnimation(15, new Texture("animations/loading.gif"), 256, 64, .11f);
+		animations.put("loading", aTmp);
 	}
 
 	private Animation<TextureRegion> createAnimation(int elements, Texture image, int width, int height, float speed) {
