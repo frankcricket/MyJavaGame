@@ -85,6 +85,7 @@ public class Player extends DynamicObject implements IPlayer {
 		Vector2 tmpPos = getPosition();
 		Vector2 newPos = tmpPos.add(playerForce.x * dt, 0);
 		setPosition(newPos);
+		
 	}
 
 	

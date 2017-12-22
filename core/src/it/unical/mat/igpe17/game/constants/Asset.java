@@ -13,7 +13,7 @@ public class Asset {
 	
 	public static Map<String, String> map = new HashMap<String,String>();
 	
-	public static final String FIRST_LEVEL = "levels/firstLevel.tmx";
+//	public static final String FIRST_LEVEL = "levels/firstLevel.tmx";
 	
 	public static String BACKGROUND = "asset/Background.png";
 	public static String PLAYER = "asset/Player.png";

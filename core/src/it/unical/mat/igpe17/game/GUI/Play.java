@@ -1,4 +1,4 @@
-package it.unical.mat.igpe17.game.guiTest;
+package it.unical.mat.igpe17.game.GUI;
 
 import java.util.List;
 
@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
@@ -22,6 +23,7 @@ import it.unical.mat.igpe17.game.constants.Asset;
 import it.unical.mat.igpe17.game.constants.GameConfig;
 import it.unical.mat.igpe17.game.constants.MyAnimation;
 import it.unical.mat.igpe17.game.logic.Game;
+import it.unical.mat.igpe17.game.screens.Loading;
 
 public class Play implements Screen {
 
@@ -44,11 +46,21 @@ public class Play implements Screen {
 	private int mapRight;
 
 	float elapsedTime;
+	
+	private String level;
 
 	private Thread jump_player;
+	
+	
+	public Play(String level) {
+		this.level = level;
+	}
 
 	@Override
 	public void show() {
+		
+		if(level != null)
+			game.LEVEL = level;
 		game = new Game();
 		game.loadLevel();
 
@@ -61,7 +73,8 @@ public class Play implements Screen {
 		/*
 		 * mappa e animazioni
 		 */
-		map = new TmxMapLoader().load(Asset.FIRST_LEVEL);
+		map = new TmxMapLoader().load(game.LEVEL);
+		
 		batch = new SpriteBatch();
 		animations = new MyAnimation();
 
@@ -78,6 +91,7 @@ public class Play implements Screen {
 		 */
 		jump_player = new Thread(new JumpListener(game));
 		jump_player.start();
+		removeEnemiesFromMap();
 	}
 
 	@Override
@@ -92,8 +106,8 @@ public class Play implements Screen {
 		updatePlayer(delta);
 		renderPlayer();
 
-		updateEnemy(delta);
-		renderEnemy();
+//		updateEnemy(delta);
+//		renderEnemy();
 
 		camera.update();
 		renderer.setView(camera);
@@ -156,10 +170,10 @@ public class Play implements Screen {
 				&& (player.getPosition().y)*Asset.TILE >= game.getEndCamer() * 0.04)) {
 
 			if(player.getState() == PlayerState.JUMPING && player.getDirection() == 'r'){
-				camera.position.x += GameConfig.POSITIVE_JUMP_VELOCITY.y *0.7;
+				camera.position.x += GameConfig.POSITIVE_JUMP_VELOCITY.y *0.5;
 			}
 			else{
-				camera.position.x += GameConfig.PLAYER_POS_VELOCITY.y*1.4;
+				camera.position.x += GameConfig.PLAYER_POS_VELOCITY.y*1.2;
 			}
 			game.setCamera((camera.position.x - camera.viewportWidth / 2) / Asset.TILE);
 
@@ -322,6 +336,21 @@ public class Play implements Screen {
 				break;
 			}
 
+		}
+	}
+	
+	private void removeEnemiesFromMap(){
+
+		for(Enemy e : enemies){
+			int layer = game.getRow() - 1;
+			int x = (int)e.getPosition().x;
+			int y = (int)e.getPosition().y;
+			
+			layer = layer - x;
+			TiledMapTileLayer tile = (TiledMapTileLayer) map.getLayers().get(0);
+			tile.getCell(y,layer).setTile(null);
+			
+			
 		}
 	}
 

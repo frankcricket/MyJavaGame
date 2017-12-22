@@ -1,4 +1,4 @@
-package com.mygdx.game.screens;
+package it.unical.mat.igpe17.game.screens;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -24,6 +24,10 @@ public class MainMenu implements Screen {
 	// Element that we need for our menu
 
 	private static MainMenu mainMenu = null;
+	public static String LEVEL = null;
+	private Stage stage;
+	private Skin skin; // aspetto di tutto cio' che faremo
+	private Table table;
 	
 	public static MainMenu getMainMenu(){
 		if (mainMenu == null)
@@ -32,9 +36,6 @@ public class MainMenu implements Screen {
 	}
 	
 	
-	private Stage stage;
-	private Skin skin; // aspetto di tutto cio' che faremo
-	private Table table;
 
 	@Override
 	public void show() {
@@ -223,6 +224,10 @@ public class MainMenu implements Screen {
 		
 		stage.addActor(table);
 
+	}
+	
+	public static final String getLevel(){
+		return LEVEL;
 	}
 
 	@Override

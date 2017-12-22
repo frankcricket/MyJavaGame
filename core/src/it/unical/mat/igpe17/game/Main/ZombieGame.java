@@ -1,7 +1,8 @@
-package com.mygdx.game;
+package it.unical.mat.igpe17.game.Main;
 
 import com.badlogic.gdx.Game;
-import com.mygdx.game.screens.Splash;
+
+import it.unical.mat.igpe17.game.screens.Splash;
 
 public class ZombieGame extends Game {
 

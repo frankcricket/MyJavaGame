@@ -1,4 +1,4 @@
-package com.mygdx.game.screens;
+package it.unical.mat.igpe17.game.screens;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -14,8 +14,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
-import it.unical.mat.igpe17.game.guiTest.GameTest;
-import it.unical.mat.igpe17.game.guiTest.Play;
+import it.unical.mat.igpe17.game.GUI.Play;
+import it.unical.mat.igpe17.game.Main.GameTest;
  
 public class ChooseCharacter implements Screen {
 	// private mainmenu
@@ -24,13 +24,14 @@ public class ChooseCharacter implements Screen {
 	private static Play play;
 	
 	public static ChooseCharacter getChooseCharacter(){
-		if (chooseCharacter == null)
+		if (chooseCharacter == null){
 			chooseCharacter = new ChooseCharacter();
+		}
 		return chooseCharacter;
 	}
 	
-	public ChooseCharacter() {
-		play = new Play();
+	private ChooseCharacter() {
+		play = new Play(MainMenu.getLevel());
 	}
 
 	public int Character = 0;

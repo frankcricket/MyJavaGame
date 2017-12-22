@@ -1,4 +1,4 @@
-package com.mygdx.game.tween;
+package it.unical.mat.igpe17.game.screens;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 

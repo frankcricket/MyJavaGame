@@ -3,6 +3,7 @@ package it.unical.mat.igpe17.game.editor;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -20,15 +21,7 @@ public class MySaveFile {
 	private Vector<Sprite> points;
 	private Vector<Sprite> pointsTmp = new Vector<Sprite>();
 	
-	private void copyPoints(){
-		for (int i = 0; i < points.size(); i++){
-			String string = points.get(i).getName();
-			int xtmp = points.get(i).getPoint().x;
-			int ytmp = points.get(i).getPoint().y;
-			Sprite spriteTmp = new Sprite(new Point(xtmp, ytmp), string);
-			pointsTmp.add(spriteTmp);
-		}
-	}
+	
 	
 /*
  * 
@@ -62,6 +55,9 @@ public class MySaveFile {
 	public void saveNewFile() {
 		try {
 			JFileChooser fc = new JFileChooser();
+			File dir = new File(System.getProperty("user.dir")+"\\levels");
+			String path = dir.getAbsolutePath();
+			fc.setCurrentDirectory(dir);
 			fc.setDialogTitle("Save in...");
 
 			if (fc.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
@@ -69,11 +65,15 @@ public class MySaveFile {
 				BufferedWriter bw = new BufferedWriter(fw);
 
 				int width = MyPanel.row;
-				int height = (Asset.WIDTH / Asset.TILE);
+//				int height = (Asset.WIDTH / Asset.TILE);
 
 				points = MyPanel.getPoint();
 				copyPoints();
+				int height = findDimension();
 
+				/*
+				 * viene impostata la nuova posizione dei nemici
+				 */
 				for (int i = 0; i < pointsTmp.size(); i++){
 					if (pointsTmp.get(i).getName().equals("31")
 							|| pointsTmp.get(i).getName().equals("32")
@@ -86,7 +86,6 @@ public class MySaveFile {
 						ytmp ++;
 						
 						pointsTmp.get(i).setPoint(new Point(xtmp, ytmp));
-						System.out.println("okkkkk");
 					}
 				}
 				
@@ -95,7 +94,10 @@ public class MySaveFile {
 					writePoints(bw, i, width, height);
 				}
 				endWrite(bw);
+				
 				bw.close();
+				fw.close();
+				
 
 				JOptionPane.showMessageDialog(null, "Operation Completed!");
 			}
@@ -238,9 +240,15 @@ public class MySaveFile {
 		dimension = split.length;
 		for (int i = 0; i < split.length; i++) {
 			if (!(split[i].equals("0"))) {
-				Point p = new Point(i, row);// coordinate invertite
-				Sprite sprite = new Sprite(p, split[i]);
-				MyPanel.points.add(sprite);
+				if(split[i].equals("31") || split[i].equals("32") || split[i].equals("33")){
+					Point p = new Point(i, row-1);// coordinate invertite
+					Sprite sprite = new Sprite(p, split[i]);
+					MyPanel.points.add(sprite);
+				} else{
+					Point p = new Point(i, row);// coordinate invertite
+					Sprite sprite = new Sprite(p, split[i]);
+					MyPanel.points.add(sprite);
+				}
 			}
 		}
 	}
@@ -254,5 +262,25 @@ public class MySaveFile {
 		Point p = new Point(y, x);
 		Sprite sprite = new Sprite(p, type);
 		MyPanel.points.add(sprite);
+	}
+	
+	private void copyPoints(){
+		for (int i = 0; i < points.size(); i++){
+			String string = points.get(i).getName();
+			int xtmp = points.get(i).getPoint().x;
+			int ytmp = points.get(i).getPoint().y;
+			Sprite spriteTmp = new Sprite(new Point(xtmp, ytmp), string);
+			pointsTmp.add(spriteTmp);
+		}
+	}
+	
+	private int findDimension(){
+		int xMax = 0;
+		for(Sprite s : points){
+		
+			if(s.getPoint().x > xMax)
+				xMax = s.getPoint().x;
+		}
+		return ++xMax;
 	}
 }

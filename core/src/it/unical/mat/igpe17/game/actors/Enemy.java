@@ -7,20 +7,23 @@ import it.unical.mat.igpe17.game.objects.DynamicObject;
 
 public class Enemy extends DynamicObject {
 
-	private Vector2 velocity;
-
 	private int lives = 3; // quante vite ha il nostro nemico
 	
 	//mosse che fa automaticamente 
-	private int moves = GameConfig.SIZE_MOVE_ENEMY;
-
-	//nella classe enemy crei un booleano che chiami --> justOnce inizializzato a true;
-	//e un intero che posizione iniziale --> startingPos
-	// e una variabile bool che rappresenta il cambio delle mosse totali: bool selectedYet = false;
-	//intero per il numero delle mosse totali: --> moves = GameConfig.NUMERO_MOSSE_TOTALI; 
-	
-	
+	private int moves = GameConfig.SIZE_MOVE_ENEMY;		
 	private boolean justOnce = true;
+	private int  startingPos;	
+	private boolean selectedYet = false;	
+	//stringa che per il tipo di nemico che abbiamo letto dal livello
+	private String type;	
+	private boolean isAlive = true; // il nostro personaggio è vivo o morto?
+	
+	
+
+	public Enemy(Vector2 position, Vector2 size, char direction, String type) {
+		super(position, size, direction);
+		this.type = type;
+	}
 	
 	public boolean getJustOnce() {
 		return justOnce;
@@ -45,17 +48,6 @@ public class Enemy extends DynamicObject {
 	public void setSelectedYet(boolean selectedYet) {
 		this.selectedYet = selectedYet;
 	}
-
-	private int  startingPos;
-	
-	private boolean selectedYet = false;
-	
-	
-	
-	
-	
-	
-	
 	
 	public int getMoves() {
 		return moves;
@@ -69,9 +61,6 @@ public class Enemy extends DynamicObject {
 		return lives;
 	}
 	
-	//stringa che ritorna il tipo di nemico che abbiamo letto dal livello
-	private String type;
-
 	public String getType() {
 		return type;
 	}
@@ -79,21 +68,12 @@ public class Enemy extends DynamicObject {
 	public void setLives(int lives) {
 		this.lives = lives;
 	}
-
-	private boolean isAlive = true; // il nostro personaggio è vivo o morto?
-	
 	public boolean isAlive() {
 		return isAlive;
 	}
 
 	public void setAlive(boolean isAlive) {
 		this.isAlive = isAlive;
-	}
-
-	public Enemy(Vector2 position, Vector2 size, char direction, String type) {
-		super(position, size, direction);
-		velocity = new Vector2(0,0);
-		this.type = type;
 	}
 	
 

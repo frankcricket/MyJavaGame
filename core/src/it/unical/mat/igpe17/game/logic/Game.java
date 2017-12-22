@@ -16,12 +16,13 @@ import it.unical.mat.igpe17.game.constants.Asset;
 import it.unical.mat.igpe17.game.constants.GameConfig;
 import it.unical.mat.igpe17.game.objects.Ground;
 import it.unical.mat.igpe17.game.objects.Obstacle;
+import it.unical.mat.igpe17.game.objects.StaticObject;
 import it.unical.mat.igpe17.game.utility.Reader;
 
 public class Game {
 
 	// set di default
-	private static String LEVEL = "levels/firstLevel.tmx";
+	public static String LEVEL = "levels/l1.tmx";
 
 	private Player player;
 	private List<Ground> groundObjects;
@@ -38,8 +39,8 @@ public class Game {
 	boolean setStartPosition = true;
 	Vector2 startPosition = new Vector2();
 	
-	private float pos_fall = GameConfig.PLAYER_POS_VELOCITY.y;
-	private float neg_fall = GameConfig.PLAYER_NEG_VELOCITY.y;
+	private float pos_fall = GameConfig.FALLING_POS_VELOCITY.y;
+	private float neg_fall = GameConfig.FALLING_NEG_VELOCITY.y;
 	public static boolean PLAYER_IS_FALLING = false;
 
 	private Lock lock;
@@ -67,6 +68,14 @@ public class Game {
 		obstacleObjects = reader.getObstacle();
 		enemy = reader.getEnemy();
 		player = reader.getPlayer();
+		
+		
+//		for(Ground g : groundObjects)
+//			System.out.println(g.getPosition());
+//		
+//		System.out.println("Obstacles");
+//		for(Obstacle g : obstacleObjects)
+//			System.out.println(g.getPosition());
 
 		// generaNemici();
 
@@ -118,36 +127,36 @@ public class Game {
 			}
 			if(player.getPosition().x >= row + GameConfig.SIZE_PLAYER_X){
 				player.setState(PlayerState.DEAD);
-				neg_fall = GameConfig.PLAYER_NEG_VELOCITY.y;
+				neg_fall = GameConfig.FALLING_NEG_VELOCITY.y;
 				check_g1_l = false;
 				check_g2_l = false;
 				return;
 			}
 			
-			if(checkObstaclesCollision((int)x, ((int)y), false)){
-				return;
-			}
+//			if(checkObstaclesCollision((int)x, ((int)y), false)){
+//				return;
+//			}
 
 			/*
 			 * Se il player può andare a sinistra, viene settata la nuova posizione
 			 */
-			if (checkGroundCollision(((int) x) + 1, Math.round(y))
-					|| checkObstaclesCollision(((int) x) + 1, Math.round(y), true)) {
+			if (checkGroundCollision(((int) x) + 1, Math.round(y))/*
+					|| checkObstaclesCollision(((int) x) + 1, Math.round(y), true)*/) {
 				check_g1_l = true;
-				if(!playerIsCollidingWithGround(x, y)){
+				if(!isObstaclesCollision()){
 					Vector2 tmp = new Vector2();
 					tmp.x = GameConfig.PLAYER_NEG_VELOCITY.x;
 					tmp.y = GameConfig.PLAYER_NEG_VELOCITY.y;
 					player.move(tmp, dt);
 					PLAYER_IS_FALLING = false;
 					
-					neg_fall = GameConfig.PLAYER_NEG_VELOCITY.y;
+					neg_fall = GameConfig.FALLING_NEG_VELOCITY.y;
 					check_g2_l = true;
 				}
 			}
 			if(!check_g1_l && check_g2_l){
 				
-				if(neg_fall >= -1.8f){
+				if(neg_fall >= -4.0f){
 					neg_fall = 0;
 				}
 				Vector2 tmp = new Vector2();
@@ -155,7 +164,7 @@ public class Game {
 				tmp.y = neg_fall;
 				player.move(tmp, dt);
 				PLAYER_IS_FALLING = true;
-				neg_fall += 0.05f;
+				neg_fall += 0.9f;
 			}
 			
 		} catch (InterruptedException e){
@@ -185,7 +194,6 @@ public class Game {
 				condition.await();
 			}
 			
-				
 			/*
 			 * Se l'ascissa del player supera a destra il limite della camera,
 			 * return della funzione
@@ -193,43 +201,49 @@ public class Game {
 			if (y + 1 >= column)
 				return;
 			
-			//se la posizione x del player supera la dimensione della riga, viene posto il suo stato come DEAD
+			/*
+			 * Se la posizione x del player supera la dimensione della riga,
+			 *        viene posto il suo stato come DEAD
+			 */
 			if(player.getPosition().x  >= row + GameConfig.SIZE_PLAYER_Y){
 				player.setState(PlayerState.DEAD);
-				pos_fall = GameConfig.PLAYER_POS_VELOCITY.y;
+				pos_fall = GameConfig.FALLING_POS_VELOCITY.y;
 				
 				check_g1_r = false;
 				check_g2_r = false;
 				return;
 			}
-			/*
-			 * Se il player può andare a destra, viene settata la nuova posizione
-			 */
-			if(checkObstaclesCollision((int)x, ((int)y)+1, false)){
-				return;
-			}
-			if (checkGroundCollision(((int)x) + 1, Math.round(y))
-					|| checkObstaclesCollision(((int)x) + 1, Math.round(y), true)) {
+
+//			if(checkObstaclesCollision((int)x, ((int)y)+1, false)){
+//				return;
+//			}
+			
+			
+			/*|| checkObstaclesCollision(((int)x) + 1, Math.round(y), true)) {*/
+			if (checkGroundCollision(((int)x) + 1, Math.round(y))){
 				check_g1_r = true;
-				if(!playerIsCollidingWithGround(x, y)){
+				if(!isObstaclesCollision()){
 					Vector2 tmp = new Vector2();
 					tmp.x = GameConfig.PLAYER_POS_VELOCITY.x;
 					tmp.y = GameConfig.PLAYER_POS_VELOCITY.y;
 					player.move(tmp, dt);
 					PLAYER_IS_FALLING = false;
-					pos_fall = GameConfig.PLAYER_POS_VELOCITY.y;
+					pos_fall = GameConfig.FALLING_POS_VELOCITY.y;
 					check_g2_r = true;
 				}
 			}
+			/*
+			 * Questo codice viene eseguito quando il player sta cadendo
+			 */
 			if(!check_g1_r && check_g2_r){
-				if (pos_fall <= 1.8f) {
+				if (pos_fall <= 4.0f) {
 					pos_fall = 0;
 				}
 				Vector2 tmp = new Vector2();
 				tmp.x = GameConfig.GRAVITY.x;
 				tmp.y = pos_fall;
 				player.move(tmp, dt);
-				pos_fall -= 0.05f;
+				pos_fall -= 0.9f;
 				PLAYER_IS_FALLING = true;
 			}
 			
@@ -255,48 +269,71 @@ public class Game {
 			float xp = player.getPosition().x;
 			float yp = player.getPosition().y;
 			
-			//se il player cadend supera la dimensione dello schermo, muore
+			/*
+			 * Verifica posizione player > dimensione schermo
+			 */
 			if(player.getPosition().x  >= row + GameConfig.SIZE_PLAYER_Y){
 				player.setState(PlayerState.DEAD);
 				return;
 			}
 
-			// memorizzo la posizione del player prima del salto
+			/*
+			 * Memorizzazione posizione del player prima del salto
+			 */
 			if (setStartPosition) {
 				startPosition.x = player.getPosition().x;
 				startPosition.y = player.getPosition().y;
-				
 				setStartPosition = false;
 			}
-			// il player deve rimanere dentro la camera
-			if(playerIsCollidingWithGround(xp, yp) || checkPlayerBounds()){
+			
+			if(isObstaclesCollision() || checkPlayerBounds())
 				obstacleFound = true;
-			}
 
-			// salto solo in verticale
+			/*
+			 * Salto del player: verticale
+			 */
 			if (player.VERTICAL_JUMP || obstacleFound) {
 				if ((((int)xp < startPosition.x - 2)) || obstacleFound){
 					player.setForce(GameConfig.JUMP_POS_FORCE);
 				}
 				player.verticalJump(delta);
-			} else {
-				if (((int)xp < startPosition.x - 2.6))
+			}/*
+			 * Salto del player: verticale e orizzontale
+			 */
+			else 
+			{
+				if (((int)xp < startPosition.x - 2.6) ){
 					player.swap();
+				}
 				
 				if(!obstacleFound)
 					player.jump(delta);
-
-			}// end of else
+			}
 			
 			
 			xp = player.getPosition().x;
 			yp = player.getPosition().y;
 			
-			// verifico che ritorni sul terreno e si fermi
-			if (checkGroundCollision(((int)player.getPosition().x) + 1, Math.round((player.getPosition().y)))
-					|| checkObstaclesCollision((int)xp +1, (int)yp, true)){
-				player.setPosition(new Vector2((int) player.getPosition().x, player.getPosition().y));
+			/*
+			 * Verifica che il personaggio si fermi sul terreno
+			 */
+			int ytmp = Math.round(yp);
+			if(yp - ytmp < 0.499f || ytmp - yp <0.499f){
+				if(player.getDirection() == 'r')
+					yp -= 0.3f;                         
+				else
+					yp += 0.3f;
+			}
+			/*|| checkObstaclesCollision((int)xp +1, (int)yp, true)*/
+			if (checkGroundCollision(((int)player.getPosition().x) + 1,Math.round((yp)))){
 				
+				if(player.getDirection() == 'r')
+					player.setPosition(new Vector2((int) player.getPosition().x, player.getPosition().y));
+				else
+					player.setPosition(new Vector2((int) player.getPosition().x, player.getPosition().y));
+				
+				
+				System.out.println(player.getPosition());
 				setStartPosition = true;
 				player.VERTICAL_JUMP = false;
 				PLAYER_IS_FALLING = false;
@@ -314,9 +351,10 @@ public class Game {
 			lock.unlock();
 		}
 
-	}
+	}	
 
 	private final boolean checkGroundCollision(int x, int y) {
+		
 		for (Ground g : groundObjects) {
 			if (g.getPosition().x == x) {
 				if (g.getPosition().y == y) {
@@ -334,94 +372,70 @@ public class Game {
 	/**
 	 * @return true se non c'è collisione con l'ostacolo
 	 */
-	private final boolean checkObstaclesCollision(int x, int y, boolean top){
-		if(top){
-			for(Obstacle o : obstacleObjects){
-				if(o.getPosition().x == x && o.getPosition().y == y){
-					if(o.getType().equals("25"))
-						return true;
-				}
-			}
-			return false;
-		} else {
-			for(Obstacle o : obstacleObjects){
-				if(o.getPosition().x == x && o.getPosition().y == y){
-					return true;
-				}
-				
-			}
-		}
-		
-		return false;
-	}
-
-	private final boolean checkFinalGroundCollision(int x, int y) {
-		for (Ground g : groundObjects) {
-			if (g.getPosition().x == x) {
-				if (g.getPosition().y == y) {
-					if ((g.getType().equals("1") || g.getType().equals("3") || g.getType().equals("14")
-							|| g.getType().equals("16"))) {
-						return true;
-					}
-				}
-			}
-		}
-		return false;
-	}
-
-	private boolean playerIsCollidingWithGround(float x, float y) {
-
-		int tmp_x;
-		int tmp_y;
-		
-		tmp_x = (int)x - GameConfig.SIZE_PLAYER_Y +1;
-		tmp_y = (int)y;
-
-		/*
-		 * Collisione con oggetti che si trovano sopra il player
-		 */
-		if(player.getState() == PlayerState.JUMPING){		
-			for (Ground g : groundObjects) {
-				if (g.getPosition().x == tmp_x && g.getPosition().y == tmp_y)
-					return true;
-			}
+//	private final boolean checkObstaclesCollision(int x, int y, boolean top){
+//		if(top){
+//			for(Obstacle o : obstacleObjects){
+//				if(o.getPosition().x == x && o.getPosition().y == y){
+//					if(o.getType().equals("25"))
+//						return true;
+//				}
+//			}
 //			return false;
-		}
-
+//		} else {
+//			for(Obstacle o : obstacleObjects){
+//				if(o.getPosition().x == x && o.getPosition().y == y){
+//					return true;
+//				}
+//				
+//			}
+//		}
+//		
+//		return false;
+//	}	
+	
+	private boolean isObstaclesCollision(){
+		
+		int posX = ((int)player.getPosition().x) - GameConfig.SIZE_PLAYER_Y + GameConfig.SIZE_GROUND_X;
+		int posY = Math.round(player.getPosition().y);
+		
+		
 		/*
-		 * Collisione a sinistra del player
+		 * Collisione sopra il personaggio con oggetti di tipo Ground
 		 */
-		tmp_x = (int)x;
-		tmp_y = (int)y;
-		if (player.getDirection() == 'l') {
+		for (Ground g : groundObjects) {
+			if (g.getPosition().x == posX && g.getPosition().y == posY)
+				return true;
+		}
+		
+		if(player.getDirection() == 'r'){
+			
+			posX = (int)player.getPosition().x;
+			posX--;
+			posY = (int)(player.getPosition().y) + GameConfig.SIZE_PLAYER_X;
+			
 			for (int i = 0; i < GameConfig.SIZE_PLAYER_Y; i++) {
 				for (Ground g : groundObjects) {
-					if (g.getPosition().x == tmp_x && g.getPosition().y == tmp_y) {
-						player.setPosition(new Vector2((int)player.getPosition().x,Math.round(player.getPosition().y)));
+					if (g.getPosition().x == posX && g.getPosition().y == posY) {
 						return true;
 					}
 				}
-				tmp_x--;
+				posX++;
 			}
-		}
+			
+		} else {
 
-		/*
-		 * Collisione a destra del player
-		 */
-		tmp_x = (int)x;
-		tmp_y = (int)y + GameConfig.SIZE_PLAYER_X;
-		if (player.getDirection() == 'r') {
-			for (int i = 0; i < GameConfig.SIZE_PLAYER_Y; i++) {
-				for (Ground g : groundObjects) {
-					if (g.getPosition().x == tmp_x && g.getPosition().y == tmp_y) {
-//						player.setPosition(new Vector2((int)player.getPosition().x,(int)(player.getPosition().y)));
-						return true;
+			posX = (int)player.getPosition().x;
+			posY = (int)(player.getPosition().y);
+				for (int i = 0; i < GameConfig.SIZE_PLAYER_Y; i++) {
+					for (Ground g : groundObjects) {
+						if (g.getPosition().x == posX && (g.getPosition().y) == posY) {
+							return true;
+						}
 					}
+					posX--;
 				}
-				tmp_x--;
-			}
 		}
-
+		
 		return false;
 	}
 
@@ -442,7 +456,6 @@ public class Game {
 		 * Posizione del player dentro la camera: lato superiore
 		 */
 		if (((int)x - GameConfig.SIZE_PLAYER_Y ) + 1 < 0) {
-//			player.setPosition(new Vector2(x - GameConfig.SIZE_PLAYER_Y, y));
 			return true;
 		}
 
@@ -450,41 +463,13 @@ public class Game {
 		/*
 		 * Posizione del player dentro la camera: lato destro
 		 */
-		if (y + GameConfig.SIZE_PLAYER_X > column) {
-			player.setPosition(new Vector2(x, column - 1));
+		if (y + GameConfig.SIZE_PLAYER_X > column && !player.VERTICAL_JUMP) {
 			return true;
 		}
 		
 		return false;
 
 	}
-	
-	// private boolean generaPosEnemy() {
-	// // due numeri random compresi tra i margini del livello
-	// // aggiunti alla lista di nemici
-	// Random random = new Random();
-	//
-	// int n = getRow();
-	// int n2 = getColumn();
-	//
-	// int x = random.nextInt(n);
-	// int y = random.nextInt(n2);
-	// // controllare che le posizioni che ho randomizzato si trovino su un
-	// // oggetto terreno
-	//
-	// if (checkGroundCollision(x + 1, y)) {
-	//
-	// Enemy tmp = new Enemy(new Vector2(x, y), new
-	// Vector2(GameConfig.SIZE_ENEMY_X, GameConfig.SIZE_ENEMY_Y),
-	// 'l');
-	//
-	// enemy.add(tmp);
-	// return true;
-	// }
-	//
-	// return false;
-	//
-	// }
 
 	public void moveEnemy(float dt) {
 		for (Enemy e : enemy) {
@@ -492,7 +477,7 @@ public class Game {
 			if(e.getJustOnce()){
 			    e.setStartingPos((int)e.getPosition().y);
 			    e.setJustOnce(false);
-                        }
+            }
 
 			// prendiamo le coordinate di un nemico per volta
 

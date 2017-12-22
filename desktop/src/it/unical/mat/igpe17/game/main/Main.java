@@ -1,10 +1,10 @@
-package it.unical.mat.igpe17.game.testGui;
+package it.unical.mat.igpe17.game.main;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 
+import it.unical.mat.igpe17.game.Main.GameTest;
 import it.unical.mat.igpe17.game.constants.Asset;
-import it.unical.mat.igpe17.game.guiTest.GameTest;
 
 public class Main {
 	

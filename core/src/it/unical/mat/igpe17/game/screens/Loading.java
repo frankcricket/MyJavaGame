@@ -1,4 +1,4 @@
-package com.mygdx.game.screens;
+package it.unical.mat.igpe17.game.screens;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -14,8 +14,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
+import it.unical.mat.igpe17.game.GUI.Play;
 import it.unical.mat.igpe17.game.constants.MyAnimation;
-import it.unical.mat.igpe17.game.guiTest.Play;
 
 public class Loading implements Screen {
 

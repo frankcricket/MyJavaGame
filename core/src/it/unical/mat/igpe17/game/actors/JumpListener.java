@@ -20,6 +20,9 @@ public class JumpListener implements Runnable{
 				float delta = Gdx.graphics.getDeltaTime();
 				game.movePlayer(delta);
 				Thread.sleep(10);
+				if(game.getPlayer().getState() == PlayerState.JUMPING
+						&& !(game.getPlayer().VERTICAL_JUMP))
+					Thread.sleep(8);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
