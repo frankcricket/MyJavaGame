@@ -106,8 +106,8 @@ public class Play implements Screen {
 		updatePlayer(delta);
 		renderPlayer();
 
-//		updateEnemy(delta);
-//		renderEnemy();
+		updateEnemy(delta);
+		renderEnemy();
 
 		camera.update();
 		renderer.setView(camera);
@@ -339,6 +339,8 @@ public class Play implements Screen {
 		}
 	}
 	
+	
+	//rimuove i nemici dalla creazione dall'editor (i nemici sono sempre presenti e si muovono nel gioco)
 	private void removeEnemiesFromMap(){
 
 		for(Enemy e : enemies){
