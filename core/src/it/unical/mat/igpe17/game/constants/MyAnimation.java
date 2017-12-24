@@ -72,9 +72,9 @@ public class MyAnimation {
 		 */
 
 		aTmp = createAnimation(8, new Texture("animations/enemy_run_left.png"), 64, 128, .11f);
-		animations.put("enemy_run_right", aTmp);
-		aTmp = createAnimation(8, new Texture("animations/enemy_run_right.png"), 64, 128, .11f);
 		animations.put("enemy_run_left", aTmp);
+		aTmp = createAnimation(8, new Texture("animations/enemy_run_right.png"), 64, 128, .11f);
+		animations.put("enemy_run_right", aTmp);
 
 		/*
 		 * enemy 2 : running

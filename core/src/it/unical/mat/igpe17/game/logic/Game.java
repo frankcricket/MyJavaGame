@@ -15,7 +15,6 @@ import it.unical.mat.igpe17.game.constants.Asset;
 import it.unical.mat.igpe17.game.constants.GameConfig;
 import it.unical.mat.igpe17.game.objects.Ground;
 import it.unical.mat.igpe17.game.objects.Obstacle;
-import it.unical.mat.igpe17.game.objects.StaticObject;
 import it.unical.mat.igpe17.game.utility.Reader;
 
 public class Game {
@@ -140,12 +139,9 @@ public class Game {
 			 * Se il player può andare a sinistra, viene settata la nuova
 			 * posizione
 			 */
-			if (checkGroundCollision(((int) x) + 1,
-					Math.round(y))/*
-									 * || checkObstaclesCollision(((int) x) + 1,
-									 * Math.round(y), true)
-									 */) {
+			if (checkGroundCollision(((int) x) + 1,	Math.round(y))) {
 				check_g1_l = true;
+				player.setPosition(new Vector2((int)player.getPosition().x, player.getPosition().y));
 				if (!isObstaclesCollision()) {
 					Vector2 tmp = new Vector2();
 					tmp.x = GameConfig.PLAYER_NEG_VELOCITY.x;
@@ -223,11 +219,9 @@ public class Game {
 			// return;
 			// }
 
-			/*
-			 * || checkObstaclesCollision(((int)x) + 1, Math.round(y), true)) {
-			 */
 			if (checkGroundCollision(((int) x) + 1, Math.round(y))) {
 				check_g1_r = true;
+				player.setPosition(new Vector2((int)player.getPosition().x, player.getPosition().y));
 				if (!isObstaclesCollision()) {
 					Vector2 tmp = new Vector2();
 					tmp.x = GameConfig.PLAYER_POS_VELOCITY.x;
@@ -260,7 +254,6 @@ public class Game {
 		}
 
 	}
-
 	private boolean obstacleFound = false;
 
 	public void makePlayerJump(float delta) {
@@ -274,7 +267,7 @@ public class Game {
 			float yp = player.getPosition().y;
 
 			/*
-			 * Verifica posizione player > dimensione schermo
+			 * Verifica posizione player > dimensione schermo : BOTTOM
 			 */
 			if (player.getPosition().x >= row + GameConfig.SIZE_PLAYER_Y) {
 				player.setState(PlayerState.DEAD);
@@ -292,25 +285,24 @@ public class Game {
 
 			if (isObstaclesCollision() || checkPlayerBounds())
 				obstacleFound = true;
-
-			/*
-			 * Salto del player: verticale
-			 */
-			if (player.VERTICAL_JUMP || obstacleFound) {
-				if ((((int) xp < startPosition.x - 2)) || obstacleFound) {
-					player.setForce(GameConfig.JUMP_POS_FORCE);
-				}
+			
+			if(obstacleFound){
+				player.setForce(GameConfig.JUMP_POS_FORCE);
 				player.verticalJump(delta);
-			} /*
-				 * Salto del player: verticale e orizzontale
-				 */
-			else {
-				if (((int) xp < startPosition.x - 2.6)) {
-					player.swap();
-				}
+			}
+			else{
 
-				if (!obstacleFound)
+				if (player.VERTICAL_JUMP) {
+					if ((int) xp < startPosition.x - 2) {
+						player.setForce(GameConfig.JUMP_POS_FORCE);
+					}
+					player.verticalJump(delta);
+				} else {
+					if (((int) xp < startPosition.x - 4.1)) {
+						player.swap();
+					}
 					player.jump(delta);
+				}
 			}
 
 			xp = player.getPosition().x;
@@ -326,15 +318,11 @@ public class Game {
 				else
 					yp += 0.3f;
 			}
-			/* || checkObstaclesCollision((int)xp +1, (int)yp, true) */
+
 			if (checkGroundCollision(((int) player.getPosition().x) + 1, Math.round((yp)))) {
-
-				if (player.getDirection() == 'r')
-					player.setPosition(new Vector2((int) player.getPosition().x, player.getPosition().y));
-				else
-					player.setPosition(new Vector2((int) player.getPosition().x, player.getPosition().y));
-
-				System.out.println(player.getPosition());
+				
+				player.setPosition(new Vector2((int) player.getPosition().x, player.getPosition().y));
+				
 				setStartPosition = true;
 				player.VERTICAL_JUMP = false;
 				PLAYER_IS_FALLING = false;
@@ -343,11 +331,9 @@ public class Game {
 				player.setForce(GameConfig.JUMP_NEG_FORCE);
 				player.setState(PlayerState.IDLING);
 				player.reset();
-				return;
 			}
 
 		} catch (InterruptedException e) {
-			e.printStackTrace();
 		} finally {
 			lock.unlock();
 		}
@@ -450,47 +436,46 @@ public class Game {
 
 	private boolean isObstaclesCollision() {
 
-		int posX = ((int) player.getPosition().x) - GameConfig.SIZE_PLAYER_Y + GameConfig.SIZE_GROUND_X;
-		int posY = Math.round(player.getPosition().y);
+		float left = player.getPosition().y;
+		float bottom = player.getPosition().x;
+		float top = (bottom - GameConfig.SIZE_PLAYER_Y);
+		float right = (left + GameConfig.SIZE_PLAYER_X);
 
 		/*
 		 * Collisione sopra il personaggio con oggetti di tipo Ground
 		 */
 		for (Ground g : groundObjects) {
-			if (g.getPosition().x == posX && g.getPosition().y == posY)
+			float b = g.getPosition().x;
+			float l = g.getPosition().y;
+			float t = b - GameConfig.SIZE_GROUND_X;
+			float r = l + GameConfig.SIZE_GROUND_Y;
+			
+			
+			if((l > left && l < right && b > top && b < bottom)
+				|| 
+				(l > left && l < right && t > top && t < bottom)
+				|| 
+				(r > left && r < right && t > top && t < bottom)
+				|| 
+				(r > left && r < right && b > top && b < bottom)
+					){
+				
+				if(!player.VERTICAL_JUMP){
+					if(right > l && right < r){
+						player.setPosition(new Vector2(bottom,(int)left));
+						
+					}
+					else if(left > l && left < r)
+						player.setPosition(new Vector2(bottom,Math.round(left)));
+					else if(top > t && top < b)
+						player.setPosition(new Vector2((int)bottom,left));
+				}
+				
 				return true;
-		}
-
-		if (player.getDirection() == 'r') {
-
-			posX = (int) player.getPosition().x;
-			posX--;
-			posY = (int) (player.getPosition().y) + GameConfig.SIZE_PLAYER_X;
-
-			for (int i = 0; i < GameConfig.SIZE_PLAYER_Y; i++) {
-				for (Ground g : groundObjects) {
-					if (g.getPosition().x == posX && g.getPosition().y == posY) {
-						return true;
-					}
-				}
-				posX++;
-			}
-
-		} else {
-
-			posX = (int) player.getPosition().x;
-			posY = (int) (player.getPosition().y);
-			for (int i = 0; i < GameConfig.SIZE_PLAYER_Y; i++) {
-				for (Ground g : groundObjects) {
-					if (g.getPosition().x == posX && (g.getPosition().y) == posY) {
-						return true;
-					}
-				}
-				posX--;
 			}
 		}
-
-		return false;
+		
+		return false;		
 	}
 
 	private boolean checkPlayerBounds() {
@@ -502,7 +487,7 @@ public class Game {
 		 * Posizione del player dentro la camera: lato sinistro
 		 */
 
-		if (y - 1 < (camera - 0.89f) && !player.VERTICAL_JUMP) {
+		if (y - 1 < (camera - 0.75f) && !player.VERTICAL_JUMP) {
 			return true;
 		}
 
@@ -516,7 +501,7 @@ public class Game {
 		/*
 		 * Posizione del player dentro la camera: lato destro
 		 */
-		if (y + GameConfig.SIZE_PLAYER_X > column && !player.VERTICAL_JUMP) {
+		if (y + GameConfig.SIZE_PLAYER_X  + 0.25f > column && !player.VERTICAL_JUMP) {
 			return true;
 		}
 

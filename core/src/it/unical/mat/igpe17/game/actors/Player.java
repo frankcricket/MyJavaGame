@@ -2,7 +2,6 @@ package it.unical.mat.igpe17.game.actors;
 
 import com.badlogic.gdx.math.Vector2;
 
-import it.unical.mat.igpe17.game.Interface.ICollidable;
 import it.unical.mat.igpe17.game.Interface.IPlayer;
 import it.unical.mat.igpe17.game.constants.GameConfig;
 import it.unical.mat.igpe17.game.objects.DynamicObject;
@@ -105,15 +104,6 @@ public class Player extends DynamicObject implements IPlayer {
 		velocity.x = GameConfig.NEGATIVE_JUMP_VELOCITY.x;
 		velocity.y = GameConfig.NEGATIVE_JUMP_VELOCITY.y;
 	}
-
-	@Override
-	public boolean collide(ICollidable object) {
-		if (object instanceof DynamicObject)
-			return this.collide(((DynamicObject) object));
-		return false;
-	}
-
-	
 
 	public void setForce(Vector2 force) {
 		this.playerForce.x = force.x;

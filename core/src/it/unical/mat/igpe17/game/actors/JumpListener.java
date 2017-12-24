@@ -22,7 +22,7 @@ public class JumpListener implements Runnable{
 				Thread.sleep(10);
 				if(game.getPlayer().getState() == PlayerState.JUMPING
 						&& !(game.getPlayer().VERTICAL_JUMP))
-					Thread.sleep(8);
+					Thread.sleep(11);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
