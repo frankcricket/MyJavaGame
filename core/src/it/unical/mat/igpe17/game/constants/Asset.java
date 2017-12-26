@@ -55,6 +55,9 @@ public class Asset {
 	public static String OBSTACLE13 = "asset/Obstacles/obstacle29.png";
 	public static String OBSTACLE14 = "asset/Obstacles/obstacle30.png";
 	
+	
+	public static String COINS = "asset/Obstacles/coin.png";
+	
 	//enemies
 	
 	public static String ENEMY1 = "asset/Enemies/enemy1.png";
@@ -101,6 +104,8 @@ public class Asset {
 		map.put("28", OBSTACLE12);
 		map.put("29", OBSTACLE13);
 		map.put("30", OBSTACLE14);
+		
+		map.put("50", COINS);
 		
 		
 		//aggiunta nemici

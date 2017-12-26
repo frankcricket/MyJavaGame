@@ -143,6 +143,13 @@ public class MySaveFile {
 			bw.newLine();
 		}
 		
+		/*
+		 * Stampo il coin
+		 */
+		
+		bw.write(" <tileset firstgid=" + "\"" + 50 + "\"" + " source=" + "\"" + "tileset/coin" + ".tsx"
+				+ "\"" + "/>");
+		bw.newLine();
 		
 		
 		bw.write(" <layer name=" + "\"" + "Livello tile 1" + "\"" + " width=" + "\"" + height + "\"" + " height=" + "\""

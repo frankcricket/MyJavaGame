@@ -25,6 +25,7 @@ public class Game {
 	private Player player;
 	private List<Ground> groundObjects;
 	private List<Obstacle> obstacleObjects;
+	private List<Obstacle> coins;
 
 	private final int NUM_ENEMY = 10;
 	private List<Enemy> enemy;
@@ -47,7 +48,8 @@ public class Game {
 	public Game() {
 		player = null;
 		groundObjects = null;
-		enemy = new LinkedList<Enemy>();
+		enemy = null;
+		coins = null;
 
 		lock = new ReentrantLock();
 		condition = lock.newCondition();
@@ -64,6 +66,7 @@ public class Game {
 		column = reader.getRow();
 		groundObjects = reader.getGround();
 		obstacleObjects = reader.getObstacle();
+		coins = reader.getCoins();
 		enemy = reader.getEnemy();
 		player = reader.getPlayer();
 
@@ -148,7 +151,6 @@ public class Game {
 					tmp.y = GameConfig.PLAYER_NEG_VELOCITY.y;
 					player.move(tmp, dt);
 					PLAYER_IS_FALLING = false;
-
 					neg_fall = GameConfig.FALLING_NEG_VELOCITY.y;
 					check_g2_l = true;
 				}
@@ -255,6 +257,7 @@ public class Game {
 
 	}
 	private boolean obstacleFound = false;
+	public boolean moveWhileJumping = false;
 
 	public void makePlayerJump(float delta) {
 		lock.lock();
@@ -283,7 +286,7 @@ public class Game {
 				setStartPosition = false;
 			}
 
-			if (isObstaclesCollision() || checkPlayerBounds())
+			if ((isObstaclesCollision() || checkPlayerBounds()))
 				obstacleFound = true;
 			
 			if(obstacleFound){
@@ -293,10 +296,23 @@ public class Game {
 			else{
 
 				if (player.VERTICAL_JUMP) {
-					if ((int) xp < startPosition.x - 2) {
+					if ((int) xp < startPosition.x - 3) {
 						player.setForce(GameConfig.JUMP_POS_FORCE);
 					}
 					player.verticalJump(delta);
+					if(moveWhileJumping)
+						if(player.getDirection() == 'r'){
+							Vector2 tmp = new Vector2();
+							tmp.x = 0;
+							tmp.y = +2.3f;
+							player.move(tmp, delta);
+						}
+						else{
+							Vector2 tmp = new Vector2();
+							tmp.x = 0;
+							tmp.y = -2.3f;
+							player.move(tmp, delta);
+						}
 				} else {
 					if (((int) xp < startPosition.x - 4.1)) {
 						player.swap();
@@ -327,6 +343,8 @@ public class Game {
 				player.VERTICAL_JUMP = false;
 				PLAYER_IS_FALLING = false;
 				obstacleFound = false;
+				
+				moveWhileJumping = false;
 
 				player.setForce(GameConfig.JUMP_NEG_FORCE);
 				player.setState(PlayerState.IDLING);
@@ -451,27 +469,39 @@ public class Game {
 			float r = l + GameConfig.SIZE_GROUND_Y;
 			
 			
-			if((l > left && l < right && b > top && b < bottom)
+			if((l > left && l < right && b > top && b < bottom)//top right
 				|| 
-				(l > left && l < right && t > top && t < bottom)
+				(l > left && l < right && t > top && t < bottom)//top left
 				|| 
-				(r > left && r < right && t > top && t < bottom)
+				(r > left && r < right && t > top && t < bottom)//bottom right
 				|| 
-				(r > left && r < right && b > top && b < bottom)
+				(r > left && r < right && b > top && b < bottom)//bottom left
 					){
 				
-				if(!player.VERTICAL_JUMP){
+				//Il player salta in verticale e collide con un terreno
+				if(player.VERTICAL_JUMP){
+					 if(top > t && top < b)
+						player.setPosition(new Vector2(bottom + 0.5f,left));
+					 return true;
+				}
+				
+				/*
+				 * Il player salta in orizzontale e verticale OPPURE salta in verticale e si muove sulla y
+				 */
+				if(moveWhileJumping	|| !player.VERTICAL_JUMP){
 					if(right > l && right < r){
 						player.setPosition(new Vector2(bottom,(int)left));
 						
 					}
-					else if(left > l && left < r)
+					else if(left > l && left < r){
 						player.setPosition(new Vector2(bottom,Math.round(left)));
+					}
 					else if(top > t && top < b)
 						player.setPosition(new Vector2((int)bottom,left));
+					
+					return true;
 				}
 				
-				return true;
 			}
 		}
 		
@@ -486,8 +516,8 @@ public class Game {
 		/*
 		 * Posizione del player dentro la camera: lato sinistro
 		 */
-
-		if (y - 1 < (camera - 0.75f) && !player.VERTICAL_JUMP) {
+		boolean b = y - 1 < (camera - 0.75f);
+		if ((b && moveWhileJumping)	|| (b && !player.VERTICAL_JUMP)) {
 			return true;
 		}
 
@@ -501,7 +531,8 @@ public class Game {
 		/*
 		 * Posizione del player dentro la camera: lato destro
 		 */
-		if (y + GameConfig.SIZE_PLAYER_X  + 0.25f > column && !player.VERTICAL_JUMP) {
+		boolean b1 = y + GameConfig.SIZE_PLAYER_X  + 0.25f > column;
+		if ((b1 && moveWhileJumping) || (b1 && !player.VERTICAL_JUMP)) {
 			return true;
 		}
 
@@ -603,6 +634,9 @@ public class Game {
 
 	public final List<Enemy> getEnemy() {
 		return enemy;
+	}
+	public final List<Obstacle> getCoins() {
+		return coins;
 	}
 
 	public final int getRow() {

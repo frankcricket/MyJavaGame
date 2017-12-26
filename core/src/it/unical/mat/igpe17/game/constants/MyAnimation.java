@@ -100,6 +100,20 @@ public class MyAnimation {
 		 */
 		aTmp = createAnimation(15, new Texture("animations/loading.gif"), 256, 64, .11f);
 		animations.put("loading", aTmp);
+		
+		
+		
+		/*
+		 * Animazione coins
+		 */
+		TextureRegion[] regionFrame = new TextureRegion[4];
+		TextureRegion[][] tmpFrames = TextureRegion.split(new Texture("animations/coins.png"), 64, 64);
+		for (int i = 0; i < 4; i++) {
+			regionFrame[i] = tmpFrames[0][i];
+		}
+		animations.put("coins", new Animation<TextureRegion>(0.16f,regionFrame));
+		
+		
 	}
 
 	private Animation<TextureRegion> createAnimation(int elements, Texture image, int width, int height, float speed) {

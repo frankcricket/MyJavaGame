@@ -118,6 +118,8 @@ public class MyTree extends JPanel
 		DefaultMutableTreeNode ob13 = new DefaultMutableTreeNode("29");
 		DefaultMutableTreeNode ob14 = new DefaultMutableTreeNode("30");
 		
+		DefaultMutableTreeNode coin = new DefaultMutableTreeNode("50");
+		
 		obj.add(ob1);
 		obj.add(ob2);
 		obj.add(ob3);
@@ -132,6 +134,7 @@ public class MyTree extends JPanel
 		obj.add(ob12);
 		obj.add(ob13);
 		obj.add(ob14);
+		obj.add(coin);
 		
 		
 		

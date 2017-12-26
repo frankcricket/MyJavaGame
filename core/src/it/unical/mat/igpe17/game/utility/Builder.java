@@ -19,6 +19,7 @@ public class Builder {
 
 	private List<Ground> groundObjects = new LinkedList<Ground>();
 	private List<Obstacle> obstacleObjects = new LinkedList<Obstacle>();
+	private List<Obstacle> coins = new LinkedList<Obstacle>();
 
 
 	private List<Enemy> enemiesObjects = new LinkedList<Enemy>();
@@ -59,12 +60,15 @@ public class Builder {
 					Obstacle obs = new Obstacle(new Vector2(row,i),  new Vector2(GameConfig.SIZE_OBSTALCE_X, GameConfig.SIZE_OBSTALCE_Y), split[i]);
 					
 					obstacleObjects.add(obs);
-				}else{
+				}else if(Integer.parseInt(split[i]) >= 31 && Integer.parseInt(split[i]) <= 33){
 					Enemy enemy = new Enemy(new Vector2(row, i),
 							new Vector2(GameConfig.SIZE_ENEMY_X, GameConfig.SIZE_ENEMY_Y),
 							 'l', split[i]);
 					
 					enemiesObjects.add(enemy);
+				} else if(Integer.parseInt(split[i]) == 50){
+					Obstacle obs = new Obstacle(new Vector2(row,i),  new Vector2(GameConfig.SIZE_OBSTALCE_X, GameConfig.SIZE_OBSTALCE_Y), split[i]);
+					coins.add(obs);
 				}
 				
 			}
@@ -78,6 +82,9 @@ public class Builder {
 	
 	protected final List<Obstacle> getObstacle() {
 		return obstacleObjects;
+	}
+	protected final List<Obstacle> getCoins() {
+		return coins;
 	}
 	
 	public List<Enemy> getEnemiesObjects() {

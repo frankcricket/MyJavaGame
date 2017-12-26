@@ -74,6 +74,10 @@ public class Reader {
 	public final List<Obstacle> getObstacle() {
 		return builder.getObstacle();
 	}
+	
+	public final List<Obstacle> getCoins() {
+		return builder.getCoins();
+	}
 	public final List<Enemy> getEnemy() {
 		return builder.getEnemiesObjects();
 	}

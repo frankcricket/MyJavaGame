@@ -23,6 +23,8 @@ import it.unical.mat.igpe17.game.constants.Asset;
 import it.unical.mat.igpe17.game.constants.GameConfig;
 import it.unical.mat.igpe17.game.constants.MyAnimation;
 import it.unical.mat.igpe17.game.logic.Game;
+import it.unical.mat.igpe17.game.objects.Obstacle;
+import it.unical.mat.igpe17.game.objects.StaticObject;
 import it.unical.mat.igpe17.game.screens.Loading;
 
 public class Play implements Screen {
@@ -33,6 +35,7 @@ public class Play implements Screen {
 	public static int player_type = 1;
 
 	private List<Enemy> enemies;
+	private List<Obstacle> coins;
 
 	private TiledMap map;
 	private OrthogonalTiledMapRenderer renderer;
@@ -69,6 +72,7 @@ public class Play implements Screen {
 		background = new Background();
 		player = game.getPlayer();
 		enemies = game.getEnemy();
+		coins = game.getCoins();
 
 		/*
 		 * mappa e animazioni
@@ -91,7 +95,7 @@ public class Play implements Screen {
 		 */
 		jump_player = new Thread(new JumpListener(game));
 		jump_player.start();
-		removeEnemiesFromMap();
+		removeObjectsFromMap();
 	}
 
 	@Override
@@ -108,7 +112,9 @@ public class Play implements Screen {
 
 		updateEnemy(delta);
 		renderEnemy();
-
+		
+		renderCoins();
+		
 		camera.update();
 		renderer.setView(camera);
 
@@ -149,6 +155,14 @@ public class Play implements Screen {
 				player.VERTICAL_JUMP = true;
 				game.resumeCondition();
 				
+				
+			}
+			if(player.VERTICAL_JUMP && Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)){
+				player.setDirection('r');
+				game.moveWhileJumping = true;
+			} else if(player.VERTICAL_JUMP && Gdx.input.isKeyJustPressed(Input.Keys.LEFT)){
+				player.setDirection('l');
+				game.moveWhileJumping = true;
 			}
 			
 //			System.out.println(player.getState());
@@ -212,23 +226,23 @@ public class Play implements Screen {
 			switch (player.getDirection()) {
 			case 'r': {
 				if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING ) {
-					drawAnimation("player_idle_right");
+					drawAnimation(player,"player_idle_right");
 				} else if (player.getState() == PlayerState.RUNNING) {
-					drawAnimation("player_run_right");
+					drawAnimation(player,"player_run_right");
 				} else if (player.getState() == PlayerState.JUMPING) {
-					drawAnimation("player_jump_right");
+					drawAnimation(player,"player_jump_right");
 				}
 	
 				break;
 			} // end of case 'r'
 			case 'l': {
 				if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING) {
-					drawAnimation("player_idle_left");
+					drawAnimation(player,"player_idle_left");
 				} else if (player.getState() == PlayerState.RUNNING) {
-					drawAnimation("player_run_left");
+					drawAnimation(player,"player_run_left");
 	
 				} else if (player.getState() == PlayerState.JUMPING) {
-					drawAnimation("player_jump_left");
+					drawAnimation(player,"player_jump_left");
 				}
 	
 				break;
@@ -243,23 +257,23 @@ public class Play implements Screen {
 			switch (player.getDirection()) {
 			case 'r': {
 				if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING ) {
-					drawAnimation("player_w_idle_right");
+					drawAnimation(player,"player_w_idle_right");
 				} else if (player.getState() == PlayerState.RUNNING) {
-					drawAnimation("player_w_run_right");
+					drawAnimation(player,"player_w_run_right");
 				} else if (player.getState() == PlayerState.JUMPING) {
-					drawAnimation("player_w_jump_right");
+					drawAnimation(player,"player_w_jump_right");
 				}
 	
 				break;
 			} // end of case 'r'
 			case 'l': {
 				if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING) {
-					drawAnimation("player_w_idle_left");
+					drawAnimation(player,"player_w_idle_left");
 				} else if (player.getState() == PlayerState.RUNNING) {
-					drawAnimation("player_w_run_left");
+					drawAnimation(player,"player_w_run_left");
 	
 				} else if (player.getState() == PlayerState.JUMPING) {
-					drawAnimation("player_w_jump_left");
+					drawAnimation(player,"player_w_jump_left");
 				}
 	
 				break;
@@ -271,61 +285,72 @@ public class Play implements Screen {
 		}
 
 	}
+	
+	private void renderCoins(){
+		for(Obstacle o : coins){
+			drawAnimation(o, "coins");
+		}
+	}
 
 	// stampa qualsiasi tipo di animazione
-	private void drawAnimation(String name) {
-		int xP = (int) ((player.getPosition().y) * Asset.TILE);
-		int yP = (int) (((Asset.HEIGHT / Asset.TILE) - player.getPosition().x - 1) * Asset.TILE);
+	private void drawAnimation(StaticObject obj,String name) {
+		
+		if(obj instanceof Player)
+			obj = (Player)obj;
+		else if(obj instanceof Enemy)
+			obj = (Enemy)obj;
+		else if(obj instanceof Obstacle)
+			obj = (Obstacle)obj;
+		
+		int xP = (int) ((obj.getPosition().y) * Asset.TILE);
+		int yP = (int) (((Asset.HEIGHT / Asset.TILE) - obj.getPosition().x - 1) * Asset.TILE);
 
 		Animation<TextureRegion> a = animations.getAnimation(name);
 		batch.begin();
 		batch.draw(a.getKeyFrame(elapsedTime, true), xP, yP);
 		batch.end();
+		
 	}
 
-	private void drawAnimationEnemy(String name, float x, float y) {
-		int xP = (int) ((y) * Asset.TILE);
-		int yP = (int) (((Asset.HEIGHT / Asset.TILE) - x - 1) * Asset.TILE);
+//	private void drawAnimationEnemy(String name, float x, float y) {
+//		int xP = (int) ((y) * Asset.TILE);
+//		int yP = (int) (((Asset.HEIGHT / Asset.TILE) - x - 1) * Asset.TILE);
+//
+//		Animation<TextureRegion> a = animations.getAnimation(name);
+//		batch.begin();
+//		batch.draw(a.getKeyFrame(elapsedTime, true), xP, yP);
+//		batch.end();
+//	}
 
-		Animation<TextureRegion> a = animations.getAnimation(name);
-		batch.begin();
-		batch.draw(a.getKeyFrame(elapsedTime, true), xP, yP);
-		batch.end();
-	}
-
-	// TODO da mettere le animazioni per tutti i nemici
 	private void renderEnemy() {
 		for (Enemy e : enemies) {
 			
 			switch (e.getType()){
-			
-			case "32" :{
-				if (e.getDirection() == 'l') {
-					drawAnimationEnemy("enemy_run_left", e.getPosition().x, e.getPosition().y);
-				} else {
-					drawAnimationEnemy("enemy_run_right", e.getPosition().x, e.getPosition().y);
-				}
-			break;
-				
-			}
-			
 			case "31":{
 				if (e.getDirection() == 'l') {
-					drawAnimationEnemy("enemy2_m_run_left", e.getPosition().x, e.getPosition().y);
+					drawAnimation(e,"enemy2_m_run_left");
 				} else {
 					//System.out.println("31");
-					drawAnimationEnemy("enemy2_m_run_right", e.getPosition().x, e.getPosition().y);
+					drawAnimation(e,"enemy2_m_run_right");
 				}
 				
 				break;
-			}
-			
+			}			
+			case "32" :{
+				if (e.getDirection() == 'l') {
+					drawAnimation(e,"enemy_run_left");
+				} else {
+					drawAnimation(e,"enemy_run_right");
+				}
+			break;
+				
+			}			
 			case "33": {
 				if (e.getDirection() == 'l') {
-					drawAnimationEnemy("enemy1_w_run_left", e.getPosition().x, e.getPosition().y);
+					drawAnimation(e,"enemy1_w_run_left");
 				} else {
 					
-					drawAnimationEnemy("enemy1_w_run_right", e.getPosition().x, e.getPosition().y);
+					drawAnimation(e,"enemy1_w_run_right");
 				}
 				
 				break;
@@ -341,8 +366,11 @@ public class Play implements Screen {
 	
 	
 	//rimuove i nemici dalla creazione dall'editor (i nemici sono sempre presenti e si muovono nel gioco)
-	private void removeEnemiesFromMap(){
+	private void removeObjectsFromMap(){
 
+		/*
+		 * Rimozione dei nemici dalla mappa
+		 */
 		for(Enemy e : enemies){
 			int layer = game.getRow() - 1;
 			int x = (int)e.getPosition().x;
@@ -351,9 +379,21 @@ public class Play implements Screen {
 			layer = layer - x;
 			TiledMapTileLayer tile = (TiledMapTileLayer) map.getLayers().get(0);
 			tile.getCell(y,layer).setTile(null);
-			
-			
 		}
+		
+		/*
+		 *Rimozione dei coins dalla mappa 
+		 */
+		for(Obstacle e : coins){
+			int layer = game.getRow() - 1;
+			int x = (int)e.getPosition().x;
+			int y = (int)e.getPosition().y;
+
+			layer = layer - x;
+			TiledMapTileLayer tile = (TiledMapTileLayer) map.getLayers().get(0);
+			tile.getCell(y,layer).setTile(null);
+		}
+		
 	}
 
 	private void updateEnemy(float delta) {
