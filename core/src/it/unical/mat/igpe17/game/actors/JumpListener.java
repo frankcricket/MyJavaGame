@@ -21,8 +21,9 @@ public class JumpListener implements Runnable{
 				game.movePlayer(delta);
 				Thread.sleep(10);
 				if(game.getPlayer().getState() == PlayerState.JUMPING
-						&& !(game.getPlayer().VERTICAL_JUMP))
-					Thread.sleep(11);
+						&& !(game.getPlayer().VERTICAL_JUMP)){
+					Thread.sleep(5);
+				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

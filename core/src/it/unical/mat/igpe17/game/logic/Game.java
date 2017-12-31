@@ -1,6 +1,6 @@
 package it.unical.mat.igpe17.game.logic;
 
-import java.util.LinkedList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -134,15 +134,12 @@ public class Game {
 				return;
 			}
 
-			// if(checkObstaclesCollision((int)x, ((int)y), false)){
-			// return;
-			// }
-
 			/*
 			 * Se il player può andare a sinistra, viene settata la nuova
 			 * posizione
 			 */
-			if (checkGroundCollision(((int) x) + 1,	Math.round(y))) {
+//			if (checkGroundCollision(((int) x) + 1,	Math.round(y))) {
+				if (validatePosition()) {
 				check_g1_l = true;
 				player.setPosition(new Vector2((int)player.getPosition().x, player.getPosition().y));
 				if (!isObstaclesCollision()) {
@@ -191,10 +188,8 @@ public class Game {
 		check_g2_r = true;
 
 		try {
-			// il thread va in await fintantochè il suo stato non diventa
-			// running
-			while (player.getState() != PlayerState.RUNNING) {
-				condition.await();
+				while (player.getState() != PlayerState.RUNNING) {
+					condition.await();
 			}
 
 			/*
@@ -217,11 +212,8 @@ public class Game {
 				return;
 			}
 
-			// if(checkObstaclesCollision((int)x, ((int)y)+1, false)){
-			// return;
-			// }
-
-			if (checkGroundCollision(((int) x) + 1, Math.round(y))) {
+//			if (checkGroundCollision(((int) x) + 1, Math.round(y))) {
+			if (validatePosition()) {
 				check_g1_r = true;
 				player.setPosition(new Vector2((int)player.getPosition().x, player.getPosition().y));
 				if (!isObstaclesCollision()) {
@@ -235,7 +227,7 @@ public class Game {
 				}
 			}
 			/*
-			 * Questo codice viene eseguito quando il player sta cadendo
+			 * Il player sta cadendo..
 			 */
 			if (!check_g1_r && check_g2_r) {
 				if (pos_fall <= 4.0f) {
@@ -324,9 +316,6 @@ public class Game {
 			xp = player.getPosition().x;
 			yp = player.getPosition().y;
 
-			/*
-			 * Verifica che il personaggio si fermi sul terreno
-			 */
 			int ytmp = Math.round(yp);
 			if (yp - ytmp < 0.499f || ytmp - yp < 0.499f) {
 				if (player.getDirection() == 'r')
@@ -335,8 +324,8 @@ public class Game {
 					yp += 0.3f;
 			}
 
-			if (checkGroundCollision(((int) player.getPosition().x) + 1, Math.round((yp)))) {
-				
+//			if (checkGroundCollision(((int) player.getPosition().x) + 1, Math.round((yp)))) {
+			if (validatePosition()) {
 				player.setPosition(new Vector2((int) player.getPosition().x, player.getPosition().y));
 				
 				setStartPosition = true;
@@ -357,46 +346,6 @@ public class Game {
 		}
 
 	}
-
-	private final boolean checkGroundCollision(int x, int y) {
-
-		for (Ground g : groundObjects) {
-			if (g.getPosition().x == x) {
-				if (g.getPosition().y == y) {
-					if ((g.getType().equals("1") || g.getType().equals("2") || g.getType().equals("3")
-							|| g.getType().equals("7") || g.getType().equals("11") || g.getType().equals("14")
-							|| g.getType().equals("15") || g.getType().equals("16"))) {
-						return true;
-					}
-				}
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * @return true se non c'è collisione con l'ostacolo
-	 */
-	// private final boolean checkObstaclesCollision(int x, int y, boolean top){
-	// if(top){
-	// for(Obstacle o : obstacleObjects){
-	// if(o.getPosition().x == x && o.getPosition().y == y){
-	// if(o.getType().equals("25"))
-	// return true;
-	// }
-	// }
-	// return false;
-	// } else {
-	// for(Obstacle o : obstacleObjects){
-	// if(o.getPosition().x == x && o.getPosition().y == y){
-	// return true;
-	// }
-	//
-	// }
-	// }
-	//
-	// return false;
-	// }
 
 	private final boolean checkObstaclesCollisionEnemy(int x, int y) {
 		for (Obstacle o : obstacleObjects) {
@@ -460,7 +409,7 @@ public class Game {
 		float right = (left + GameConfig.SIZE_PLAYER_X);
 
 		/*
-		 * Collisione sopra il personaggio con oggetti di tipo Ground
+		 * Collisione con terreno
 		 */
 		for (Ground g : groundObjects) {
 			float b = g.getPosition().x;
@@ -469,37 +418,104 @@ public class Game {
 			float r = l + GameConfig.SIZE_GROUND_Y;
 			
 			
-			if((l > left && l < right && b > top && b < bottom)//top right
+			if((l > left && l <= right && b > top && b < bottom)//top right
 				|| 
 				(l > left && l < right && t > top && t < bottom)//top left
 				|| 
 				(r > left && r < right && t > top && t < bottom)//bottom right
 				|| 
-				(r > left && r < right && b > top && b < bottom)//bottom left
+				(r >= left && r < right && b > top && b < bottom)//bottom left
 					){
 				
 				//Il player salta in verticale e collide con un terreno
 				if(player.VERTICAL_JUMP){
-					 if(top > t && top < b)
+					 if(top > t && top < b){
 						player.setPosition(new Vector2(bottom + 0.5f,left));
-					 return true;
+						return true;
+					 }
+//					 else if(bottom >= t && bottom < b && right >= l && right < r){
+//						 player.setPosition(new Vector2(t-0.01f,left));
+//						 return true;
+//					 }
+
 				}
 				
 				/*
-				 * Il player salta in orizzontale e verticale OPPURE salta in verticale e si muove sulla y
+				 * Il player salta (salto classico) OPPURE salta in verticale e si muove
 				 */
 				if(moveWhileJumping	|| !player.VERTICAL_JUMP){
-					if(right > l && right < r){
-						player.setPosition(new Vector2(bottom,(int)left));
+					//imposto la posizione del player quando collide con un oggetto che si trova sopra di lui
+					if(player.getState() == PlayerState.JUMPING){
+						if(top > t && top <= b){
+							player.setPosition(new Vector2(b + GameConfig.SIZE_ENEMY_Y,left));
+							return true;
+						}
 						
 					}
-					else if(left > l && left < r){
-						player.setPosition(new Vector2(bottom,Math.round(left)));
-					}
-					else if(top > t && top < b)
-						player.setPosition(new Vector2((int)bottom,left));
 					
-					return true;
+					if(right >= l && right < r){
+						player.setPosition(new Vector2(bottom,(int)left - 0.001f));
+						return true;
+					}
+					else if(left > l && left <= r){
+						player.setPosition(new Vector2(bottom,r + 0.001f));
+						return true;
+					}
+					else if(top > t && top < b){
+						player.setPosition(new Vector2((int)bottom,left));
+						return true;
+					}
+					
+				}
+				
+			}
+		}
+		
+		
+		for (Obstacle o : obstacleObjects) {
+			float b = o.getPosition().x;
+			float l = o.getPosition().y;
+			float t = b - GameConfig.SIZE_GROUND_X;
+			float r = l + GameConfig.SIZE_GROUND_Y;
+			
+			
+			if((l > left && l <= right && b > top && b < bottom)//top right
+				|| 
+				(l > left && l < right && t > top && t < bottom)//bottom right
+				|| 
+				(r > left && r < right && t > top && t < bottom)//bottom left
+				|| 
+				(r >= left && r < right && b > top && b < bottom)//top left
+					){
+				
+				
+				
+				/*
+				 * Il player salta (salto classico) OPPURE salta in verticale e si muove
+				 */
+				if(moveWhileJumping	|| !player.VERTICAL_JUMP){
+					//imposto la posizione del player quando collide con un oggetto che si trova sopra di lui
+					if(player.getState() == PlayerState.JUMPING){
+						if(top > t && top <= b){
+							player.setPosition(new Vector2(b + GameConfig.SIZE_ENEMY_Y,left));
+							return true;
+						}
+						
+					}
+					
+					if(right >= l && right < r){
+						player.setPosition(new Vector2(bottom,(int)left - 0.001f));
+						return true;
+					}
+					else if(left > l && left <= r){
+						player.setPosition(new Vector2(bottom,r + 0.001f));
+						return true;
+					}
+					else if(top > t && top < b){
+						player.setPosition(new Vector2((int)bottom,left));
+						return true;
+					}
+					
 				}
 				
 			}
@@ -615,6 +631,121 @@ public class Game {
 		}
 
 	}
+	
+	private final boolean validatePosition(){
+		
+		float left = player.getPosition().y;
+		float bottom = player.getPosition().x;
+		float top = (bottom - GameConfig.SIZE_PLAYER_Y);
+		float right = (left + GameConfig.SIZE_PLAYER_X);
+
+		/*
+		 * Collisione con terreno
+		 */
+		for (Ground g : groundObjects) {
+			if ((g.getType().equals("1") || g.getType().equals("2") || g.getType().equals("3")
+					|| g.getType().equals("7") || g.getType().equals("11") || g.getType().equals("14")
+					|| g.getType().equals("15") || g.getType().equals("16"))){
+				float b = g.getPosition().x;
+				float l = g.getPosition().y;
+				float t = b - GameConfig.SIZE_GROUND_X;
+				float r = l + GameConfig.SIZE_GROUND_Y;
+				
+				if((l > left && l < right - 0.45f && t > top && t <= bottom)//bottom right
+					|| 
+					(r > left + 0.45f && r < right && t > top && t <= bottom)//bottom left
+					){
+					return true;
+				}
+				
+			}
+			
+		}//end for
+		
+		for(Obstacle o : obstacleObjects){
+			if(o.getType().equals("25")){
+				float b = o.getPosition().x;
+				float l = o.getPosition().y;
+				float t = b - GameConfig.SIZE_GROUND_X;
+				float r = l + GameConfig.SIZE_GROUND_Y;
+				
+				if((l > left && l < right - 0.45f && t > top && t <= bottom)//bottom right
+					|| 
+					(r > left + 0.45f && r < right && t > top && t <= bottom)//bottom left
+					){
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	private final boolean checkGroundCollision(int x, int y) {
+
+		for (Ground g : groundObjects) {
+			if (g.getPosition().x == x) {
+				if (g.getPosition().y == y) {
+					if ((g.getType().equals("1") || g.getType().equals("2") || g.getType().equals("3")
+							|| g.getType().equals("7") || g.getType().equals("11") || g.getType().equals("14")
+							|| g.getType().equals("15") || g.getType().equals("16"))) {
+						return true;
+					}
+				}
+			}
+		}
+		
+		float left = player.getPosition().y;
+		float bottom = player.getPosition().x;
+		float top = (bottom - GameConfig.SIZE_PLAYER_Y);
+		float right = (left + GameConfig.SIZE_PLAYER_X);
+		
+		for(Obstacle o : obstacleObjects){
+			if(o.getType().equals("25")){
+				float b = o.getPosition().x;
+				float l = o.getPosition().y;
+				float t = b - GameConfig.SIZE_GROUND_X;
+				float r = l + GameConfig.SIZE_GROUND_Y;
+				if((r > left && r < right && t > top && t < bottom)//bottom right
+					|| 
+					(r >= left && r < right && b > top && b < bottom)//bottom left
+				  ){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public void handleScores(){
+		float left = player.getPosition().y;
+		float bottom = player.getPosition().x;
+		float top = (bottom - GameConfig.SIZE_PLAYER_Y);
+		float right = (left + GameConfig.SIZE_PLAYER_X);
+		
+		
+		for(Iterator<Obstacle> iter = coins.iterator(); iter.hasNext();) {
+		    Obstacle coin = iter.next();
+		    float b = coin.getPosition().x;
+			float l = coin.getPosition().y;
+			float t = b - GameConfig.SIZE_GROUND_X;
+			float r = l + GameConfig.SIZE_GROUND_Y;
+		    if((l > left && l <= right && b > top && b < bottom)//top right
+				|| 
+				(l > left && l < right && t > top && t < bottom)//bottom right
+				|| 
+				(r > left && r < right && t > top && t < bottom)//bottom left
+				|| 
+				(r >= left && r < right && b > top && b < bottom)//top left
+					){
+		    		iter.remove();
+		    		player.score(100);
+		    }
+		}
+	}
+		
+	
+	
 
 	public void setLevel(String level) {
 		LEVEL = level;

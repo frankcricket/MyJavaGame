@@ -29,9 +29,9 @@ public class GameConfig {
 	/*
 	 * Velocità salto player
 	 */
-	public static final Vector2 POSITIVE_JUMP_VELOCITY = new Vector2(-22f, 13f);
-	public static final Vector2 NEGATIVE_JUMP_VELOCITY = new Vector2(+24f, 13f);
-	public static final Vector2 GRAVITY_JUMP = new Vector2(1.92f,0.15f);
+	public static final Vector2 POSITIVE_JUMP_VELOCITY = new Vector2(-11f, 6.5f);
+	public static final Vector2 NEGATIVE_JUMP_VELOCITY = new Vector2(+12f, 6.5f);
+	public static final Vector2 GRAVITY_JUMP = new Vector2(0.45f,0.075f);
 
 	public static final int SIZE_PLAYER_X = 1;
 

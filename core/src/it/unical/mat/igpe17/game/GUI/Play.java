@@ -196,6 +196,8 @@ public class Play implements Screen {
 			game.setEndCamera(game.getEndCamer() + Asset.TILE*2);
 		}
 		
+		
+		game.handleScores();
 		}
 	}
 

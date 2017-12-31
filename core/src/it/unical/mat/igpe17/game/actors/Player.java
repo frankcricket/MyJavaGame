@@ -19,6 +19,8 @@ public class Player extends DynamicObject implements IPlayer {
 	private float posY;
 	
 	private int points;
+	
+	private int lives;
 
 	public Player(Vector2 position, Vector2 size, char direction, PlayerState state) {
 		super(position, size, direction);
@@ -39,6 +41,8 @@ public class Player extends DynamicObject implements IPlayer {
 		posY = 0;
 		
 		points = 0;
+		
+		lives = 3;
 	
 	}
 	
@@ -118,6 +122,7 @@ public class Player extends DynamicObject implements IPlayer {
 	}
 	public void score(final int _score) {
 		points += _score;
+		System.out.println("Current score: " + points);
 	}
 
 	public final PlayerState getState() {
@@ -127,6 +132,14 @@ public class Player extends DynamicObject implements IPlayer {
 	public void setState(PlayerState state) {
 		this.state = state;
 		
+	}
+	
+	public void decreaseLives(){
+		lives --;
+	}
+	
+	public final int getLives(){
+		return lives;
 	}
 
 }
