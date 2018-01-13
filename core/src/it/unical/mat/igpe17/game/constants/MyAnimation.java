@@ -16,15 +16,23 @@ public class MyAnimation {
 	public MyAnimation() {
 
 		/*
-		 * Player1 animation: running
+		 * Player male animation: running
 		 */
 		aTmp = createAnimation(8, new Texture("animations/player_run_right.png"), 66, 128, .10f);
 		animations.put("player_run_right", aTmp);
 		aTmp = createAnimation(8, new Texture("animations/player_run_left.png"), 66, 128, .10f);
 		animations.put("player_run_left", aTmp);
+		
+		/*
+		 * Player male animation: running with gun
+		 */
+		aTmp = createAnimation(8, new Texture("animations/player_m_run_with_gun_right.png"), 64, 128, .10f);
+		animations.put("player_m_run_with_gun_right", aTmp);
+		aTmp = createAnimation(8, new Texture("animations/player_m_run_with_gun_left.png"), 64, 128, .10f);
+		animations.put("player_m_run_with_gun_left", aTmp);
 
 		/*
-		 * Player1 animation: jump
+		 * Player male animation: jump
 		 */
 
 		aTmp = createAnimation(8, new Texture("animations/player_jump_right.png"), 64, 128, .08f);
@@ -33,24 +41,40 @@ public class MyAnimation {
 		animations.put("player_jump_left", aTmp);
 
 		/*
-		 * Player1 animation: idle
+		 * Player male animation: idle
 		 */
 		aTmp = createAnimation(8, new Texture("animations/player_idle_right.png"), 64, 128, .11f);
 		animations.put("player_idle_right", aTmp);
 		aTmp = createAnimation(8, new Texture("animations/player_idle_left.png"), 64, 128, .11f);
 		animations.put("player_idle_left", aTmp);
+		
+		/*
+		 * Player male animation: idle with gun
+		 */
+		aTmp = createAnimation(8, new Texture("animations/player_m_idle_with_gun_right.png"), 64, 128, .30f);
+		animations.put("player_m_idle_with_gun_right", aTmp);
+		aTmp = createAnimation(8, new Texture("animations/player_m_idle_with_gun_left.png"), 64, 128, .30f);
+		animations.put("player_m_idle_with_gun_left", aTmp);
 
 		/*
-		 * player women: running
+		 * Player female: running
 		 */
 
 		aTmp = createAnimation(8, new Texture("animations/player_w_run_right.png"), 64, 128, .10f);
 		animations.put("player_w_run_right", aTmp);
 		aTmp = createAnimation(8, new Texture("animations/player_w_run_left.png"), 64, 128, .10f);
 		animations.put("player_w_run_left", aTmp);
+		
+		/*
+		 * Player female animation: running with gun
+		 */
+		aTmp = createAnimation(8, new Texture("animations/player_f_run_with_gun_right.png"), 64, 128, .10f);
+		animations.put("player_f_run_with_gun_right", aTmp);
+		aTmp = createAnimation(8, new Texture("animations/player_f_run_with_gun_left.png"), 64, 128, .10f);
+		animations.put("player_f_run_with_gun_left", aTmp);
 
 		/*
-		 * player women: idle
+		 * Player female: idle
 		 */
 
 		aTmp = createAnimation(8, new Texture("animations/player_w_idle_right.png"), 64, 128, .11f);
@@ -59,7 +83,7 @@ public class MyAnimation {
 		animations.put("player_w_idle_left", aTmp);
 
 		/*
-		 * player women: jump
+		 * Player female: jump
 		 */
 
 		aTmp = createAnimation(8, new Texture("animations/player_w_jump_right.png"), 64, 128, .08f);
@@ -77,7 +101,7 @@ public class MyAnimation {
 		animations.put("enemy_run_right", aTmp);
 
 		/*
-		 * enemy 2 : running
+		 * Enemy2 animation: running
 		 */
 
 		aTmp = createAnimation(8, new Texture("animations/enemy2_m_run_right.png"), 64, 128, .11f);
@@ -86,7 +110,7 @@ public class MyAnimation {
 		animations.put("enemy2_m_run_left", aTmp);
 
 		/*
-		 * enemy 3 women : running
+		 * Enemy3 female animation: running
 		 */
 
 		aTmp = createAnimation(8, new Texture("animations/enemy1_w_run_right.png"), 64, 128, .11f);
@@ -96,7 +120,7 @@ public class MyAnimation {
 
 		
 		/*
-		 * animazione loading
+		 * Loading animation
 		 */
 		aTmp = createAnimation(15, new Texture("animations/loading.gif"), 256, 64, .11f);
 		animations.put("loading", aTmp);
@@ -104,14 +128,10 @@ public class MyAnimation {
 		
 		
 		/*
-		 * Animazione coins
+		 * Coins animation
 		 */
-		TextureRegion[] regionFrame = new TextureRegion[4];
-		TextureRegion[][] tmpFrames = TextureRegion.split(new Texture("animations/coins.png"), 64, 64);
-		for (int i = 0; i < 4; i++) {
-			regionFrame[i] = tmpFrames[0][i];
-		}
-		animations.put("coins", new Animation<TextureRegion>(0.16f,regionFrame));
+		aTmp = createAnimation(4, new Texture("animations/coins.png"),64, 64, .16f);
+		animations.put("coins", aTmp);
 		
 		
 	}
@@ -119,9 +139,8 @@ public class MyAnimation {
 	private Animation<TextureRegion> createAnimation(int elements, Texture image, int width, int height, float speed) {
 		TextureRegion[] regionFrame = new TextureRegion[elements];
 		TextureRegion[][] tmpFrames = TextureRegion.split(image, width, height);
-		int index = 0;
 		for (int i = 0; i < elements; i++) {
-			regionFrame[index++] = tmpFrames[0][i];
+			regionFrame[i] = tmpFrames[0][i];
 		}
 
 		return new Animation<TextureRegion>(speed, regionFrame);

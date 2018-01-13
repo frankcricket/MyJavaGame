@@ -165,6 +165,15 @@ public class Play implements Screen {
 				game.moveWhileJumping = true;
 			}
 			
+			if(Gdx.input.isKeyJustPressed(Input.Keys.W)){
+				if(player.getGun()){
+					player.setGun(false);
+				}
+				else{
+					player.setGun(true);
+				}
+			}
+			
 //			System.out.println(player.getState());
 		/**
 		 * Se il personaggio è fermo, viene impostato il suo stato come
@@ -224,34 +233,66 @@ public class Play implements Screen {
 	private void renderPlayer() {
 		
 		if(player_type == 1){
+			
+			if(player.getGun()){
+				switch (player.getDirection()) {
+				case 'r': {
+					if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING ) {
+						drawAnimation(player,"player_m_idle_with_gun_right");
+					} else if (player.getState() == PlayerState.RUNNING) {
+						drawAnimation(player,"player_m_run_with_gun_right");
+					} else if (player.getState() == PlayerState.JUMPING) {
+						drawAnimation(player,"player_jump_right");
+					}
+		
+					break;
+				} // end of case 'r'
+				case 'l': {
+					if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING) {
+						drawAnimation(player,"player_m_idle_with_gun_left");
+					} else if (player.getState() == PlayerState.RUNNING) {
+						drawAnimation(player,"player_m_run_with_gun_left");
+		
+					} else if (player.getState() == PlayerState.JUMPING) {
+						drawAnimation(player,"player_jump_left");
+					}
+		
+					break;
+				}
+				default:
+					break;
+				}// end of switch
+			}//end if check gun
+			else{
 
-			switch (player.getDirection()) {
-			case 'r': {
-				if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING ) {
-					drawAnimation(player,"player_idle_right");
-				} else if (player.getState() == PlayerState.RUNNING) {
-					drawAnimation(player,"player_run_right");
-				} else if (player.getState() == PlayerState.JUMPING) {
-					drawAnimation(player,"player_jump_right");
+				switch (player.getDirection()) {
+				case 'r': {
+					if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING ) {
+						drawAnimation(player,"player_idle_right");
+					} else if (player.getState() == PlayerState.RUNNING) {
+						drawAnimation(player,"player_run_right");
+					} else if (player.getState() == PlayerState.JUMPING) {
+						drawAnimation(player,"player_jump_right");
+					}
+		
+					break;
+				} // end of case 'r'
+				case 'l': {
+					if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING) {
+						drawAnimation(player,"player_idle_left");
+					} else if (player.getState() == PlayerState.RUNNING) {
+						drawAnimation(player,"player_run_left");
+		
+					} else if (player.getState() == PlayerState.JUMPING) {
+						drawAnimation(player,"player_jump_left");
+					}
+		
+					break;
 				}
-	
-				break;
-			} // end of case 'r'
-			case 'l': {
-				if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING) {
-					drawAnimation(player,"player_idle_left");
-				} else if (player.getState() == PlayerState.RUNNING) {
-					drawAnimation(player,"player_run_left");
-	
-				} else if (player.getState() == PlayerState.JUMPING) {
-					drawAnimation(player,"player_jump_left");
-				}
-	
-				break;
+				default:
+					break;
+				}// end of switch
 			}
-			default:
-				break;
-			}// end of switch
 		} else {
 					/*
 					 * Animazioni del player femmina

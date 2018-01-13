@@ -21,6 +21,7 @@ public class Player extends DynamicObject implements IPlayer {
 	private int points;
 	
 	private int lives;
+	public boolean hasGun;
 
 	public Player(Vector2 position, Vector2 size, char direction, PlayerState state) {
 		super(position, size, direction);
@@ -43,6 +44,8 @@ public class Player extends DynamicObject implements IPlayer {
 		points = 0;
 		
 		lives = 3;
+		
+		hasGun = false;
 	
 	}
 	
@@ -140,6 +143,13 @@ public class Player extends DynamicObject implements IPlayer {
 	
 	public final int getLives(){
 		return lives;
+	}
+	
+	public final boolean getGun(){
+		return hasGun;
+	}
+	public void setGun(boolean hasGun){
+		this.hasGun = hasGun;
 	}
 
 }
