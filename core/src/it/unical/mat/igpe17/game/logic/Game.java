@@ -34,6 +34,8 @@ public class Game {
 	private int column;
 	private float camera;
 	private float end_camera = Asset.WIDTH;
+	
+
 
 	boolean setStartPosition = true;
 	Vector2 startPosition = new Vector2();
@@ -565,8 +567,6 @@ public class Game {
 			int x = (int) e.getPosition().x;
 			int y = (int) e.getPosition().y;
 
-			isEnemyFollowingPlayer();
-			
 			switch (e.getDirection()) {
 
 			case 'l': {
@@ -626,15 +626,66 @@ public class Game {
 			default:
 				break;
 			}
-			
-			
+
 		}
-		
-		
-		
-		
+
 		isEnemyFollowingPlayer();
 
+	}
+	
+	//ritorna true se il player entra nel raggio del nemico
+	private boolean isPlayerInEmenyZone(Enemy e) {
+		
+		return Math.abs(e.getPosition().y - player.getPosition().y) <= GameConfig.SIZE_MOVE_ENEMY;
+		}
+
+		
+		
+		// todo controllare la x
+//		if (player.getPosition().x == e.getPosition().x) {
+//			System.out.println("movesEnemy : " + e.getMoves());
+//				if (((player.getPosition().y + GameConfig.SIZE_ENEMY_X > ((e.getPosition().y - GameConfig.SIZE_MOVE_ENEMY) + 3))
+//						&& player.getPosition().y < e.getPosition().y))
+//					return true;
+//			
+//			//dx
+//				if ((player.getPosition().y > (e.getPosition().y + GameConfig.SIZE_ENEMY_X))
+//						&& player.getPosition().y < ((e.getPosition().y + GameConfig.SIZE_MOVE_ENEMY) - e.getMoves()))
+//						return true;
+//
+//		}
+//
+//		return false;
+//	}
+
+
+	
+	//TODO nemico: collisione con il player con relativa animazione (ancora da caricare negli asset)
+	
+	
+	//quando il player entra nella zona del nemico a seconda, se viene da sx o da dx, cambia direzione verso il player e lo insegue
+	private void isEnemyFollowingPlayer() {
+		for (Enemy e : enemy) {
+			// System.out.println("player : " + player.getPosition().x +
+			// player.getPosition().y);
+			// System.out.println("enemy : " + e.getPosition().x +
+			// e.getPosition().y);
+			if (isPlayerInEmenyZone(e)) {
+				System.out.println("Sono dentro");
+
+				 // se a sx del nemico lo faccio muovere verso di lui
+				 if (player.getPosition().y < e.getPosition().y){
+				 e.setDirection('l');
+				 }
+				
+				 // se a dx del nemico lo faccio muovere verso di lui
+				 else
+				 e.setDirection('r');
+				
+				 }
+			
+			// todo se entra nel range si muove verso il player
+		}
 	}
 
 	private final boolean validatePosition() {
@@ -686,63 +737,6 @@ public class Game {
 		}
 
 		return false;
-	}
-
-	private boolean isPlayerInEmenyZone(Enemy e) {
-
-		// todo controllare la x
-		if (player.getPosition().x == e.getPosition().x) {
-			if (player.getPosition().y >= e.getPosition().y - GameConfig.SIZE_MOVE_ENEMY + e.getMoves()
-			
-			
-					|| player.getPosition().y <= e.getPosition().y + GameConfig.SIZE_MOVE_ENEMY - e.getMoves())
-				return true;
-		}
-		return false;
-	}
-
-	/*
-	 * 	private boolean isPlayerInEmenyZone(Enemy e) {
-
-
-
-		if (player.getPosition().x == e.getPosition().x) {
-			if ((player.getPosition().y >= e.getPosition().y - GameConfig.SIZE_MOVE_ENEMY + e.getMoves())
-					|| ((player.getPosition().y >= e.getPosition().y - GameConfig.SIZE_MOVE_ENEMY + e.getMoves()) &&
-							(player.getPosition().y <= e.getPosition().y + GameConfig.SIZE_MOVE_ENEMY - e.getMoves())))
-				return true;
-		}
-		return false;
-		
-		// todo controllare la x
-		if (player.getPosition().x == e.getPosition().x) {
-			if (player.getPosition().y >= e.getPosition().y - GameConfig.SIZE_MOVE_ENEMY + e.getMoves()
-			
-			
-					|| player.getPosition().y <= e.getPosition().y + GameConfig.SIZE_MOVE_ENEMY - e.getMoves())
-				return true;
-		}
-		return false;
-	}
-	 */
-	
-	
-	
-	private void isEnemyFollowingPlayer() {
-		for (Enemy e : enemy) {
-			if (isPlayerInEmenyZone(e)) {
-				if (player.getPosition().x == e.getPosition().x) {
-					// se a sx del nemico lo faccio muovere verso di lui
-					if (player.getPosition().y < e.getPosition().y)
-						e.setDirection('l');
-					// se a dx del nemico lo faccio muovere verso di lui
-					else
-						e.setDirection('r');
-
-				}
-			}
-			// todo se entra nel range si muove verso il player
-		}
 	}
 
 	private final boolean checkGroundCollision(int x, int y) {

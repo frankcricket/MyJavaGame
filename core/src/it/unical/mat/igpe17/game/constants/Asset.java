@@ -63,7 +63,9 @@ public class Asset {
 	public static String ENEMY1 = "asset/Enemies/enemy1.png";
 	public static String ENEMY2 = "asset/Enemies/enemy2.png";
 	public static String ENEMY3 = "asset/Enemies/enemy3.png";
-
+	
+	
+	public static String lives = "asset/heart.png";
 
 	
 	

@@ -21,6 +21,7 @@ public class Player extends DynamicObject implements IPlayer {
 	private int points;
 	
 	private int lives;
+	
 	public boolean hasGun;
 
 	public Player(Vector2 position, Vector2 size, char direction, PlayerState state) {
