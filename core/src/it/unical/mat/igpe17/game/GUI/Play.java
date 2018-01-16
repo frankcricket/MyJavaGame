@@ -23,6 +23,7 @@ import it.unical.mat.igpe17.game.actors.PlayerState;
 import it.unical.mat.igpe17.game.constants.Asset;
 import it.unical.mat.igpe17.game.constants.GameConfig;
 import it.unical.mat.igpe17.game.constants.MyAnimation;
+import it.unical.mat.igpe17.game.logic.Bullet;
 import it.unical.mat.igpe17.game.logic.Game;
 import it.unical.mat.igpe17.game.objects.Obstacle;
 import it.unical.mat.igpe17.game.objects.StaticObject;
@@ -112,17 +113,37 @@ public class Play implements Screen {
 
 		updatePlayer(delta);
 		renderPlayer();
-
+/*
 		updateEnemy(delta);
 		renderEnemy();
+		
 
 		renderCoins();
-
+*/
+		updateBullets(delta);
+		renderBullets();
 		camera.update();
 		renderer.setView(camera);
 
 		renderer.render();
 
+	}
+	
+	private void updateBullets(float dt){
+		game.updateBullets(dt);
+	}
+	private void renderBullets(){
+		Texture bullet = new Texture(Asset.BULLET);
+		batch.begin();
+		if(!game.getBullets().isEmpty()){
+			for(Bullet b: game.getBullets()){
+				int xB = (int) ((b.getPosition().y) * Asset.TILE);
+				int yB = (int) (((Asset.HEIGHT / Asset.TILE) - b.getPosition().x - 1) * Asset.TILE);
+
+				batch.draw(bullet,xB ,yB );	
+			}
+		}
+		batch.end();
 	}
 	
 
@@ -174,6 +195,8 @@ public class Play implements Screen {
 
 		batch.end();
 	}
+	
+	private boolean shot = false;
 	private void updatePlayer(final float delta) {
 
 		if (!game.isOver()) {
@@ -219,6 +242,23 @@ public class Play implements Screen {
 				} else {
 					player.setGun(true);
 				}
+			}
+			if (Gdx.input.isKeyJustPressed(Input.Keys.S)){
+
+				float c_x = player.getPosition().x;
+				float c_y = player.getPosition().y;
+				
+				if(player.getDirection() == 'r'){
+					c_x -= 0.8f;
+					c_y += GameConfig.SIZE_PLAYER_X;
+					
+					game.addBullet(c_x,c_y,'r');
+				}
+				else{
+					c_x -= 0.8f;					
+					game.addBullet(c_x,c_y,'l');
+				}
+				shot = true;
 			}
 
 			// System.out.println(player.getState());
@@ -283,7 +323,10 @@ public class Play implements Screen {
 			if (player.getGun()) {
 				switch (player.getDirection()) {
 				case 'r': {
-					if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING) {
+					if(player.getState() == PlayerState.IDLING && shot){
+						shot = false;
+						drawAnimation(player, "player_m_shot_right");
+					} else if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING) {
 						drawAnimation(player, "player_m_idle_with_gun_right");
 					} else if (player.getState() == PlayerState.RUNNING) {
 						drawAnimation(player, "player_m_run_with_gun_right");

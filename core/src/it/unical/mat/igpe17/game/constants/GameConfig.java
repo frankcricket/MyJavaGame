@@ -50,6 +50,10 @@ public class GameConfig {
 	public static final int SIZE_ENEMY_Y = 2;
 	
 	public static final int SIZE_MOVE_ENEMY = 5;
+
+	public static final int SIZE_BULLET_X = 5;
+	
+	public static final int SIZE_BULLET_Y = 5;
 	
 
 

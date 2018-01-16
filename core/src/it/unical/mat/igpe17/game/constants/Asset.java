@@ -66,6 +66,8 @@ public class Asset {
 	
 	
 	public static String lives = "asset/heart.png";
+	
+	public static final String BULLET = "asset/bullet.png";
 
 	
 	

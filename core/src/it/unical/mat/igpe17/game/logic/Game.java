@@ -1,6 +1,7 @@
 package it.unical.mat.igpe17.game.logic;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -26,6 +27,8 @@ public class Game {
 	private List<Ground> groundObjects;
 	private List<Obstacle> obstacleObjects;
 	private List<Obstacle> coins;
+	
+	private List<Bullet> bullets;
 
 	private final int NUM_ENEMY = 10;
 	private List<Enemy> enemy;
@@ -52,6 +55,7 @@ public class Game {
 		groundObjects = null;
 		enemy = null;
 		coins = null;
+		bullets = null;
 
 		lock = new ReentrantLock();
 		condition = lock.newCondition();
@@ -71,6 +75,8 @@ public class Game {
 		coins = reader.getCoins();
 		enemy = reader.getEnemy();
 		player = reader.getPlayer();
+		
+		bullets = new LinkedList<>();
 
 		// for(Ground g : groundObjects)
 		// System.out.println(g.getPosition());
@@ -671,7 +677,7 @@ public class Game {
 			// System.out.println("enemy : " + e.getPosition().x +
 			// e.getPosition().y);
 			if (isPlayerInEmenyZone(e)) {
-				System.out.println("Sono dentro");
+//				System.out.println("Sono dentro");
 
 				 // se a sx del nemico lo faccio muovere verso di lui
 				 if (player.getPosition().y < e.getPosition().y){
@@ -707,10 +713,8 @@ public class Game {
 				float t = b - GameConfig.SIZE_GROUND_X;
 				float r = l + GameConfig.SIZE_GROUND_Y;
 
-				if ((l > left && l < right - 0.45f && t > top && t <= bottom)// bottom
-																				// right
-						|| (r > left + 0.45f && r < right && t > top && t <= bottom)// bottom
-																					// left
+				if ((l > left && l < right - 0.45f && t > top && t <= bottom)// bottom right
+						|| (r > left + 0.45f && r < right && t > top && t <= bottom)// bottom left
 				) {
 					return true;
 				}
@@ -726,10 +730,8 @@ public class Game {
 				float t = b - GameConfig.SIZE_GROUND_X;
 				float r = l + GameConfig.SIZE_GROUND_Y;
 
-				if ((l > left && l < right - 0.45f && t > top && t <= bottom)// bottom
-																				// right
-						|| (r > left + 0.45f && r < right && t > top && t <= bottom)// bottom
-																					// left
+				if ((l > left && l < right - 0.45f && t > top && t <= bottom)// bottom right
+						|| (r > left + 0.45f && r < right && t > top && t <= bottom)// bottom left
 				) {
 					return true;
 				}
@@ -800,6 +802,32 @@ public class Game {
 				player.score(100);
 			}
 		}
+	}
+	
+	public void addBullet(float x,float y,char dir){
+		bullets.add(new Bullet(new Vector2(x,y),
+						new Vector2(GameConfig.SIZE_BULLET_X,GameConfig.SIZE_BULLET_Y),
+						dir));
+	}
+	
+	public void updateBullets(float dt){
+		if(!bullets.isEmpty()){
+			for(Bullet b : bullets){
+				b.move(dt);
+				
+			}
+			Iterator<Bullet> iter = bullets.iterator();
+			while(iter.hasNext()){
+				if(iter.next().getPosition().x > row){
+					iter.remove();
+				}
+				
+			}
+		}
+	}
+	
+	public final List<Bullet> getBullets(){
+		return bullets;
 	}
 
 	public void setLevel(String level) {

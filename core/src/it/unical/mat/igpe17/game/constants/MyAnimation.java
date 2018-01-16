@@ -35,9 +35,9 @@ public class MyAnimation {
 		 * Player male animation: jump
 		 */
 
-		aTmp = createAnimation(8, new Texture("animations/player_jump_right.png"), 64, 128, .08f);
+		aTmp = createAnimation(8, new Texture("animations/player_jump_right.png"), 64, 128, .24f);
 		animations.put("player_jump_right", aTmp);
-		aTmp = createAnimation(8, new Texture("animations/player_jump_left.png"), 64, 128, .08f);
+		aTmp = createAnimation(8, new Texture("animations/player_jump_left.png"), 64, 128, .24f);
 		animations.put("player_jump_left", aTmp);
 
 		/*
@@ -55,7 +55,12 @@ public class MyAnimation {
 		animations.put("player_m_idle_with_gun_right", aTmp);
 		aTmp = createAnimation(8, new Texture("animations/player_m_idle_with_gun_left.png"), 64, 128, .30f);
 		animations.put("player_m_idle_with_gun_left", aTmp);
-
+		
+		/*
+		 * PLayer male animation: shot with gun
+		 */
+		aTmp = createAnimation(4, new Texture("animations/player_m_shot_right.png"), 80, 128, 10f);
+		animations.put("player_m_shot_right", aTmp);
 		/*
 		 * Player female: running
 		 */
