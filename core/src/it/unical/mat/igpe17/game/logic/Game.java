@@ -7,6 +7,8 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 
 import it.unical.mat.igpe17.game.actors.Enemy;
@@ -38,7 +40,7 @@ public class Game {
 	private float camera;
 	private float end_camera = Asset.WIDTH;
 	
-
+//	private Timer time = new Timer();
 
 	boolean setStartPosition = true;
 	Vector2 startPosition = new Vector2();
@@ -89,6 +91,8 @@ public class Game {
 
 		camera = 0f;
 	}
+	
+
 
 	public void movePlayer(float dt) {
 		switch (player.getState()) {

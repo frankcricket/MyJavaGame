@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -37,6 +38,8 @@ public class Play implements Screen {
 
 	private List<Enemy> enemies;
 	private List<Obstacle> coins;
+	
+
 
 	private TiledMap map;
 	private OrthogonalTiledMapRenderer renderer;
@@ -110,7 +113,9 @@ public class Play implements Screen {
 		background.update(delta);
 		
 		updateLives();
-
+		updateTimer();
+		
+		
 		updatePlayer(delta);
 		renderPlayer();
 /*
@@ -146,6 +151,46 @@ public class Play implements Screen {
 		batch.end();
 	}
 	
+
+	int time = 59;
+	int minutes = 1;
+	float deltaTime = 62;
+
+	private void updateTimer(){
+		
+		if (time == 0){
+			minutes--;
+			time = 59;
+		}
+		
+		if (minutes == 0)
+			return;
+
+		batch.begin();
+		BitmapFont font;
+		String str;
+		
+		
+		font = new BitmapFont();
+		
+		int y = 664;
+		
+		float cameraHalfWidth = camera.viewportWidth * .5f;
+		x1 = (int) ((int) camera.position.x - cameraHalfWidth);
+		
+		deltaTime -= Gdx.graphics.getDeltaTime();
+		if((int) deltaTime < time ){
+			time = (int) deltaTime;			
+		}
+		
+		str = Integer.toString(minutes);
+		String tmp = Integer.toString(time); 
+		str += ":"+tmp;
+		font.draw(batch, str, x1 +500, y);
+		
+		batch.end();
+
+	}
 
 
 	private void updateLives() {
