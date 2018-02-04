@@ -1,5 +1,6 @@
 package it.unical.mat.igpe17.game.GUI;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.badlogic.gdx.Gdx;
@@ -9,7 +10,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -24,10 +24,12 @@ import it.unical.mat.igpe17.game.actors.PlayerState;
 import it.unical.mat.igpe17.game.constants.Asset;
 import it.unical.mat.igpe17.game.constants.GameConfig;
 import it.unical.mat.igpe17.game.constants.MyAnimation;
+import it.unical.mat.igpe17.game.constants.Textures;
 import it.unical.mat.igpe17.game.logic.Bullet;
 import it.unical.mat.igpe17.game.logic.Game;
 import it.unical.mat.igpe17.game.objects.Obstacle;
 import it.unical.mat.igpe17.game.objects.StaticObject;
+import it.unical.mat.igpe17.game.screens.HandleGameOver;
 
 public class Play implements Screen {
 
@@ -36,26 +38,26 @@ public class Play implements Screen {
 	private Player player;
 	public static int player_type = 1;
 
-	private List<Enemy> enemies;
-	private List<Obstacle> coins;
-	
-
+	private List<StaticObject> enemies;
+	private List<StaticObject> coins;
 
 	private TiledMap map;
 	private OrthogonalTiledMapRenderer renderer;
 	private OrthographicCamera camera;
 
 	private MyAnimation animations;
-	private SpriteBatch batch;
+	protected SpriteBatch batch;
 
 	// Camera bounds
 	private int mapLeft = 0;
 	private int mapRight;
 
 	float elapsedTime;
+	// gestione tempo di gioco
+	private final static int nDigits = 4;
+	private int[] digit = new int[nDigits];
 
 	private String level;
-	private int x1 = 10;
 
 	private Thread jump_player;
 
@@ -100,6 +102,8 @@ public class Play implements Screen {
 		jump_player = new Thread(new JumpListener(game));
 		jump_player.start();
 		removeObjectsFromMap();
+
+		initTimer();
 	}
 
 	@Override
@@ -111,141 +115,35 @@ public class Play implements Screen {
 		batch.setProjectionMatrix(camera.combined);
 
 		background.update(delta);
-		
+
 		updateLives();
 		updateTimer();
-		
-		
-		updatePlayer(delta);
+		updateScores();
+
 		renderPlayer();
-/*
+		updatePlayer(delta);
 		updateEnemy(delta);
 		renderEnemy();
-		
-
 		renderCoins();
-*/
 		updateBullets(delta);
 		renderBullets();
+		
+
 		camera.update();
 		renderer.setView(camera);
 
 		renderer.render();
-
-	}
-	
-	private void updateBullets(float dt){
-		game.updateBullets(dt);
-	}
-	private void renderBullets(){
-		Texture bullet = new Texture(Asset.BULLET);
-		batch.begin();
-		if(!game.getBullets().isEmpty()){
-			for(Bullet b: game.getBullets()){
-				int xB = (int) ((b.getPosition().y) * Asset.TILE);
-				int yB = (int) (((Asset.HEIGHT / Asset.TILE) - b.getPosition().x - 1) * Asset.TILE);
-
-				batch.draw(bullet,xB ,yB );	
-			}
-		}
-		batch.end();
-	}
-	
-
-	int time = 59;
-	int minutes = 1;
-	float deltaTime = 62;
-
-	private void updateTimer(){
 		
-		if (time == 0){
-			minutes--;
-			time = 59;
-		}
+		resumePlayer();
 		
-		if (minutes == 0)
-			return;
-
-		batch.begin();
-		BitmapFont font;
-		String str;
-		
-		
-		font = new BitmapFont();
-		
-		int y = 664;
-		
-		float cameraHalfWidth = camera.viewportWidth * .5f;
-		x1 = (int) ((int) camera.position.x - cameraHalfWidth);
-		
-		deltaTime -= Gdx.graphics.getDeltaTime();
-		if((int) deltaTime < time ){
-			time = (int) deltaTime;			
-		}
-		
-		str = Integer.toString(minutes);
-		String tmp = Integer.toString(time); 
-		str += ":"+tmp;
-		font.draw(batch, str, x1 +500, y);
-		
-		batch.end();
-
 	}
 
-
-	private void updateLives() {
-		batch.begin();
-
-		// caricamento img del cuore
-		Texture texture = new Texture(Asset.lives);
-		
-		int width = texture.getWidth() + 10;
-
-		//per far rimanere fermi i cuori
-		float cameraHalfWidth = camera.viewportWidth * .5f;
-		x1 = (int) ((int) camera.position.x - cameraHalfWidth);
-		
-		int x2 = x1 + width;	
-		int x3 = x2 + width;
-
-		int y = 664;		
-
-		//swicho a secondi dei cuori del player
-		switch (player.getLives()) {
-		
-			case 1: {
-				batch.draw(texture, x1, y);	
-				break;
-			}
-	
-			case 2: {
-				batch.draw(texture, x1, y);
-				batch.draw(texture, x2, y);
-				break;
-			}
-	
-			case 3: {
-				batch.draw(texture, x1, y);	
-				batch.draw(texture, x2, y);
-				batch.draw(texture, x3, y);
-				break;
-			}
-			
-			
-		
-		default:
-			break;
-			
-		}
-
-		batch.end();
-	}
-	
 	private boolean shot = false;
+
 	private void updatePlayer(final float delta) {
 
-		if (!game.isOver()) {
-
+		if (!game.isOver() && !game.RESUME) {
+			
 			if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && !(player.getState() == PlayerState.JUMPING)
 					&& !game.PLAYER_IS_FALLING) {
 				player.setDirection('r');
@@ -288,20 +186,19 @@ public class Play implements Screen {
 					player.setGun(true);
 				}
 			}
-			if (Gdx.input.isKeyJustPressed(Input.Keys.S)){
+			if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {
 
 				float c_x = player.getPosition().x;
 				float c_y = player.getPosition().y;
-				
-				if(player.getDirection() == 'r'){
+
+				if (player.getDirection() == 'r') {
 					c_x -= 0.8f;
 					c_y += GameConfig.SIZE_PLAYER_X;
-					
-					game.addBullet(c_x,c_y,'r');
-				}
-				else{
-					c_x -= 0.8f;					
-					game.addBullet(c_x,c_y,'l');
+
+					game.addBullet(c_x, c_y, 'r');
+				} else {
+					c_x -= 0.8f;
+					game.addBullet(c_x, c_y, 'l');
 				}
 				shot = true;
 			}
@@ -319,41 +216,40 @@ public class Play implements Screen {
 					player.setState(PlayerState.IDLING);
 			}
 
-			/*
-			 * Update della camera fisica e logica
-			 */
-			if (((camera.position.x + camera.viewportWidth / 2) < mapRight
-					&& (player.getPosition().y) * Asset.TILE >= game.getEndCamer() * 0.04)) {
 
-				if (player.getState() == PlayerState.JUMPING && player.getDirection() == 'r') {
-					camera.position.x += GameConfig.POSITIVE_JUMP_VELOCITY.y * 0.5;
-				} else {
-					camera.position.x += GameConfig.PLAYER_POS_VELOCITY.y * 1.2;
-				}
-				game.setCamera((camera.position.x - camera.viewportWidth / 2) / Asset.TILE);
-
-				updateCamera();
-
-				game.setEndCamera(game.getEndCamer() + Asset.TILE * 2);
-			}
-
+			updateCamera();
 			game.handleScores();
 		}
+		
 	}
 
 	private void updateCamera() {
+		float y_pos = (player.getPosition().y) * Asset.TILE;
+		/*(y_pos >= game.getEndCamera() * 0.045) && */
+		if (Math.abs(y_pos -(camera.position.x-640)) > Asset.TILE*3
+			 && !player.VERTICAL_JUMP) {
 
-		float cameraHalfWidth = camera.viewportWidth * .5f;
+			if (player.getState() == PlayerState.JUMPING) {
+				camera.position.x += GameConfig.POSITIVE_JUMP_VELOCITY.y * 0.9;
+			} else {
+				camera.position.x += GameConfig.PLAYER_POS_VELOCITY.y * 1.2;
+			}
+			game.setCamera((camera.position.x - camera.viewportWidth / 2) / Asset.TILE);
 
-		float cameraLeft = camera.position.x - cameraHalfWidth;
-		float cameraRight = camera.position.x + cameraHalfWidth;
+			game.setEndCamera(game.getEndCamera() + Asset.TILE * 1.5f);
 
-		if (camera.viewportWidth > mapRight) {
-			camera.position.x = mapRight / 2;
-		} else if (cameraLeft <= mapLeft) {
-			camera.position.x = mapLeft + cameraHalfWidth;
-		} else if (cameraRight >= mapRight) {
-			camera.position.x = mapRight - cameraHalfWidth;
+			float cameraHalfWidth = camera.viewportWidth * .5f;
+
+			float cameraLeft = camera.position.x - cameraHalfWidth;
+			float cameraRight = camera.position.x + cameraHalfWidth;
+
+			if (camera.viewportWidth > mapRight) {
+				camera.position.x = mapRight / 2;
+			} else if (cameraLeft <= mapLeft) {
+				camera.position.x = mapLeft + cameraHalfWidth;
+			} else if (cameraRight >= mapRight) {
+				camera.position.x = mapRight - cameraHalfWidth;
+			}
 		}
 
 	}
@@ -362,13 +258,14 @@ public class Play implements Screen {
 	 * Visualizzazione delle animazioni in base allo stato del player
 	 */
 	private void renderPlayer() {
+		if(!game.RESUME){
 
 		if (player_type == 1) {
 
 			if (player.getGun()) {
 				switch (player.getDirection()) {
 				case 'r': {
-					if(player.getState() == PlayerState.IDLING && shot){
+					if (player.getState() == PlayerState.IDLING && shot) {
 						shot = false;
 						drawAnimation(player, "player_m_shot_right");
 					} else if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING) {
@@ -427,81 +324,58 @@ public class Play implements Screen {
 					break;
 				}// end of switch
 			}
-		} else {
-			/*
-			 * Animazioni del player femmina
-			 */
-			switch (player.getDirection()) {
-			case 'r': {
-				if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING) {
-					drawAnimation(player, "player_w_idle_right");
-				} else if (player.getState() == PlayerState.RUNNING) {
-					drawAnimation(player, "player_w_run_right");
-				} else if (player.getState() == PlayerState.JUMPING) {
-					drawAnimation(player, "player_w_jump_right");
+			} else {
+				/*
+				 * Animazioni del player femmina
+				 */
+				switch (player.getDirection()) {
+				case 'r': {
+					if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING) {
+						drawAnimation(player, "player_w_idle_right");
+					} else if (player.getState() == PlayerState.RUNNING) {
+						drawAnimation(player, "player_w_run_right");
+					} else if (player.getState() == PlayerState.JUMPING) {
+						drawAnimation(player, "player_w_jump_right");
+					}
+		
+					break;
+				} // end of case 'r'
+				case 'l': {
+					if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING) {
+						drawAnimation(player, "player_w_idle_left");
+					} else if (player.getState() == PlayerState.RUNNING) {
+						drawAnimation(player, "player_w_run_left");
+		
+					} else if (player.getState() == PlayerState.JUMPING) {
+						drawAnimation(player, "player_w_jump_left");
+					}
+		
+					break;
 				}
-
-				break;
-			} // end of case 'r'
-			case 'l': {
-				if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING) {
-					drawAnimation(player, "player_w_idle_left");
-				} else if (player.getState() == PlayerState.RUNNING) {
-					drawAnimation(player, "player_w_run_left");
-
-				} else if (player.getState() == PlayerState.JUMPING) {
-					drawAnimation(player, "player_w_jump_left");
-				}
-
-				break;
+				default:
+					break;
+				}// end of switch
+		
 			}
-			default:
-				break;
-			}// end of switch
-
+		}
+		else{
+			if(player.getDirection() == 'r'){
+				drawAnimation(player,"player_m_flash_idle_right");
+			}
+			else{
+				drawAnimation(player,"player_m_flash_idle_left");
+			}
 		}
 
 	}
-
-	private void renderCoins() {
-		for (Obstacle o : coins) {
-			drawAnimation(o, "coins");
-		}
+	
+	private void updateEnemy(float delta) {
+		game.moveEnemy(delta);
 	}
-
-	// stampa qualsiasi tipo di animazione
-	private void drawAnimation(StaticObject obj, String name) {
-
-		if (obj instanceof Player)
-			obj = (Player) obj;
-		else if (obj instanceof Enemy)
-			obj = (Enemy) obj;
-		else if (obj instanceof Obstacle)
-			obj = (Obstacle) obj;
-
-		int xP = (int) ((obj.getPosition().y) * Asset.TILE);
-		int yP = (int) (((Asset.HEIGHT / Asset.TILE) - obj.getPosition().x - 1) * Asset.TILE);
-
-		Animation<TextureRegion> a = animations.getAnimation(name);
-		batch.begin();
-		batch.draw(a.getKeyFrame(elapsedTime, true), xP, yP);
-		batch.end();
-
-	}
-
-	// private void drawAnimationEnemy(String name, float x, float y) {
-	// int xP = (int) ((y) * Asset.TILE);
-	// int yP = (int) (((Asset.HEIGHT / Asset.TILE) - x - 1) * Asset.TILE);
-	//
-	// Animation<TextureRegion> a = animations.getAnimation(name);
-	// batch.begin();
-	// batch.draw(a.getKeyFrame(elapsedTime, true), xP, yP);
-	// batch.end();
-	// }
-
+	
 	private void renderEnemy() {
-		for (Enemy e : enemies) {
-
+		for (StaticObject obj : enemies) {
+			Enemy e = (Enemy)obj;
 			switch (e.getType()) {
 			case "31": {
 				if (e.getDirection() == 'l') {
@@ -541,6 +415,224 @@ public class Play implements Screen {
 		}
 	}
 
+	private void renderCoins() {
+		for (StaticObject o : coins) {
+			drawAnimation(o, "coins");
+		}
+	}
+	
+	private void updateBullets(float dt) {
+		game.updateBullets(dt);
+	}
+
+	private void renderBullets() {
+		Texture bullet = Textures.BULLET;
+		batch.begin();
+		if (!game.getBullets().isEmpty()) {
+			for (Bullet b : game.getBullets()) {
+				int xB = (int) ((b.getPosition().y) * Asset.TILE);
+				int yB = (int) (((Asset.HEIGHT / Asset.TILE) - b.getPosition().x - 1) * Asset.TILE);
+
+				batch.draw(bullet, xB, yB);
+			}
+		}
+		batch.end();
+	}
+	
+	int clock = 0;
+	float deltaTime = 0;
+
+	private void updateTimer() {
+
+		deltaTime += Gdx.graphics.getDeltaTime();
+		if ((int) deltaTime > clock) {
+			clock = (int) deltaTime;
+			timer();
+		}
+
+		batch.begin();
+		int i = nDigits - 1;
+		Texture clock = new Texture(Asset.CLOCK);
+		Texture d1 = Textures.get("D" + digit[i--]);
+		Texture d2 = Textures.get("D" + digit[i--]);
+		Texture d3 = Textures.get("D" + digit[i--]);
+		Texture d4 = Textures.get("D" + digit[i]);
+
+		Texture dp = Textures.get("DP");
+		
+		int width = 15 + 10;
+		float cameraHalfWidth = camera.viewportWidth * .5f;
+		float pos_x = (camera.position.x - cameraHalfWidth) + 545;
+		int pos_y = GameConfig.HP+4;
+		
+		batch.draw(clock,pos_x,pos_y-2);
+
+		pos_x += width+25;		
+		batch.draw(d4, pos_x, pos_y);
+		pos_x += width;
+		batch.draw(d3, pos_x, pos_y);
+		pos_x += width - 5;
+		batch.draw(dp, pos_x, pos_y);
+		pos_x += width - 15;
+		batch.draw(d2, pos_x, pos_y);
+		pos_x += width;
+		batch.draw(d1, pos_x, pos_y);
+
+		batch.end();
+
+	}
+
+	private void timer() {
+
+		int index = nDigits - 1;
+		if (digit[index] != 0) { // settaggio dei secondi
+			digit[index]--;
+		} else {
+			if (digit[index - 1] != 0) {// settaggio dei secondi: 59 a decremento
+				digit[index - 1]--;
+				digit[index] = 9;
+			} else {
+				if (digit[index - 2] != 0) { //settaggio dei minuti
+					digit[index - 2]--;
+					digit[index - 1] = 5;
+					digit[index] = 9;
+				} else {
+					if (digit[index - 3] != 0) {// settaggio dei minuti e secondi: (--)9:59, dove(--) è il minuto decrem.
+						digit[index - 3]--;
+						digit[index - 2] = 9;
+						digit[index - 1] = 5;
+						digit[index] = 9;
+					} else {
+						player.setState(PlayerState.DEAD);
+					}
+				}
+			}
+		}
+		/*
+		 * for(int i = 0; i < nDigits; i++){ System.out.print(digit[i]+ " "); }
+		 * System.out.println();
+		 */
+
+	}
+
+	private void updateLives() {
+		//Texture vita
+		Texture texture = Textures.LIFE;
+		Texture heart = Textures.HEART;
+		
+		int width = heart.getWidth() + 15;
+		
+		float cameraHalfWidth = camera.viewportWidth * .5f;
+		float x1 = (camera.position.x - cameraHalfWidth) + 10;
+		
+		int y = GameConfig.HP;
+
+		batch.begin();
+		
+		batch.draw(heart, x1, y-2);
+		
+		x1 += width;
+		float x2 = x1 + width;
+		float x3 = x2 + width;
+
+		switch (player.getLives()) {
+
+		case 1: {
+			batch.draw(texture, x1, y);
+			break;
+		}
+
+		case 2: {
+			batch.draw(texture, x1, y);
+			batch.draw(texture, x2, y);
+			break;
+		}
+
+		case 3: {
+			batch.draw(texture, x1, y);
+			batch.draw(texture, x2, y);
+			batch.draw(texture, x3, y);
+			break;
+		}
+
+		default:
+			break;
+
+		}
+
+		batch.end();
+	}
+	
+	private void updateScores(){
+		int coins = game.getCoinsCount();
+		Texture coin = Textures.COIN;
+		Texture score = Textures.SCORE;
+		
+		
+		float cameraHalfWidth = camera.viewportWidth * .5f;
+		float pos_x_coin = (camera.position.x - cameraHalfWidth) + 320;
+		float pos_x_score = (camera.position.x - cameraHalfWidth) + 320;
+		
+		batch.begin();
+		
+		//sprite numero di monete
+		batch.draw(coin,pos_x_coin,GameConfig.HP,39,40);
+		int y = GameConfig.HP + 4;
+		if(coins < 10){
+			Texture c1 = Textures.get("D"+coins);
+			pos_x_coin += 55;
+			batch.draw(c1,pos_x_coin,y);
+		}else{
+			int tmp = coins/10;
+			Texture c1 = Textures.get("D"+tmp);
+			tmp = coins%10;
+			Texture c2 = Textures.get("D"+tmp);
+			pos_x_coin += 55;
+			batch.draw(c1,pos_x_coin,y);
+			pos_x_coin += 17;
+			batch.draw(c2,pos_x_coin,y);
+		}
+		
+		
+		pos_x_score += 650; 
+		//sprite punteggio
+		batch.draw(score,pos_x_score,GameConfig.HP);
+		pos_x_score += 50;
+		ArrayList<Integer> digits = handleDigits(game.getScore());
+		for(int i = digits.size()-1; i>=0; i--){
+			Texture t = Textures.get("D"+digits.get(i));
+			batch.draw(t,pos_x_score,y);
+			pos_x_score += 20;
+		}
+		
+		digits.clear();
+		
+		batch.end();
+	}
+	
+
+	// stampa qualsiasi tipo di animazione
+	private void drawAnimation(StaticObject obj, String name) {
+
+		if (obj instanceof Player)
+			obj = (Player) obj;
+		else if (obj instanceof Enemy)
+			obj = (Enemy) obj;
+		else if (obj instanceof Obstacle)
+			obj = (Obstacle) obj;
+
+		int xP = (int) ((obj.getPosition().y) * Asset.TILE);
+		int yP = (int) (((Asset.HEIGHT / Asset.TILE) - obj.getPosition().x - 1) * Asset.TILE);
+
+		Animation<TextureRegion> a = animations.getAnimation(name);
+		batch.begin();
+		batch.draw(a.getKeyFrame(elapsedTime, true), xP, yP);
+		batch.end();
+
+	}
+
+	
+
 	// rimuove i nemici dalla creazione dall'editor (i nemici sono sempre
 	// presenti e si muovono nel gioco)
 	private void removeObjectsFromMap() {
@@ -548,7 +640,8 @@ public class Play implements Screen {
 		/*
 		 * Rimozione dei nemici dalla mappa
 		 */
-		for (Enemy e : enemies) {
+		for (StaticObject obj : enemies) {
+			Enemy e = (Enemy)obj;
 			int layer = game.getRow() - 1;
 			int x = (int) e.getPosition().x;
 			int y = (int) e.getPosition().y;
@@ -561,7 +654,7 @@ public class Play implements Screen {
 		/*
 		 * Rimozione dei coins dalla mappa
 		 */
-		for (Obstacle e : coins) {
+		for (StaticObject e : coins) {
 			int layer = game.getRow() - 1;
 			int x = (int) e.getPosition().x;
 			int y = (int) e.getPosition().y;
@@ -573,9 +666,85 @@ public class Play implements Screen {
 
 	}
 
-	private void updateEnemy(float delta) {
-		game.moveEnemy(delta);
+	private void initTimer() {
+
+		int i = nDigits - 1;
+		digit[i--] = GameConfig.DIGIT_4;
+		digit[i--] = GameConfig.DIGIT_3;
+		digit[i--] = GameConfig.DIGIT_2;
+		digit[i] = GameConfig.DIGIT_1;
+
 	}
+	
+	public static ArrayList<Integer> handleDigits(int score){
+	
+		ArrayList<Integer> digits = new ArrayList<>();
+		if(score < 10){
+			digits.add(score);
+		}else{
+			int elem = score;
+			while(elem != 0){
+				elem = score / 10;
+				score = score%10;
+				digits.add(score);
+				score = elem;
+			}
+
+		}
+		
+		return digits;
+	}
+	
+	
+	private float waiting_time;
+	private boolean stepOver = false;
+	private void resumePlayer(){
+		if(player.getLives() == 0){
+			player.setState(PlayerState.DEAD);
+			game.RESUME = false;
+			GameConfig.BEST_SCORE = player.getScore();
+			((com.badlogic.gdx.Game) Gdx.app.getApplicationListener()).setScreen(HandleGameOver.getInstance());
+			
+		}
+		if(game.RESUME){
+			
+			/*
+			 * Tempo di attesa prima che ritorni sulla mappa
+			 */
+			if(waiting_time > 1.7f && ! stepOver){
+				game.findNewPlayerPosition(player.getPosition());
+				stepOver = true;
+				waiting_time = 6;
+
+				//reset del timer
+				initTimer();
+				
+				//reset della camera
+				float position = player.getPosition().y *Asset.TILE;
+				position -= (Asset.TILE * 3);
+				camera.position.x = position + 640;	
+				game.setCamera((camera.position.x - camera.viewportWidth / 2) / Asset.TILE);
+				game.setEndCamera(game.getEndCamera() + Asset.TILE * 1.5f);
+				
+				//player state
+				player.setState(PlayerState.IDLING);
+			}
+			/*
+			 * Tempo di attesa stampa animazione
+			 */
+			if(stepOver){
+				if(waiting_time > 9.8f){
+					game.RESUME = false;
+					stepOver = false;
+					waiting_time = 0;
+				}
+			}
+			
+			waiting_time += Gdx.graphics.getDeltaTime();
+//			camera.position.x -= 512;
+		}
+	}
+	
 
 	@Override
 	public void resize(int width, int height) {
@@ -599,6 +768,5 @@ public class Play implements Screen {
 	}
 
 	@Override
-	public void resume() {
-	}
+	public void resume() {}
 }

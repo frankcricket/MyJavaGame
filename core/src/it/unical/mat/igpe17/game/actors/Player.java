@@ -118,15 +118,12 @@ public class Player extends DynamicObject implements IPlayer {
 		this.playerForce.y = force.y;
 	}
 
-	/**
-	 * @return the points
-	 */
-	public final int getPoints() {
-		return points;
-	}
 	public void score(final int _score) {
 		points += _score;
-		System.out.println("Current score: " + points);
+		//System.out.println("Current score: " + points);
+	}
+	public final int getScore(){
+		return points;
 	}
 
 	public final PlayerState getState() {

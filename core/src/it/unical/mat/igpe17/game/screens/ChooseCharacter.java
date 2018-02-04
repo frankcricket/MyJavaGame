@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.actions.AddAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -15,10 +14,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 import it.unical.mat.igpe17.game.GUI.Play;
-import it.unical.mat.igpe17.game.Main.GameTest;
  
 public class ChooseCharacter implements Screen {
-	// private mainmenu
 
 	private static ChooseCharacter chooseCharacter = null;
 	private static Play play;
@@ -37,7 +34,7 @@ public class ChooseCharacter implements Screen {
 	public int Character = 0;
 
 	private Stage stage;
-	private Skin skin; // aspetto di tutto ciò che faremo
+	private Skin skin; // aspetto di tutto cio' che faremo
 	private Table table;
 
 	@Override
@@ -49,7 +46,7 @@ public class ChooseCharacter implements Screen {
 		table = new Table(skin);
 		table.setBounds(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-		Image backgroundMenu = new Image(new Texture("asset/menu_img/backgroud_choose_character.png"));
+		Image backgroundMenu = new Image(new Texture("asset/menu_img/characters_menu.png"));
 
 		Image character1 = new Image(new Texture("asset/menu_img/character1.png"));
 		Image character1_2 = new Image(new Texture("asset/menu_img/character1_2.png"));
@@ -87,13 +84,16 @@ public class ChooseCharacter implements Screen {
 		table.setFillParent(false);
 		table.bottom();
 
-		goToBackB.setPosition(0 + 5, 720 - 109);
+		goToBackB.setPosition(5, 621);
 		table.addActor(goToBackB);
 
-		character1B.setPosition((380), Math.abs(530-720));
-		table.addActor(character1B);
+		int x = 380;
+		int y = 190;
+		character1B.setPosition(x,y);
+		x += 320;
+		character2B.setPosition(x,y);
 		
-		character2B.setPosition(700, Math.abs(530-720));
+		table.addActor(character1B);
 		table.addActor(character2B);
 		
 		// aggiungiamo tutto
@@ -114,37 +114,22 @@ public class ChooseCharacter implements Screen {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-		// Table.drawDebug(stage);
-
 		stage.act(delta); // aggiorna qualsiasi cosa in esso
-
 		stage.draw(); // dove tutto diventa visibile
 
 	}
 
 	@Override
-	public void resize(int width, int height) {
-		// TODO Auto-generated method stub
-
-	}
+	public void resize(int width, int height) {}
 
 	@Override
-	public void pause() {
-		// TODO Auto-generated method stub
-
-	}
+	public void pause() {}
 
 	@Override
-	public void resume() {
-		// TODO Auto-generated method stub
-
-	}
+	public void resume() {}
 
 	@Override
-	public void hide() {
-		// TODO Auto-generated method stub
-
-	}
+	public void hide() {}
 
 	@Override
 	public void dispose() {

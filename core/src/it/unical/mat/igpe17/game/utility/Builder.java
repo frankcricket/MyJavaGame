@@ -11,18 +11,19 @@ import it.unical.mat.igpe17.game.actors.PlayerState;
 import it.unical.mat.igpe17.game.constants.GameConfig;
 import it.unical.mat.igpe17.game.objects.Ground;
 import it.unical.mat.igpe17.game.objects.Obstacle;
+import it.unical.mat.igpe17.game.objects.StaticObject;
 
 public class Builder {
 
 	protected int dimX;
 	protected int dimY;
 
-	private List<Ground> groundObjects = new LinkedList<Ground>();
-	private List<Obstacle> obstacleObjects = new LinkedList<Obstacle>();
-	private List<Obstacle> coins = new LinkedList<Obstacle>();
+	private List<StaticObject> groundObjects = new LinkedList<StaticObject>();
+	private List<StaticObject> obstacleObjects = new LinkedList<StaticObject>();
+	private List<StaticObject> coins = new LinkedList<StaticObject>();
 
 
-	private List<Enemy> enemiesObjects = new LinkedList<Enemy>();
+	private List<StaticObject> enemiesObjects = new LinkedList<StaticObject>();
 	
 
 	protected void convertDimension(String dim) {
@@ -76,33 +77,34 @@ public class Builder {
 
 	}
 	
-	protected final List<Ground> getGround() {
+	protected final List<StaticObject> getGround() {
 		return groundObjects;
 	}
 	
-	protected final List<Obstacle> getObstacle() {
+	protected final List<StaticObject> getObstacle() {
 		return obstacleObjects;
 	}
-	protected final List<Obstacle> getCoins() {
+	protected final List<StaticObject> getCoins() {
 		return coins;
 	}
 	
-	public List<Enemy> getEnemiesObjects() {
+	public List<StaticObject> getEnemiesObjects() {
 		return enemiesObjects;
 	}
 
 	protected final Player getPlayer() {
 		Player p = null;
 
-		Ground tmp_ground = new Ground(new Vector2(11, 0), null, null);
+		Ground tmp_ground = new Ground(new Vector2(0, 100), null, null);
 
-		for (Ground g : groundObjects) {
+		for (StaticObject obj : groundObjects) {
+			Ground g = (Ground)obj;
 			if (g.getType().equals("1") || g.getType().equals("14"))
 				if (g.getPosition().x > tmp_ground.getPosition().x && g.getPosition().y < tmp_ground.getPosition().y)
 					tmp_ground = g;
 		}
 
-		p = new Player(new Vector2(tmp_ground.getPosition().x - 1, tmp_ground.getPosition().y),
+		p = new Player(new Vector2(tmp_ground.getPosition().x - 1, (tmp_ground.getPosition().y + 0.15f)),
 				new Vector2(GameConfig.SIZE_PLAYER_X, GameConfig.SIZE_PLAYER_Y), 'r', PlayerState.IDLING);
 
 		return p;

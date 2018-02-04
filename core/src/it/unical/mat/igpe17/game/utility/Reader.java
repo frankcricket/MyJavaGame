@@ -9,6 +9,7 @@ import it.unical.mat.igpe17.game.actors.Enemy;
 import it.unical.mat.igpe17.game.actors.Player;
 import it.unical.mat.igpe17.game.objects.Ground;
 import it.unical.mat.igpe17.game.objects.Obstacle;
+import it.unical.mat.igpe17.game.objects.StaticObject;
 
 public class Reader {
 
@@ -67,18 +68,18 @@ public class Reader {
 		this.path = path;
 	}
 
-	public final List<Ground> getGround() {
+	public final List<StaticObject> getGround() {
 		return builder.getGround();
 	}
 	
-	public final List<Obstacle> getObstacle() {
+	public final List<StaticObject> getObstacle() {
 		return builder.getObstacle();
 	}
 	
-	public final List<Obstacle> getCoins() {
+	public final List<StaticObject> getCoins() {
 		return builder.getCoins();
 	}
-	public final List<Enemy> getEnemy() {
+	public final List<StaticObject> getEnemy() {
 		return builder.getEnemiesObjects();
 	}
 

@@ -65,9 +65,36 @@ public class Asset {
 	public static String ENEMY3 = "asset/Enemies/enemy3.png";
 	
 	
-	public static String lives = "asset/heart.png";
 	
 	public static final String BULLET = "asset/bullet.png";
+	
+	//digits
+	public static String D_0 = "asset/Digits/0.png";
+	public static String D_1 = "asset/Digits/1.png";
+	public static String D_2 = "asset/Digits/2.png";
+	public static String D_3 = "asset/Digits/3.png";
+	public static String D_4 = "asset/Digits/4.png";
+	public static String D_5 = "asset/Digits/5.png";
+	public static String D_6 = "asset/Digits/6.png";
+	public static String D_7 = "asset/Digits/7.png";
+	public static String D_8 = "asset/Digits/8.png";
+	public static String D_9 = "asset/Digits/9.png";
+	public static String DOUBLE_P = "asset/Digits/doubleP.png";
+	
+	public static String CLOCK = "asset/Digits/clock.png";
+	public static String SCORE = "asset/Digits/score.png";
+
+	public static String LIFE = "asset/heart.png";
+	public static String HEART = "asset/Digits/heart.png";
+	
+	
+	public static String RESUME = "asset/resume.png";
+	
+	//background game over: il player ha perso tutte le vite
+	public static final String GAME_OVER = "asset/menu_img/gameOver.png";
+	
+	public static final String BEST_SCORE_FILE = "scores/best_score.txt";
+	
 
 	
 	
@@ -117,6 +144,19 @@ public class Asset {
 		map.put("31", ENEMY1);
 		map.put("32", ENEMY2);
 		map.put("33", ENEMY3);
+		
+		
+		map.put("d0", D_0);
+		map.put("d1", D_1);
+		map.put("d2", D_2);
+		map.put("d3", D_3);
+		map.put("d4", D_4);
+		map.put("d5", D_5);
+		map.put("d6", D_6);
+		map.put("d7", D_7);
+		map.put("d8", D_8);
+		map.put("d9", D_9);
+		map.put("DP", DOUBLE_P);
 		
 		
 		

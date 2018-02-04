@@ -3,7 +3,6 @@ package it.unical.mat.igpe17.game.screens;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -28,7 +27,7 @@ public class Settings implements Screen {
 	}
 
 	private Stage stage;
-	private Skin skin; // aspetto di tutto ciò che faremo
+	private Skin skin; // aspetto di tutto cio' che faremo
 	private Table table;
 
 	@Override
@@ -45,17 +44,23 @@ public class Settings implements Screen {
 		ImageButton goToBackB = new ImageButton(goToBack.getDrawable(), goToBack_1.getDrawable());
 		goToBackB.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
-				((Game) Gdx.app.getApplicationListener()).setScreen(MainMenu.getMainMenu());
+				if(HandleGameOver.GAME_OVER_INSTANCE){
+					((Game) Gdx.app.getApplicationListener()).setScreen(HandleGameOver.getInstance());
+				}
+				else{
+					((Game) Gdx.app.getApplicationListener()).setScreen(MainMenu.getMainMenu());
+				}
 
 			}
 
 		});
 
 		
-		// image music
+		/*
+		 * 	image music
+		 */
 		
 		final Image MusicButtonOff = new Image(new Texture("asset/menu_img/off.png"));
-
 		final Image MusicButtonOn = new Image(new Texture("asset/menu_img/on.png"));
 		
 		MusicButtonOn.addListener(new ClickListener() {
@@ -81,9 +86,7 @@ public class Settings implements Screen {
 		//image sound 
 		
 		final Image SoundOff = new Image(new Texture("asset/menu_img/off.png"));
-
-		final Image SoundOn = new Image(new Texture("asset/menu_img/on.png"));
-		
+		final Image SoundOn = new Image(new Texture("asset/menu_img/on.png"));		
 		SoundOn.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
@@ -106,9 +109,7 @@ public class Settings implements Screen {
 		//image vibration
 		
 		final Image VibrationOff = new Image(new Texture("asset/menu_img/off.png"));
-
-		final Image VibrationOn = new Image(new Texture("asset/menu_img/on.png"));
-		
+		final Image VibrationOn = new Image(new Texture("asset/menu_img/on.png"));		
 		VibrationOn.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
@@ -129,37 +130,35 @@ public class Settings implements Screen {
 		VibrationOff.setVisible(false);
 		
 		
-		
-		
-		
-		
 		//background
-		Image background = new Image(new Texture("asset/menu_img/background_settings.png"));
-
+//		Image background = new Image(new Texture("asset/menu_img/background_settings.png"));
+		Image background = new Image(new Texture("asset/menu_img/options.png"));
 		table.setBackground(background.getDrawable());
 
 		table.setFillParent(false);
 		table.bottom();
 
-		MusicButtonOff.setPosition(740, 430);
-		MusicButtonOn.setPosition(740, 430);
+		int x = 730;
+		int y = 443;
+		
+		MusicButtonOff.setPosition(x, y);
+		MusicButtonOn.setPosition(x, y);
 		table.addActor(MusicButtonOff);
 		table.addActor(MusicButtonOn);
 		
-		SoundOff.setPosition(740, 349);
-		SoundOn.setPosition(740, 349);
+		y -= 84;
+		SoundOff.setPosition(x, y);
+		SoundOn.setPosition(x, y);
 		table.addActor(SoundOff);
 		table.addActor(SoundOn);
 		
-		VibrationOff.setPosition(740, 265);
-		VibrationOn.setPosition(740, 265);
+		y -= 84;
+		VibrationOff.setPosition(x, y);
+		VibrationOn.setPosition(x, y);
 		table.addActor(VibrationOff);
 		table.addActor(VibrationOn);
-		
-		
-		
 
-		goToBackB.setPosition(0 + 5, 720 - 109);
+		goToBackB.setPosition(5, 621);
 		table.addActor(goToBackB);
 
 		table.debug();
@@ -168,41 +167,25 @@ public class Settings implements Screen {
 
 	@Override
 	public void render(float delta) {
-		// puisco tutto lo schermo
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-		// Table.drawDebug(stage);
-
+		
 		stage.act(delta); // aggiorna qualsiasi cosa in esso
-
 		stage.draw(); // dove tutto diventa visibile
 
 	}
 
 	@Override
-	public void resize(int width, int height) {
-		// TODO Auto-generated method stub
-
-	}
+	public void resize(int width, int height) {}
 
 	@Override
-	public void pause() {
-		// TODO Auto-generated method stub
-
-	}
+	public void pause() {}
 
 	@Override
-	public void resume() {
-		// TODO Auto-generated method stub
-
-	}
+	public void resume() {}
 
 	@Override
-	public void hide() {
-		// TODO Auto-generated method stub
-
-	}
+	public void hide() {}
 
 	@Override
 	public void dispose() {

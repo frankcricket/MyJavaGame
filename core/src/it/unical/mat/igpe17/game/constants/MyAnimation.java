@@ -18,9 +18,9 @@ public class MyAnimation {
 		/*
 		 * Player male animation: running
 		 */
-		aTmp = createAnimation(8, new Texture("animations/player_run_right.png"), 66, 128, .10f);
+		aTmp = createAnimation(8, new Texture("animations/player_run_right.png"), 66, 128, .08f);
 		animations.put("player_run_right", aTmp);
-		aTmp = createAnimation(8, new Texture("animations/player_run_left.png"), 66, 128, .10f);
+		aTmp = createAnimation(8, new Texture("animations/player_run_left.png"), 66, 128, .08f);
 		animations.put("player_run_left", aTmp);
 		
 		/*
@@ -35,9 +35,14 @@ public class MyAnimation {
 		 * Player male animation: jump
 		 */
 
-		aTmp = createAnimation(8, new Texture("animations/player_jump_right.png"), 64, 128, .24f);
+//		aTmp = createAnimation(8, new Texture("animations/player_jump_right.png"), 64, 128, .24f);
+//		animations.put("player_jump_right", aTmp);
+//		aTmp = createAnimation(8, new Texture("animations/player_jump_left.png"), 64, 128, .24f);
+//		animations.put("player_jump_left", aTmp);
+		
+		aTmp = createAnimation(6, new Texture("animations/player_jump_right1.png"), 64, 128, .18f);
 		animations.put("player_jump_right", aTmp);
-		aTmp = createAnimation(8, new Texture("animations/player_jump_left.png"), 64, 128, .24f);
+		aTmp = createAnimation(6, new Texture("animations/player_jump_left1.png"), 64, 128, .18f);
 		animations.put("player_jump_left", aTmp);
 
 		/*
@@ -47,6 +52,14 @@ public class MyAnimation {
 		animations.put("player_idle_right", aTmp);
 		aTmp = createAnimation(8, new Texture("animations/player_idle_left.png"), 64, 128, .11f);
 		animations.put("player_idle_left", aTmp);
+		
+		/*
+		 * Player male animation: flash idle
+		 */
+		aTmp = createAnimation(8, new Texture("animations/player_m_flash_idle_right.png"), 64, 128, .11f);
+		animations.put("player_m_flash_idle_right", aTmp);
+		aTmp = createAnimation(8, new Texture("animations/player_m_flash_idle_left.png"), 64, 128, .11f);
+		animations.put("player_m_flash_idle_left", aTmp);
 		
 		/*
 		 * Player male animation: idle with gun

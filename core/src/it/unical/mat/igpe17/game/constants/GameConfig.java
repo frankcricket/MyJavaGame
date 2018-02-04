@@ -32,6 +32,19 @@ public class GameConfig {
 	public static final Vector2 POSITIVE_JUMP_VELOCITY = new Vector2(-11f, 6.5f);
 	public static final Vector2 NEGATIVE_JUMP_VELOCITY = new Vector2(+12f, 6.5f);
 	public static final Vector2 GRAVITY_JUMP = new Vector2(0.45f,0.075f);
+	
+	
+	/*
+	 * Posizione delle vite, tempo e punteggio
+	 */
+	public static final int HP = 700;
+	
+	// 5 minuti per finire il livello
+	public static int DIGIT_1 = 0;
+	public static int DIGIT_2 = 5;
+	public static int DIGIT_3 = 0;
+	public static int DIGIT_4 = 0;
+	
 
 	public static final int SIZE_PLAYER_X = 1;
 
@@ -51,9 +64,12 @@ public class GameConfig {
 	
 	public static final int SIZE_MOVE_ENEMY = 5;
 
-	public static final int SIZE_BULLET_X = 5;
+	public static final float SIZE_BULLET_X = 0.5f;
 	
-	public static final int SIZE_BULLET_Y = 5;
+	public static final float SIZE_BULLET_Y = 0.5f;
+	
+	
+	public static int BEST_SCORE = 0;
 	
 
 
