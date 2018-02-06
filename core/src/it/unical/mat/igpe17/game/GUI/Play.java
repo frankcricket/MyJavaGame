@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -115,24 +116,25 @@ public class Play implements Screen {
 		batch.setProjectionMatrix(camera.combined);
 
 		background.update(delta);
-
+		
+		camera.update();
+		renderer.setView(camera);
+		renderer.render();
+		
 		updateLives();
 		updateTimer();
 		updateScores();
-
+		
 		renderPlayer();
 		updatePlayer(delta);
+		
 		updateEnemy(delta);
 		renderEnemy();
+		
 		renderCoins();
+		
 		updateBullets(delta);
 		renderBullets();
-		
-
-		camera.update();
-		renderer.setView(camera);
-
-		renderer.render();
 		
 		resumePlayer();
 		
@@ -179,6 +181,7 @@ public class Play implements Screen {
 				game.moveWhileJumping = true;
 			}
 
+			//input selezione pistola
 			if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
 				if (player.getGun()) {
 					player.setGun(false);
@@ -186,24 +189,26 @@ public class Play implements Screen {
 					player.setGun(true);
 				}
 			}
+			//input sparo
 			if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {
-
-				float c_x = player.getPosition().x;
-				float c_y = player.getPosition().y;
-
-				if (player.getDirection() == 'r') {
-					c_x -= 0.8f;
-					c_y += GameConfig.SIZE_PLAYER_X;
-
-					game.addBullet(c_x, c_y, 'r');
-				} else {
-					c_x -= 0.8f;
-					game.addBullet(c_x, c_y, 'l');
+				//se il player ha la pistola, allora può sparare
+				if(player.getGun()){
+					float c_x = player.getPosition().x;
+					float c_y = player.getPosition().y;
+	
+					if (player.getDirection() == 'r') {
+						c_x -= 0.57f;
+						c_y += GameConfig.SIZE_PLAYER_X;
+	
+						game.addBullet(c_x, c_y, 'r');
+					} else {
+						c_x -= 0.57f;
+						game.addBullet(c_x, c_y, 'l');
+					}
+					shot = true;
 				}
-				shot = true;
 			}
 
-			// System.out.println(player.getState());
 			/**
 			 * Se il personaggio è fermo, viene impostato il suo stato come
 			 * 
@@ -237,7 +242,7 @@ public class Play implements Screen {
 			game.setCamera((camera.position.x - camera.viewportWidth / 2) / Asset.TILE);
 
 			game.setEndCamera(game.getEndCamera() + Asset.TILE * 1.5f);
-
+		
 			float cameraHalfWidth = camera.viewportWidth * .5f;
 
 			float cameraLeft = camera.position.x - cameraHalfWidth;
@@ -250,6 +255,7 @@ public class Play implements Screen {
 			} else if (cameraRight >= mapRight) {
 				camera.position.x = mapRight - cameraHalfWidth;
 			}
+			
 		}
 
 	}
@@ -257,6 +263,7 @@ public class Play implements Screen {
 	/*
 	 * Visualizzazione delle animazioni in base allo stato del player
 	 */
+	private float e_time = 0;
 	private void renderPlayer() {
 		if(!game.RESUME){
 
@@ -265,27 +272,39 @@ public class Play implements Screen {
 			if (player.getGun()) {
 				switch (player.getDirection()) {
 				case 'r': {
-					if (player.getState() == PlayerState.IDLING && shot) {
-						shot = false;
+					if (/*player.getState() == PlayerState.IDLING && */shot) {
+						if(e_time > 0.3f){
+							shot = false;
+							e_time = 0;
+						}
 						drawAnimation(player, "player_m_shot_right");
+						e_time += Gdx.graphics.getDeltaTime();
 					} else if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING) {
 						drawAnimation(player, "player_m_idle_with_gun_right");
 					} else if (player.getState() == PlayerState.RUNNING) {
 						drawAnimation(player, "player_m_run_with_gun_right");
 					} else if (player.getState() == PlayerState.JUMPING) {
-						drawAnimation(player, "player_jump_right");
+						drawAnimation(player, "player_m_jump_with_gun_right");
 					}
 
 					break;
 				} // end of case 'r'
 				case 'l': {
-					if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING) {
+					if (/*player.getState() == PlayerState.IDLING && */shot) {
+						if(e_time > 0.3f){
+							shot = false;
+							e_time = 0;
+						}
+						drawAnimation(player, "player_m_shot_left");
+						e_time += Gdx.graphics.getDeltaTime();
+					} 
+					else if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING) {
 						drawAnimation(player, "player_m_idle_with_gun_left");
 					} else if (player.getState() == PlayerState.RUNNING) {
 						drawAnimation(player, "player_m_run_with_gun_left");
 
 					} else if (player.getState() == PlayerState.JUMPING) {
-						drawAnimation(player, "player_jump_left");
+						drawAnimation(player, "player_m_jump_with_gun_left");
 					}
 
 					break;
@@ -366,6 +385,8 @@ public class Play implements Screen {
 				drawAnimation(player,"player_m_flash_idle_left");
 			}
 		}
+		
+		//TODO aggiungere le animazione del player donna , sparo players, animazione collisione con oggetti
 
 	}
 	
@@ -426,14 +447,18 @@ public class Play implements Screen {
 	}
 
 	private void renderBullets() {
-		Texture bullet = Textures.BULLET;
 		batch.begin();
 		if (!game.getBullets().isEmpty()) {
+			Texture bullet = Textures.BULLET;
+			Sprite sprite = new Sprite(bullet);
+			if(player.getDirection() == 'l'){
+				sprite.flip(true, false);
+			}
 			for (Bullet b : game.getBullets()) {
 				int xB = (int) ((b.getPosition().y) * Asset.TILE);
 				int yB = (int) (((Asset.HEIGHT / Asset.TILE) - b.getPosition().x - 1) * Asset.TILE);
 
-				batch.draw(bullet, xB, yB);
+				batch.draw(sprite, xB, yB);
 			}
 		}
 		batch.end();
@@ -699,7 +724,7 @@ public class Play implements Screen {
 	private float waiting_time;
 	private boolean stepOver = false;
 	private void resumePlayer(){
-		if(player.getLives() == 0){
+		if(player.getLives() == 0 || (player.getState() == PlayerState.DEAD)){
 			player.setState(PlayerState.DEAD);
 			game.RESUME = false;
 			GameConfig.BEST_SCORE = player.getScore();
@@ -708,26 +733,28 @@ public class Play implements Screen {
 		}
 		if(game.RESUME){
 			
+			
 			/*
 			 * Tempo di attesa prima che ritorni sulla mappa
 			 */
-			if(waiting_time > 1.7f && ! stepOver){
+			if(waiting_time > 1.2f && ! stepOver){
 				game.findNewPlayerPosition(player.getPosition());
 				stepOver = true;
 				waiting_time = 6;
 
 				//reset del timer
 				initTimer();
-				
-				//reset della camera
-				float position = player.getPosition().y *Asset.TILE;
-				position -= (Asset.TILE * 3);
-				camera.position.x = position + 640;	
-				game.setCamera((camera.position.x - camera.viewportWidth / 2) / Asset.TILE);
-				game.setEndCamera(game.getEndCamera() + Asset.TILE * 1.5f);
-				
+		
 				//player state
 				player.setState(PlayerState.IDLING);
+			}
+			else{
+				//reset della camera
+				camera.position.x -= 40 *Gdx.graphics.getDeltaTime();
+				if((camera.position.x  - (camera.viewportWidth * .5f)) <= mapLeft)
+					camera.position.x = mapLeft + (camera.viewportWidth * .5f);
+				game.setCamera((camera.position.x - camera.viewportWidth / 2) / Asset.TILE);
+				game.setEndCamera(game.getEndCamera() + Asset.TILE * 1.5f);
 			}
 			/*
 			 * Tempo di attesa stampa animazione

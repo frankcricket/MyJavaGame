@@ -16,6 +16,7 @@ public class Asset {
 //	public static final String FIRST_LEVEL = "levels/firstLevel.tmx";
 	
 	public static String BACKGROUND = "asset/Background.png";
+	public static String MOON = "asset/Moon.png";
 	public static String PLAYER = "asset/Player.png";
 	
 	

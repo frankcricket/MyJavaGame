@@ -6,7 +6,7 @@ public class GameConfig {
 
 	public static int BACKGROUND_MOVE_SPEED = 50; // pixels per second.
 
-	public static Vector2 GRAVITY = new Vector2(2f, 0);
+	public static Vector2 GRAVITY = new Vector2(2.5f, 0);
 
 	/*
 	 * Salto del player solo in verticale
@@ -23,8 +23,8 @@ public class GameConfig {
 	/*
 	 * Velocità caduta del player
 	 */
-	public static Vector2 FALLING_POS_VELOCITY = new Vector2(0, +9.5f);
-	public static Vector2 FALLING_NEG_VELOCITY = new Vector2(0, -9.5f);
+	public static Vector2 FALLING_POS_VELOCITY = new Vector2(0, +10.5f);
+	public static Vector2 FALLING_NEG_VELOCITY = new Vector2(0, -10.5f);
 	
 	/*
 	 * Velocità salto player

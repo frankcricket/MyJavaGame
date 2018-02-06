@@ -43,7 +43,7 @@ public class MainMenu implements Screen {
 		table.setBounds(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
 		// img background
-		Image backgroundMenu = new Image(new Texture("asset/menu_img/backgroud_2.png"));
+		Image backgroundMenu = new Image(new Texture("asset/menu_img/main_menu.png"));
 
 		// bottone single player
 		Image singlePlayer = new Image(new Texture("asset/menu_img/single_player.png"));
@@ -104,10 +104,12 @@ public class MainMenu implements Screen {
 		});
 
 		table.setFillParent(false);
+		
 
 		// aggiungiamo tutto
 		table.setBackground(backgroundMenu.getDrawable());
 
+		/*
 		table.add((singlePlayerB)).height(80f).row();
 		// table.addActor(singlePlayerB);
 
@@ -118,21 +120,28 @@ public class MainMenu implements Screen {
 		table.add((settingsB)).height(80f).row();
 
 		table.add((exitB)).height(80f);
-
 		
-
-
-		// table.add(singlePlayerB).size(200, 200);
-
-		// table.row();
-
-		// table.add(multiplayerB).size(200, 200);
-		//
-		// table.row();
-		//
-		// table.add(editorB).size(200, 200);
-
-		//table.debug();
+		*/
+		
+		int pos_x = 415; 
+		int pos_y = 435;
+		singlePlayerB.setPosition(pos_x, pos_y);
+		pos_x += 244;
+		multiplayerB.setPosition(pos_x, pos_y);
+		pos_x -= 120;
+		pos_y -= 103;
+		editorB.setPosition(pos_x, pos_y);
+		pos_x -= 124;
+		pos_y -= 102;
+		settingsB.setPosition(pos_x, pos_y);
+		pos_x += 244;
+		exitB.setPosition(pos_x, pos_y);
+		
+		table.addActor(singlePlayerB);
+		table.addActor(multiplayerB);
+		table.addActor(editorB);
+		table.addActor(settingsB);
+		table.addActor(exitB);
 		
 		stage.addActor(table);
 
@@ -149,8 +158,6 @@ public class MainMenu implements Screen {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-		// Table.drawDebug(stage);
-
 		stage.act(delta); // aggiorna qualsiasi cosa in esso
 
 		stage.draw(); // dove tutto diventa visibile
@@ -158,28 +165,16 @@ public class MainMenu implements Screen {
 	}
 
 	@Override
-	public void resize(int width, int height) {
-		// stage.getViewport().update(screenWidth, screenHeight, centerCamera);
-
-	}
+	public void resize(int width, int height) {}
 
 	@Override
-	public void pause() {
-		// TODO Auto-generated method stub
-
-	}
+	public void pause() {}
 
 	@Override
-	public void resume() {
-		// TODO Auto-generated method stub
-
-	}
+	public void resume() {}
 
 	@Override
-	public void hide() {
-		// TODO Auto-generated method stub
-
-	}
+	public void hide() {}
 
 	@Override
 	public void dispose() {

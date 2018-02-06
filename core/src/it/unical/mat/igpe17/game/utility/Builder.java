@@ -95,11 +95,11 @@ public class Builder {
 	protected final Player getPlayer() {
 		Player p = null;
 
-		Ground tmp_ground = new Ground(new Vector2(0, 100), null, null);
+		Ground tmp_ground = new Ground(new Vector2(3, 100), null, null);
 
 		for (StaticObject obj : groundObjects) {
 			Ground g = (Ground)obj;
-			if (g.getType().equals("1") || g.getType().equals("14"))
+			if (checkType(g.getType()))
 				if (g.getPosition().x > tmp_ground.getPosition().x && g.getPosition().y < tmp_ground.getPosition().y)
 					tmp_ground = g;
 		}
@@ -108,6 +108,11 @@ public class Builder {
 				new Vector2(GameConfig.SIZE_PLAYER_X, GameConfig.SIZE_PLAYER_Y), 'r', PlayerState.IDLING);
 
 		return p;
+	}
+	
+	private final boolean checkType(String type) {
+		return (type.equals("1") || type.equals("2") || type.equals("3") || type.equals("7") || type.equals("11")
+				|| type.equals("14") || type.equals("15") || type.equals("16"));
 	}
 
 }

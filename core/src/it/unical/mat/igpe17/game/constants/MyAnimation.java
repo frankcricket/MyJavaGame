@@ -14,6 +14,14 @@ public class MyAnimation {
 	private Animation<TextureRegion> aTmp;
 
 	public MyAnimation() {
+		
+		/*
+		 * Player male animation: idle
+		 */
+		aTmp = createAnimation(8, new Texture("animations/player_idle_right.png"), 64, 128, .11f);
+		animations.put("player_idle_right", aTmp);
+		aTmp = createAnimation(8, new Texture("animations/player_idle_left.png"), 64, 128, .11f);
+		animations.put("player_idle_left", aTmp);
 
 		/*
 		 * Player male animation: running
@@ -22,36 +30,15 @@ public class MyAnimation {
 		animations.put("player_run_right", aTmp);
 		aTmp = createAnimation(8, new Texture("animations/player_run_left.png"), 66, 128, .08f);
 		animations.put("player_run_left", aTmp);
-		
-		/*
-		 * Player male animation: running with gun
-		 */
-		aTmp = createAnimation(8, new Texture("animations/player_m_run_with_gun_right.png"), 64, 128, .10f);
-		animations.put("player_m_run_with_gun_right", aTmp);
-		aTmp = createAnimation(8, new Texture("animations/player_m_run_with_gun_left.png"), 64, 128, .10f);
-		animations.put("player_m_run_with_gun_left", aTmp);
 
 		/*
 		 * Player male animation: jump
 		 */
 
-//		aTmp = createAnimation(8, new Texture("animations/player_jump_right.png"), 64, 128, .24f);
-//		animations.put("player_jump_right", aTmp);
-//		aTmp = createAnimation(8, new Texture("animations/player_jump_left.png"), 64, 128, .24f);
-//		animations.put("player_jump_left", aTmp);
-		
-		aTmp = createAnimation(6, new Texture("animations/player_jump_right1.png"), 64, 128, .18f);
+		aTmp = createAnimation(6, new Texture("animations/player_jump_right.png"), 64, 128, .18f);
 		animations.put("player_jump_right", aTmp);
-		aTmp = createAnimation(6, new Texture("animations/player_jump_left1.png"), 64, 128, .18f);
-		animations.put("player_jump_left", aTmp);
-
-		/*
-		 * Player male animation: idle
-		 */
-		aTmp = createAnimation(8, new Texture("animations/player_idle_right.png"), 64, 128, .11f);
-		animations.put("player_idle_right", aTmp);
-		aTmp = createAnimation(8, new Texture("animations/player_idle_left.png"), 64, 128, .11f);
-		animations.put("player_idle_left", aTmp);
+		aTmp = createAnimation(6, new Texture("animations/player_jump_left.png"), 64, 128, .18f);
+		animations.put("player_jump_left", aTmp);	
 		
 		/*
 		 * Player male animation: flash idle
@@ -61,6 +48,8 @@ public class MyAnimation {
 		aTmp = createAnimation(8, new Texture("animations/player_m_flash_idle_left.png"), 64, 128, .11f);
 		animations.put("player_m_flash_idle_left", aTmp);
 		
+		//----------------------------------------------  GUN  ---------------------------------------------
+ 		
 		/*
 		 * Player male animation: idle with gun
 		 */
@@ -68,12 +57,39 @@ public class MyAnimation {
 		animations.put("player_m_idle_with_gun_right", aTmp);
 		aTmp = createAnimation(8, new Texture("animations/player_m_idle_with_gun_left.png"), 64, 128, .30f);
 		animations.put("player_m_idle_with_gun_left", aTmp);
+
+		/*
+		 * Player male animation: running with gun
+		 */
+		aTmp = createAnimation(8, new Texture("animations/player_m_run_with_gun_right.png"), 64, 128, .10f);
+		animations.put("player_m_run_with_gun_right", aTmp);
+		aTmp = createAnimation(8, new Texture("animations/player_m_run_with_gun_left.png"), 64, 128, .10f);
+		animations.put("player_m_run_with_gun_left", aTmp);
 		
 		/*
-		 * PLayer male animation: shot with gun
+		 * Player male animation: jump with run
 		 */
-		aTmp = createAnimation(4, new Texture("animations/player_m_shot_right.png"), 80, 128, 10f);
+
+		aTmp = createAnimation(6, new Texture("animations/player_m_jump_with_gun_right.png"), 64, 128, .18f);
+		animations.put("player_m_jump_with_gun_right", aTmp);
+		aTmp = createAnimation(6, new Texture("animations/player_m_jump_with_gun_left.png"), 64, 128, .18f);
+		animations.put("player_m_jump_with_gun_left", aTmp);
+		
+		
+		/*
+		 * Player male animation: shot with gun
+		 */
+		aTmp = createAnimation(4, new Texture("animations/player_m_shot_right.png"), 64, 128, 0.11f);
 		animations.put("player_m_shot_right", aTmp);
+		aTmp = createAnimation(4, new Texture("animations/player_m_shot_left.png"), 64, 128, 0.11f);
+		animations.put("player_m_shot_left", aTmp);
+		
+		/*
+		 * ---------------------------------------------------------------------------------------------------------- 
+		 * 										FEMALE
+		 * ---------------------------------------------------------------------------------------------------------- 
+		 */
+		
 		/*
 		 * Player female: running
 		 */

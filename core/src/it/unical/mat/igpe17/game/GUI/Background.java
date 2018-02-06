@@ -14,6 +14,7 @@ public class Background {
 	private SpriteBatch batch;
 	private Texture texture_1;
 	private Texture texture_2;
+	private Texture moon;
 	
 	private int widthMax;
 	private float xTexture_1;
@@ -22,8 +23,10 @@ public class Background {
 	public Background() {
 		
 		batch = new SpriteBatch();
-		texture_1 = new Texture(Gdx.files.internal(Asset.BACKGROUND));
+		texture_1 = new Texture(Asset.BACKGROUND);
 		texture_2 = texture_1;
+		
+		moon = new Texture(Asset.MOON);
 		
 		widthMax = texture_1.getWidth();
 		xTexture_1 = 0;
@@ -43,6 +46,8 @@ public class Background {
 		batch.begin();
 		batch.draw(texture_1,xTexture_1,0);
 		batch.draw(texture_2, xTexture_2,0);
+		//batch.draw(moon,0,0);
+		
 		batch.end();
 	}
 	
