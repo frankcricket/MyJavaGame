@@ -18,17 +18,12 @@ import it.unical.mat.igpe17.game.GUI.Play;
 public class ChooseCharacter implements Screen {
 
 	private static ChooseCharacter chooseCharacter = null;
-	private static Play play;
 	
 	public static ChooseCharacter getChooseCharacter(){
 		if (chooseCharacter == null){
 			chooseCharacter = new ChooseCharacter();
 		}
 		return chooseCharacter;
-	}
-	
-	private ChooseCharacter() {
-		play = new Play(MainMenu.getLevel());
 	}
 
 	public int Character = 0;
@@ -53,8 +48,7 @@ public class ChooseCharacter implements Screen {
 		ImageButton character1B = new ImageButton(character1.getDrawable(), character1_2.getDrawable());
 		character1B.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
-				play.player_type = 1;
-				((Game) Gdx.app.getApplicationListener()).setScreen(new Loading());
+				((Game) Gdx.app.getApplicationListener()).setScreen(new Loading(1));
 			}
 
 		});
@@ -64,8 +58,7 @@ public class ChooseCharacter implements Screen {
 		ImageButton character2B = new ImageButton(character2.getDrawable(), character2_2.getDrawable());
 		character2B.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
-				play.player_type = 2;
-				((Game) Gdx.app.getApplicationListener()).setScreen(new Loading());
+				((Game) Gdx.app.getApplicationListener()).setScreen(new Loading(2));
 			}
 
 		});
@@ -102,10 +95,6 @@ public class ChooseCharacter implements Screen {
 
 		table.debug();
 		stage.addActor(table);
-	}
-	
-	public static Play getPlay(){
-		return play;
 	}
 
 	@Override

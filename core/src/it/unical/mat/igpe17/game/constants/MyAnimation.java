@@ -124,33 +124,60 @@ public class MyAnimation {
 		animations.put("player_w_jump_right", aTmp);
 		aTmp = createAnimation(8, new Texture("animations/player_w_jump_left.png"), 64, 128, .08f);
 		animations.put("player_w_jump_left", aTmp);
+		
+		//---------------------------------------------------------------------------------------------------------
+		//---------------------------------  ENEMIES ANIMATIONS     -----------------------------------------------
 
 		/*
 		 * Enemy1 animation: running
 		 */
-
-		aTmp = createAnimation(8, new Texture("animations/enemy_run_left.png"), 64, 128, .11f);
-		animations.put("enemy_run_left", aTmp);
-		aTmp = createAnimation(8, new Texture("animations/enemy_run_right.png"), 64, 128, .11f);
-		animations.put("enemy_run_right", aTmp);
-
+		aTmp = createAnimation(8, new Texture("animations/enemy1_run_left.png"), 64, 128, .11f);
+		animations.put("enemy1_run_left", aTmp);
+		aTmp = createAnimation(8, new Texture("animations/enemy1_run_right.png"), 64, 128, .11f);
+		animations.put("enemy1_run_right", aTmp);
+		
 		/*
-		 * Enemy2 animation: running
+		 * Enemy1 animation: attack
+		 */
+		aTmp = createAnimation(6, new Texture("animations/enemy1_attack_left.png"), 64, 128, .11f);
+		animations.put("enemy1_attack_left", aTmp);
+		aTmp = createAnimation(6, new Texture("animations/enemy1_attack_right.png"), 64, 128, .11f);
+		animations.put("enemy1_attack_right", aTmp);
+
+		
+		/*
+		 * Enemy2 female animation: running
 		 */
 
-		aTmp = createAnimation(8, new Texture("animations/enemy2_m_run_right.png"), 64, 128, .11f);
-		animations.put("enemy2_m_run_right", aTmp);
-		aTmp = createAnimation(8, new Texture("animations/enemy2_m_run_left.png"), 64, 128, .11f);
-		animations.put("enemy2_m_run_left", aTmp);
-
+		aTmp = createAnimation(8, new Texture("animations/enemy2_w_run_right.png"), 64, 128, .11f);
+		animations.put("enemy2_w_run_right", aTmp);
+		aTmp = createAnimation(8, new Texture("animations/enemy2_w_run_left.png"), 64, 128, .11f);
+		animations.put("enemy2_w_run_left", aTmp);
+		
 		/*
-		 * Enemy3 female animation: running
+		 * Enemy2 female animation: attack
+		 */
+		aTmp = createAnimation(6, new Texture("animations/enemy2_attack_right.png"), 64, 128, .11f);
+		animations.put("enemy2_attack_right", aTmp);
+		aTmp = createAnimation(6, new Texture("animations/enemy2_attack_left.png"), 64, 128, .11f);
+		animations.put("enemy2_attack_left", aTmp);
+		
+		/*
+		 * Enemy3 animation: running
 		 */
 
-		aTmp = createAnimation(8, new Texture("animations/enemy1_w_run_right.png"), 64, 128, .11f);
-		animations.put("enemy1_w_run_right", aTmp);
-		aTmp = createAnimation(8, new Texture("animations/enemy1_w_run_left.png"), 64, 128, .11f);
-		animations.put("enemy1_w_run_left", aTmp);
+		aTmp = createAnimation(8, new Texture("animations/enemy3_m_run_right.png"), 64, 128, .11f);
+		animations.put("enemy3_m_run_right", aTmp);
+		aTmp = createAnimation(8, new Texture("animations/enemy3_m_run_left.png"), 64, 128, .11f);
+		animations.put("enemy3_m_run_left", aTmp);
+		
+		/*
+		 * Enemy3 animation: attack
+		 */
+		aTmp = createAnimation(6, new Texture("animations/enemy3_attack_right.png"), 64, 128, .11f);
+		animations.put("enemy3_attack_right", aTmp);
+		aTmp = createAnimation(6, new Texture("animations/enemy3_attack_left.png"), 64, 128, .11f);
+		animations.put("enemy3_attack_left", aTmp);
 
 		
 		/*
@@ -166,6 +193,15 @@ public class MyAnimation {
 		 */
 		aTmp = createAnimation(4, new Texture("animations/coins.png"),64, 64, .16f);
 		animations.put("coins", aTmp);
+		
+		aTmp = createAnimation(9, new Texture("animations/little_coin.png"),50, 50, .04f);
+		animations.put("little_coin", aTmp);
+		
+		/*
+		 * Explosion animation
+		 */
+		aTmp = createAnimation(3, new Texture("animations/explosion.png"),70, 70, 0.3f);
+		animations.put("explosion", aTmp);
 		
 		
 	}

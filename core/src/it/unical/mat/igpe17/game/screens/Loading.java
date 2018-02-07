@@ -27,8 +27,13 @@ public class Loading implements Screen {
 	private SpriteBatch batch = new SpriteBatch();
 	float elapsedTime;
 	public static boolean swap = false;
+	private int player_type;
 	
 	Animation<TextureRegion> a = animations.getAnimation("loading");
+	
+	public Loading(int type) {
+		player_type = type;
+	}
 
 	@Override
 	public void show() {
@@ -72,7 +77,7 @@ public class Loading implements Screen {
 		batch.end();
 		
 		if (swap){
-			 ((Game) Gdx.app.getApplicationListener()).setScreen(ChooseCharacter.getPlay());
+			 ((Game) Gdx.app.getApplicationListener()).setScreen(new Play(player_type));
 			 swap = false;
 		}
 	}

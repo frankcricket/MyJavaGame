@@ -17,8 +17,10 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Vector2;
 
 import it.unical.mat.igpe17.game.actors.Enemy;
+import it.unical.mat.igpe17.game.actors.EnemyState;
 import it.unical.mat.igpe17.game.actors.JumpListener;
 import it.unical.mat.igpe17.game.actors.Player;
 import it.unical.mat.igpe17.game.actors.PlayerState;
@@ -41,6 +43,8 @@ public class Play implements Screen {
 
 	private List<StaticObject> enemies;
 	private List<StaticObject> coins;
+	
+	private StaticObject toDrawObj;
 
 	private TiledMap map;
 	private OrthogonalTiledMapRenderer renderer;
@@ -61,10 +65,17 @@ public class Play implements Screen {
 	private String level;
 
 	private Thread jump_player;
+	
+	
+	
 
 	public Play(String level) {
 		this.level = level;
 	}
+	public Play(int player_type) {
+		this.player_type = player_type;
+	}
+
 
 	@Override
 	public void show() {
@@ -125,8 +136,8 @@ public class Play implements Screen {
 		updateTimer();
 		updateScores();
 		
-		renderPlayer();
 		updatePlayer(delta);
+		renderPlayer();
 		
 		updateEnemy(delta);
 		renderEnemy();
@@ -135,6 +146,7 @@ public class Play implements Screen {
 		
 		updateBullets(delta);
 		renderBullets();
+		renderGenericAnimations();
 		
 		resumePlayer();
 		
@@ -145,7 +157,6 @@ public class Play implements Screen {
 	private void updatePlayer(final float delta) {
 
 		if (!game.isOver() && !game.RESUME) {
-			
 			if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && !(player.getState() == PlayerState.JUMPING)
 					&& !game.PLAYER_IS_FALLING) {
 				player.setDirection('r');
@@ -219,6 +230,12 @@ public class Play implements Screen {
 					&& !(player.getState() == PlayerState.JUMPING)) {
 				if (!game.PLAYER_IS_FALLING)
 					player.setState(PlayerState.IDLING);
+			}
+			if(game.PLAYER_COLLISION){
+				player.setState(PlayerState.HIT);
+				player.decreaseLives();
+				game.RESUME = true;
+				game.PLAYER_COLLISION = false;
 			}
 
 
@@ -397,40 +414,64 @@ public class Play implements Screen {
 	private void renderEnemy() {
 		for (StaticObject obj : enemies) {
 			Enemy e = (Enemy)obj;
-			switch (e.getType()) {
-			case "31": {
-				if (e.getDirection() == 'l') {
-					drawAnimation(e, "enemy2_m_run_left");
-				} else {
-					// System.out.println("31");
-					drawAnimation(e, "enemy2_m_run_right");
+			if(e.getState() == EnemyState.RUNNING){
+				switch (e.getType()) {
+				case "31": {
+					if (e.getDirection() == 'l') {
+						drawAnimation(e, "enemy3_m_run_left");
+					} else {
+						drawAnimation(e, "enemy3_m_run_right");
+					}
+					break;
 				}
-
-				break;
-			}
-			case "32": {
-				if (e.getDirection() == 'l') {
-					drawAnimation(e, "enemy_run_left");
-				} else {
-					drawAnimation(e, "enemy_run_right");
+				case "32": {
+					if (e.getDirection() == 'l') {
+						drawAnimation(e, "enemy1_run_left");
+					} else {
+						drawAnimation(e, "enemy1_run_right");
+					}
+					break;
 				}
-				break;
-
-			}
-			case "33": {
-				if (e.getDirection() == 'l') {
-					drawAnimation(e, "enemy1_w_run_left");
-				} else {
-
-					drawAnimation(e, "enemy1_w_run_right");
+				case "33": {
+					if (e.getDirection() == 'l') {
+						drawAnimation(e, "enemy2_w_run_left");
+					} else {
+						drawAnimation(e, "enemy2_w_run_right");
+					}
+					break;
 				}
-
-				break;
-
-			}
-
-			default:
-				break;
+				default:
+					break;
+				}
+			}else if(e.getState() == EnemyState.FOLLOWING_PLAYER){
+				switch (e.getType()) {
+				case "31": {
+					if (e.getDirection() == 'l') {
+						drawAnimation(e, "enemy3_attack_left");
+					} else {
+						drawAnimation(e, "enemy3_attack_right");
+					}
+					break;
+				}
+				case "32": {
+					if (e.getDirection() == 'l') {
+						drawAnimation(e, "enemy1_attack_left");
+					} else {
+						drawAnimation(e, "enemy1_attack_right");
+					}
+					break;
+				}
+				case "33": {
+					if (e.getDirection() == 'l') {
+						drawAnimation(e, "enemy2_attack_left");
+					} else {
+						drawAnimation(e, "enemy2_attack_right");
+					}
+					break;
+				}
+				default:
+					break;
+				}
 			}
 
 		}
@@ -635,16 +676,44 @@ public class Play implements Screen {
 		batch.end();
 	}
 	
+	private float drawingTime = 0.9f;
+	private float timer_limit = 1.2f;
+	private int step_counter = 0;
+	private void renderGenericAnimations(){
+		toDrawObj = game.toDraw;
+		if(toDrawObj == null){
+			return;
+		}
+		if((int)drawingTime == 0){
+			resetMapCell(toDrawObj.getPosition());
+		}
+
+		if(drawingTime < timer_limit){
+			if(toDrawObj instanceof Obstacle){
+				Obstacle tmp = (Obstacle)toDrawObj;
+				if(tmp.getType().equals("19") || tmp.getType().equals("20")){
+					drawAnimation(tmp, "explosion");
+				} else {
+					
+					drawAnimation(tmp.getPosition().x -0.01f, tmp.getPosition().y+0.5f, "little_coin");
+					timer_limit = 1.5f;
+				}
+			}
+			
+		}
+		else{
+			toDrawObj = null;
+			game.toDraw = null;
+			drawingTime = 0.9f;
+			step_counter = 0;
+			return;
+		}
+		drawingTime += Gdx.graphics.getDeltaTime();
+	}
+	
 
 	// stampa qualsiasi tipo di animazione
 	private void drawAnimation(StaticObject obj, String name) {
-
-		if (obj instanceof Player)
-			obj = (Player) obj;
-		else if (obj instanceof Enemy)
-			obj = (Enemy) obj;
-		else if (obj instanceof Obstacle)
-			obj = (Obstacle) obj;
 
 		int xP = (int) ((obj.getPosition().y) * Asset.TILE);
 		int yP = (int) (((Asset.HEIGHT / Asset.TILE) - obj.getPosition().x - 1) * Asset.TILE);
@@ -654,6 +723,22 @@ public class Play implements Screen {
 		batch.draw(a.getKeyFrame(elapsedTime, true), xP, yP);
 		batch.end();
 
+	}
+	
+	private void drawAnimation(float x, float y, String name) {
+		
+		x -= step_counter *Gdx.graphics.getDeltaTime();
+		//TODO VIFICARE FUNZIONAMENTO COLLISIONE
+		if(!game.animationCollision(x, y)){
+			step_counter += 10;
+			float xP = y * Asset.TILE;
+			float yP = (((Asset.HEIGHT / Asset.TILE) - x - 1) * Asset.TILE);
+	
+			Animation<TextureRegion> a = animations.getAnimation(name);
+			batch.begin();
+			batch.draw(a.getKeyFrame(elapsedTime, true), xP, yP);
+			batch.end();
+		}
 	}
 
 	
@@ -666,29 +751,25 @@ public class Play implements Screen {
 		 * Rimozione dei nemici dalla mappa
 		 */
 		for (StaticObject obj : enemies) {
-			Enemy e = (Enemy)obj;
-			int layer = game.getRow() - 1;
-			int x = (int) e.getPosition().x;
-			int y = (int) e.getPosition().y;
-
-			layer = layer - x;
-			TiledMapTileLayer tile = (TiledMapTileLayer) map.getLayers().get(0);
-			tile.getCell(y, layer).setTile(null);
+			resetMapCell(obj.getPosition());
 		}
 
 		/*
 		 * Rimozione dei coins dalla mappa
 		 */
-		for (StaticObject e : coins) {
-			int layer = game.getRow() - 1;
-			int x = (int) e.getPosition().x;
-			int y = (int) e.getPosition().y;
-
-			layer = layer - x;
-			TiledMapTileLayer tile = (TiledMapTileLayer) map.getLayers().get(0);
-			tile.getCell(y, layer).setTile(null);
+		for (StaticObject obj : coins) {
+			resetMapCell(obj.getPosition());
 		}
+	}
+	
+	private void resetMapCell(Vector2 pos){
+		int layer = game.getRow() - 1;
+		int x = (int) pos.x;
+		int y = (int) pos.y;
 
+		layer = layer - x;
+		TiledMapTileLayer tile = (TiledMapTileLayer) map.getLayers().get(0);
+		tile.getCell(y, layer).setTile(null);
 	}
 
 	private void initTimer() {
@@ -741,7 +822,7 @@ public class Play implements Screen {
 				game.findNewPlayerPosition(player.getPosition());
 				stepOver = true;
 				waiting_time = 6;
-
+				
 				//reset del timer
 				initTimer();
 		

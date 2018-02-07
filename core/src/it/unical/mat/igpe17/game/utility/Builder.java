@@ -6,6 +6,7 @@ import java.util.List;
 import com.badlogic.gdx.math.Vector2;
 
 import it.unical.mat.igpe17.game.actors.Enemy;
+import it.unical.mat.igpe17.game.actors.EnemyState;
 import it.unical.mat.igpe17.game.actors.Player;
 import it.unical.mat.igpe17.game.actors.PlayerState;
 import it.unical.mat.igpe17.game.constants.GameConfig;
@@ -64,7 +65,9 @@ public class Builder {
 				}else if(Integer.parseInt(split[i]) >= 31 && Integer.parseInt(split[i]) <= 33){
 					Enemy enemy = new Enemy(new Vector2(row, i),
 							new Vector2(GameConfig.SIZE_ENEMY_X, GameConfig.SIZE_ENEMY_Y),
-							 'l', split[i]);
+							'l',
+							split[i],
+							EnemyState.RUNNING);
 					
 					enemiesObjects.add(enemy);
 				} else if(Integer.parseInt(split[i]) == 50){

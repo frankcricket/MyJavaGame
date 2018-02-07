@@ -10,11 +10,11 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.badlogic.gdx.math.Vector2;
 
 import it.unical.mat.igpe17.game.actors.Enemy;
+import it.unical.mat.igpe17.game.actors.EnemyState;
 import it.unical.mat.igpe17.game.actors.Player;
 import it.unical.mat.igpe17.game.actors.PlayerState;
 import it.unical.mat.igpe17.game.constants.Asset;
 import it.unical.mat.igpe17.game.constants.GameConfig;
-import it.unical.mat.igpe17.game.objects.DynamicObject;
 import it.unical.mat.igpe17.game.objects.Ground;
 import it.unical.mat.igpe17.game.objects.Obstacle;
 import it.unical.mat.igpe17.game.objects.StaticObject;
@@ -25,6 +25,7 @@ public class Game {
 	// set di default
 	//public static String LEVEL = "levels/firstLevel.tmx";
 	public static String LEVEL = "levels/completeLevel.tmx";
+//	public static String LEVEL = "levels/t1.tmx";
 
 	private Player player;
 	private List<StaticObject> groundObjects;
@@ -32,6 +33,8 @@ public class Game {
 	private List<StaticObject> coins;
 	private List<Bullet> bullets;
 	private List<StaticObject> enemy;
+	
+	public StaticObject toDraw;
 
 	private int row;
 	private int column;
@@ -48,6 +51,7 @@ public class Game {
 	private float pos_fall;
 	private float neg_fall;
 	public static boolean PLAYER_IS_FALLING = false;
+	public static boolean PLAYER_COLLISION = false;
 
 	public static boolean RESUME = false;
 
@@ -62,6 +66,7 @@ public class Game {
 		enemy = null;
 		coins = null;
 		bullets = null;
+		toDraw = null;
 
 		pos_fall = GameConfig.FALLING_POS_VELOCITY.y;
 		neg_fall = GameConfig.FALLING_NEG_VELOCITY.y;
@@ -86,6 +91,8 @@ public class Game {
 		player = reader.getPlayer();
 
 		bullets = new LinkedList<>();
+		
+		toDraw = null;
 
 		camera = 0f;
 		end_camera = Asset.WIDTH;
@@ -268,6 +275,9 @@ public class Game {
 	private boolean setStartPosition = true;
 	private Vector2 startPosition = new Vector2();
 
+	/**
+	 * @param delta
+	 */
 	public void makePlayerJump(float delta) {
 		lock.lock();
 		try {
@@ -366,63 +376,10 @@ public class Game {
 		}
 
 	}
-
-	private final boolean checkObstaclesCollisionEnemy(int x, int y) {
-		for (StaticObject o : obstacleObjects) {
-			if (o.getPosition().x == x && o.getPosition().y == y) {
-				return true;
-			}
-		}
-		return false;
-
-	}
-
-	private boolean enemyIsObstaclesCollision(Enemy e) {
-
-		int posX = ((int) e.getPosition().x) - GameConfig.SIZE_ENEMY_Y + GameConfig.SIZE_GROUND_X;
-		int posY = Math.round(e.getPosition().y);
-
-		/*
-		 * Collisione sopra il personaggio con oggetti di tipo ground
-		 */
-		for (StaticObject g : groundObjects) {
-			if (g.getPosition().x == posX && g.getPosition().y == posY)
-				return true;
-		}
-
-		if (e.getDirection() == 'r') {
-			posX = (int) e.getPosition().x;
-			posX--;
-			posY = (int) (e.getPosition().y) + GameConfig.SIZE_ENEMY_X;
-
-			for (int i = 0; i < GameConfig.SIZE_ENEMY_Y; i++) {
-				for (StaticObject g : groundObjects) {
-					if (g.getPosition().x == posX && g.getPosition().y == posY) {
-						return true;
-					}
-				}
-				posX++;
-			}
-
-		} else {
-			posX = (int) e.getPosition().x;
-			posY = (int) (e.getPosition().y);
-			for (int i = 0; i < GameConfig.SIZE_ENEMY_Y; i++) {
-				for (StaticObject g : groundObjects) {
-					if (g.getPosition().x == posX && (g.getPosition().y) == posY) {
-						return true;
-					}
-				}
-				posX--;
-			}
-		}
-
-		return false;
-
-	}
-
+	
 	private boolean isObstaclesCollision() {
 
+		//TODO VERIFICARE BUG QUANDO RISORGE DOPO ESPLOSIONE BOMBA
 		float left = player.getPosition().y;
 		float bottom = player.getPosition().x;
 		float top = (bottom - GameConfig.SIZE_PLAYER_Y);
@@ -487,45 +444,67 @@ public class Game {
 /*
  *  ------------------------------- COLLISIONE CON GLI OSTACOLI------------------------
  */
-		for (StaticObject obj : obstacleObjects) {
-			Obstacle o = (Obstacle)obj;
+		Iterator<StaticObject> iterator = obstacleObjects.iterator();
+		while(iterator.hasNext()) {
+			Obstacle o = (Obstacle)iterator.next();
 			float b = o.getPosition().x;
 			float l = o.getPosition().y;
 			float t = b - GameConfig.SIZE_GROUND_X;
 			float r = l + GameConfig.SIZE_GROUND_Y;
-			if(!checkTypeObj(o.getType())){
+			if(!checkTypeObj(o.getType()) && ! PLAYER_COLLISION){
 				if ((l > left && l <= right && b > top && b < bottom)// top right
 						|| (l > left && l < right && t > top && t < bottom)// bottom right
 						|| (r > left && r < right && t > top && t < bottom)// bottom left
 						|| (r >= left && r < right && b > top && b < bottom)// top left
-				) {				
+				) {			
+					
 					/*
 					 * Il player salta (salto classico) OPPURE salta in verticale e
 					 * si muove
 					 */
-	//				RESUME = true;
-	//				player.decreaseLives();
-	//				player.setState(PlayerState.HIT);
-	//				return true;
+					if(o.getType().equals("19") || o.getType().equals("20")){
+						toDraw = o;
+						iterator.remove();
+						PLAYER_COLLISION = true;
+						return true;
+					}
+					
 					if (moveWhileJumping || !player.VERTICAL_JUMP) {
 						// imposto la posizione del player quando collide con un
 						// oggetto che si trova sopra di lui
 						if (player.getState() == PlayerState.JUMPING) {
 							if (top > t && top <= b) {
 								player.setPosition(new Vector2(b + GameConfig.SIZE_ENEMY_Y, left));
+								if(!o.getType().equals("25")){
+									PLAYER_COLLISION = true;
+								}
 								return true;
 							}
 	
 						}
 	
 						if (right >= l && right < r) {
-							player.setPosition(new Vector2(bottom, (int) left - 0.001f));
+							player.setPosition(new Vector2(bottom,left - 0.001f));
+							if(!o.getType().equals("25")){
+								PLAYER_COLLISION = true;
+							}
 							return true;
 						} else if (left > l && left <= r) {
-							player.setPosition(new Vector2(bottom, r + 0.001f));
+							player.setPosition(new Vector2(bottom,r+0.001f));
+							if(!o.getType().equals("25")){
+								PLAYER_COLLISION = true;
+							}
 							return true;
 						} else if (top > t && top < b) {
-							player.setPosition(new Vector2((int) bottom, left));
+							if(player.getDirection() == 'r'){
+								player.setPosition(new Vector2((int) bottom, right+0.1f));
+							}
+							else{
+								player.setPosition(new Vector2((int) bottom, left-0.1f));
+							}
+							if(!o.getType().equals("25")){
+								PLAYER_COLLISION = true;
+							}
 							return true;
 						}
 					}
@@ -568,75 +547,60 @@ public class Game {
 
 		return false;
 
-	}
+	}	
+	
+	public void moveEnemy(float dt){
 
-	public void moveEnemy(float dt) {
 		for (StaticObject obj : enemy) {
 			Enemy e = (Enemy) obj;
+			//posizione iniziale del nemico
 			if (e.getJustOnce()) {
-				e.setStartingPos((int) e.getPosition().y);
+				e.setStartingPos(e.getPosition().y);
 				e.setJustOnce(false);
 			}
 
-			// prendiamo le coordinate di un nemico per volta
+			float x = e.getPosition().x;
+			float y = e.getPosition().y;
 
-			int x = (int) e.getPosition().x;
-			int y = (int) e.getPosition().y;
-
-			switch (((DynamicObject) e).getDirection()) {
+			switch (e.getDirection()) {
 
 			case 'l': {
-
-				if (checkObstaclesCollisionEnemy(x, y) || enemyIsObstaclesCollision(e)) {
+				if ((e.getStartingPos() - y) >= e.getMoves()) {
 					e.setDirection('r');
+					if (!e.getSelectedYet()) {
+						e.setSelectedYet(true);
+						e.setMoves(e.getMoves() * 2);
+					}
+					e.setStartingPos((int) e.getPosition().y);
 					break;
-				} else {
-
-					if ((e.getStartingPos() - y) == e.getMoves()) {
-						e.setDirection('r');
-						if (!e.getSelectedYet()) {
-							e.setSelectedYet(true);
-							e.setMoves(e.getMoves() * 2);
-						}
-						e.setStartingPos((int) e.getPosition().y);
-						break;
-					}
-
-					if (checkGroundCollision((int) ++x, (int) y)) {
-
-						Vector2 tmp = new Vector2();
-						tmp.x = GameConfig.PLAYER_NEG_VELOCITY.x;
-						tmp.y = GameConfig.PLAYER_NEG_VELOCITY.y;
-						e.move(tmp, dt);
-					} else {
-						e.setDirection('r');
-					}
 				}
-
+				if(enemyCollision(x,y-0.25f)){
+					Vector2 tmp = new Vector2();
+					tmp.x = GameConfig.PLAYER_NEG_VELOCITY.x;
+					tmp.y = GameConfig.PLAYER_NEG_VELOCITY.y;
+					e.move(tmp, dt);				
+			}else{
+				e.setDirection('r');
+			}
 				break;
 			}
 			case 'r': {
-				if (checkObstaclesCollisionEnemy(x, ++y) || enemyIsObstaclesCollision(e)) {
+				if ((y - e.getStartingPos()) >= e.getMoves()) {
 					e.setDirection('l');
+					e.setStartingPos(e.getPosition().y);
 					break;
-				} else {
-
-					if ((y - e.getStartingPos()) == e.getMoves()) {
-						e.setDirection('l');
-						e.setStartingPos((int) e.getPosition().y);
-						break;
-					}
-
-					if (checkGroundCollision((int) ++x, (int) ++y)) {
-
-						Vector2 tmp = new Vector2();
-						tmp.x = GameConfig.PLAYER_POS_VELOCITY.x;
-						tmp.y = GameConfig.PLAYER_POS_VELOCITY.y;
-						e.move(tmp, dt);
-					} else {
-						e.setDirection('l');
-					}
+				}	
+				if(enemyCollision(x,y+GameConfig.SIZE_ENEMY_X)){
+					Vector2 tmp = new Vector2();
+					tmp.x = GameConfig.PLAYER_POS_VELOCITY.x;
+					tmp.y = GameConfig.PLAYER_POS_VELOCITY.y;
+					e.move(tmp, dt);
+					
 				}
+				else{
+					e.setDirection('l');
+				}
+				
 				break;
 			}
 			default:
@@ -647,16 +611,82 @@ public class Game {
 
 		isEnemyFollowingPlayer();
 
+	
 	}
+	
+	private boolean enemyCollision(float x, float y){
+		float left = y;
+		float bottom = x;
+		float top = (bottom - GameConfig.SIZE_ENEMY_Y);
+		float right = (left + GameConfig.SIZE_ENEMY_X);
+		
+		/*
+		 * Collisione con ostacoli
+		 */
+		for (StaticObject g : obstacleObjects) {
+			float b = g.getPosition().x;
+			float l = g.getPosition().y;
+			float t = b - GameConfig.SIZE_GROUND_X;
+			float r = l + GameConfig.SIZE_GROUND_Y;
+
+			if ((r >= left && r < right && t > top && t < bottom)// bottom right
+					|| (r > left && r < right && b > top && b < bottom)// bottom left
+			) {
+				return false;
+			}
+		}
+		
+		for (StaticObject obj : groundObjects) {
+			Ground g = (Ground)obj;
+			float b = g.getPosition().x;
+			float l = g.getPosition().y;
+			float t = b - GameConfig.SIZE_GROUND_X;
+			float r = l + GameConfig.SIZE_GROUND_Y;
+			
+			if ((l > left && l <= right && b > top && b < bottom)// top right
+					|| (r >= left && r < right && b > top && b < bottom)// top left
+				) {
+					return false;
+				}
+			
+			
+		}
+
+		/*
+		 * Collisione con terreno
+		 */
+		for (StaticObject obj : groundObjects) {
+			Ground g = (Ground)obj;
+			float b = g.getPosition().x;
+			float l = g.getPosition().y;
+			float t = b - GameConfig.SIZE_GROUND_X;
+			float r = l + GameConfig.SIZE_GROUND_Y;
+			
+			
+			if ((r > left && r < right && t > top && t <= bottom)// bottom right
+					|| (r >= left && r < right && b >= top && b < bottom)// bottom left
+			) {
+
+				if(checkType(g.getType())){
+					return true;
+				}
+			}
+			
+		}
+		
+		return false;
+	}
+	
+	
 
 	// ritorna true se il player entra nel raggio del nemico
 	private boolean isPlayerInEmenyZone(Enemy e) {
-
-		return Math.abs(e.getPosition().y - player.getPosition().y) <= GameConfig.SIZE_MOVE_ENEMY;
+		int x_player = (int)player.getPosition().x;
+		int x_enemy =  (int)e.getPosition().x;
+		return (Math.abs(e.getPosition().y - player.getPosition().y) <= GameConfig.SIZE_MOVE_ENEMY
+				&& x_player == x_enemy);
 	}
 
-	// TODO nemico: collisione con il player con relativa animazione (ancora da
-	// caricare negli asset)
 
 	// quando il player entra nella zona del nemico a seconda, se viene da sx o
 	// da dx, cambia direzione verso il player e lo insegue
@@ -664,6 +694,7 @@ public class Game {
 		for (StaticObject obj : enemy) {
 			Enemy e = (Enemy) obj;
 			if (isPlayerInEmenyZone(e)) {
+				e.setState(EnemyState.FOLLOWING_PLAYER);
 				// se a sx del nemico lo faccio muovere verso di lui
 				if (player.getPosition().y < e.getPosition().y) {
 					e.setDirection('l');
@@ -673,6 +704,8 @@ public class Game {
 				else
 					e.setDirection('r');
 
+			}else{
+				e.setState(EnemyState.RUNNING);
 			}
 		}
 	}
@@ -723,39 +756,6 @@ public class Game {
 		return false;
 	}
 
-	private final boolean checkGroundCollision(int x, int y) {
-
-		for (StaticObject obj : groundObjects) {
-			Ground g = (Ground) obj;
-			if (g.getPosition().x == x) {
-				if (g.getPosition().y == y) {
-					if (checkType(g.getType())) {
-						return true;
-					}
-				}
-			}
-		}
-
-		float left = player.getPosition().y;
-		float bottom = player.getPosition().x;
-		float top = (bottom - GameConfig.SIZE_PLAYER_Y);
-		float right = (left + GameConfig.SIZE_PLAYER_X);
-
-		for (StaticObject o : obstacleObjects) {
-			if (((Obstacle) o).getType().equals("25")) {
-				float b = o.getPosition().x;
-				float l = o.getPosition().y;
-				float t = b - GameConfig.SIZE_GROUND_X;
-				float r = l + GameConfig.SIZE_GROUND_Y;
-				if ((r > left && r < right && t > top && t < bottom)// bottom right
-						|| (r >= left && r < right && b > top && b < bottom)// bottom left
-				) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
 
 	/*
 	 * Verifica collisione tra monete e player
@@ -766,6 +766,7 @@ public class Game {
 			if (findCollision(player, coin)) {
 				iter.remove();
 				current_coin_count++;
+				toDraw = coin;
 				player.score(100);
 			}
 		}
@@ -904,7 +905,7 @@ public class Game {
 			
 			if(ground && !obstacles){
 				current_x -= GameConfig.SIZE_GROUND_X; 
-				player.setPosition(new Vector2(current_x, current_y));
+				player.setPosition(new Vector2(current_x, current_y-0.1f));
 				break;
 			}
 			
@@ -953,6 +954,34 @@ public class Game {
 		}
 		return false;
 	}
+	
+	/*
+	 * Gestione collisione tra l'animazione del coin e il terreno
+	 */
+	public boolean animationCollision(float x,float y){
+		float bottom = x;
+		float left = y;
+		float top = bottom - 0.7f;
+		float right = left + 0.7f;
+
+		for (StaticObject g : groundObjects) {
+			float b = g.getPosition().x;
+			float l = g.getPosition().y;
+			float t = b - GameConfig.SIZE_GROUND_X;
+			float r = l + GameConfig.SIZE_GROUND_Y;
+
+			if ((l > left && l < right && b > top && b < bottom)// top right
+					|| (l > left && l < right && t > top && t < bottom)// top left
+					|| (r > left && r < right && t > top && t < bottom)// bottom right
+					|| (r > left && r < right && b > top && b < bottom)// bottom left
+			) {
+				
+				return true;
+			}
+		}
+		return false;
+		
+	}
 
 	public final List<Bullet> getBullets() {
 		return bullets;
@@ -976,6 +1005,10 @@ public class Game {
 
 	public final List<StaticObject> getCoins() {
 		return coins;
+	}
+	
+	public final List<StaticObject> getObstacles() {
+		return obstacleObjects;
 	}
 
 	public final int getRow() {
