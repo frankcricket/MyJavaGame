@@ -53,7 +53,7 @@ public class Loading implements Screen {
 				
 
 			}
-		}, 3000);
+		}, 500);
 
 		stage.addActor(table);
 

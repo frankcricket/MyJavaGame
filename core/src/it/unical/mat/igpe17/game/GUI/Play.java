@@ -118,8 +118,14 @@ public class Play implements Screen {
 		initTimer();
 	}
 
+	private float dt_prec = 10f;
 	@Override
 	public void render(float delta) {
+		
+		if(delta > 2*dt_prec){
+			delta = 2*dt_prec;
+		}
+//		System.out.println(delta);
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		elapsedTime += delta;
@@ -149,6 +155,8 @@ public class Play implements Screen {
 		renderGenericAnimations();
 		
 		resumePlayer();
+		
+		dt_prec = delta;
 		
 	}
 

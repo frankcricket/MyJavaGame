@@ -25,7 +25,7 @@ public class Game {
 	// set di default
 	//public static String LEVEL = "levels/firstLevel.tmx";
 	public static String LEVEL = "levels/completeLevel.tmx";
-//	public static String LEVEL = "levels/t1.tmx";
+	//public static String LEVEL = "levels/t1.tmx";
 
 	private Player player;
 	private List<StaticObject> groundObjects;
@@ -606,12 +606,12 @@ public class Game {
 			default:
 				break;
 			}
-
+			
 		}
 
 		isEnemyFollowingPlayer();
-
-	
+		
+		
 	}
 	
 	private boolean enemyCollision(float x, float y){
