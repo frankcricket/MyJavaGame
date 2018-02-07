@@ -118,9 +118,14 @@ public class Play implements Screen {
 		initTimer();
 	}
 
-	private float dt_prec = 10f;
+	private float dt_prec = -1f;
 	@Override
 	public void render(float delta) {
+		
+		if(dt_prec < 0){
+			delta = 0.01f;
+			dt_prec = Float.MAX_VALUE;
+		}
 		
 		if(delta > 2*dt_prec){
 			delta = 2*dt_prec;
