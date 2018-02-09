@@ -13,8 +13,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
-import it.unical.mat.igpe17.game.GUI.Play;
- 
 public class ChooseCharacter implements Screen {
 
 	private static ChooseCharacter chooseCharacter = null;

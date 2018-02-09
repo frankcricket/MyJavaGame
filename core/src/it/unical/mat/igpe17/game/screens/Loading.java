@@ -15,7 +15,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
 import it.unical.mat.igpe17.game.GUI.Play;
+import it.unical.mat.igpe17.game.constants.Asset;
 import it.unical.mat.igpe17.game.constants.MyAnimation;
+import it.unical.mat.igpe17.game.utility.LevelsHandler;
 
 public class Loading implements Screen {
 
@@ -29,10 +31,13 @@ public class Loading implements Screen {
 	public static boolean swap = false;
 	private int player_type;
 	
+	private LevelsHandler l_handler;
+	
 	Animation<TextureRegion> a = animations.getAnimation("loading");
 	
 	public Loading(int type) {
 		player_type = type;
+		l_handler = LevelsHandler.getInstance();
 	}
 
 	@Override
@@ -53,7 +58,7 @@ public class Loading implements Screen {
 				
 
 			}
-		}, 500);
+		}, 3000);
 
 		stage.addActor(table);
 
@@ -77,34 +82,24 @@ public class Loading implements Screen {
 		batch.end();
 		
 		if (swap){
-			 ((Game) Gdx.app.getApplicationListener()).setScreen(new Play(player_type));
+			Asset.PLAYER_TYPE = player_type;
+			String level = l_handler.first();
+			 ((Game) Gdx.app.getApplicationListener()).setScreen(new Play(level));
 			 swap = false;
 		}
 	}
 
 	@Override
-	public void resize(int width, int height) {
-		// TODO Auto-generated method stub
-
-	}
+	public void resize(int width, int height) {}
 
 	@Override
-	public void pause() {
-		// TODO Auto-generated method stub
-
-	}
+	public void pause() {}
 
 	@Override
-	public void resume() {
-		// TODO Auto-generated method stub
-
-	}
+	public void resume() {}
 
 	@Override
-	public void hide() {
-		// TODO Auto-generated method stub
-
-	}
+	public void hide() {}
 
 	@Override
 	public void dispose() {

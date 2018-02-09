@@ -22,36 +22,6 @@ public class MySaveFile {
 	private Vector<Sprite> pointsTmp = new Vector<Sprite>();
 	
 	
-	
-/*
- * 
-	public void save() {
-		try {
-			JFileChooser fc = new JFileChooser();
-			fc.setDialogTitle("Save in...");
-
-			if (fc.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
-				FileWriter fw = new FileWriter(fc.getSelectedFile());
-				BufferedWriter bw = new BufferedWriter(fw);
-				bw.write("" + MyPanel.row + " " + (Asset.WIDTH / Asset.TILE)); // TODO  fixare
-				bw.newLine();
-				for (int i = 0; i < MyPanel.pointsTmp.size(); i++) {
-					bw.write(MyPanel.pointsTmp.get(i).getName() + MyPanel.toString(MyPanel.pointsTmp.get(i).getPoint()));
-					bw.newLine();
-				}
-				bw.write("/");
-				bw.newLine();
-				bw.write("" + Asset.WIDTH);
-				bw.close();
-
-				JOptionPane.showMessageDialog(null, "Operation Completed!");
-			}
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-*/
 	public void saveNewFile() {
 		try {
 			JFileChooser fc = new JFileChooser();
@@ -77,11 +47,10 @@ public class MySaveFile {
 				for (int i = 0; i < pointsTmp.size(); i++){
 					if (pointsTmp.get(i).getName().equals("31")
 							|| pointsTmp.get(i).getName().equals("32")
-							|| pointsTmp.get(i).getName().equals("33")) {
+							|| pointsTmp.get(i).getName().equals("33")
+							|| pointsTmp.get(i).getName().equals("door")) {
 						int xtmp = pointsTmp.get(i).getPoint().x;
 						int ytmp= pointsTmp.get(i).getPoint().y;
-						
-						String name = pointsTmp.get(i).getName();
 						
 						ytmp ++;
 						
@@ -148,6 +117,16 @@ public class MySaveFile {
 		 */
 		
 		bw.write(" <tileset firstgid=" + "\"" + 50 + "\"" + " source=" + "\"" + "tileset/coin" + ".tsx"
+				+ "\"" + "/>");
+		bw.newLine();
+		
+		/*
+		 * Stampo la porta e la chiave
+		 */
+		bw.write(" <tileset firstgid=" + "\"" +70 + "\"" + " source=" + "\"" + "tileset/door" + ".tsx"
+				+ "\"" + "/>");
+		bw.newLine();
+		bw.write(" <tileset firstgid=" + "\"" +71 + "\"" + " source=" + "\"" + "tileset/key" + ".tsx"
 				+ "\"" + "/>");
 		bw.newLine();
 		
@@ -247,7 +226,11 @@ public class MySaveFile {
 		dimension = split.length;
 		for (int i = 0; i < split.length; i++) {
 			if (!(split[i].equals("0"))) {
-				if(split[i].equals("31") || split[i].equals("32") || split[i].equals("33")){
+				if(split[i].equals("31") 
+						|| split[i].equals("32") 
+						|| split[i].equals("33")
+						|| split[i].equals("door")
+					){
 					Point p = new Point(i, row-1);// coordinate invertite
 					Sprite sprite = new Sprite(p, split[i]);
 					MyPanel.points.add(sprite);

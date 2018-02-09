@@ -20,6 +20,7 @@ import it.unical.mat.igpe17.game.GUI.Play;
 import it.unical.mat.igpe17.game.constants.Asset;
 import it.unical.mat.igpe17.game.constants.GameConfig;
 import it.unical.mat.igpe17.game.constants.Textures;
+import it.unical.mat.igpe17.game.utility.LevelsHandler;
 
 public class HandleGameOver implements Screen {
 
@@ -75,6 +76,7 @@ public class HandleGameOver implements Screen {
 		ImageButton restart = new ImageButton(restart_on.getDrawable(), restart_off.getDrawable());
 		restart.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
+				LevelsHandler.reload();
 				((com.badlogic.gdx.Game) Gdx.app.getApplicationListener()).setScreen(MainMenu.getMainMenu());
 				/*
 				 *  	OPPURE 
@@ -139,7 +141,7 @@ public class HandleGameOver implements Screen {
 
 	}
 	
-	private void handleScore(){
+	protected void handleScore(){
 		
 		FileHandle file = Gdx.files.internal(Asset.BEST_SCORE_FILE);
 		if(!file.exists()){
@@ -191,12 +193,6 @@ public class HandleGameOver implements Screen {
 		b_score = Play.handleDigits(best_score);
 	}
 	
-	
-	
-	
-	
-	
-
 	@Override
 	public void resize(int width, int height) {}
 

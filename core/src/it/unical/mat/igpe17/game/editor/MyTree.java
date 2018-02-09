@@ -35,6 +35,7 @@ public class MyTree extends JPanel
 		addGround(root);
 		addObjects(root);
 		addEnemies(root);
+		addUtility(root);
 
 		tree = new JTree(root);
 		tree.setCellRenderer(new Render());		
@@ -159,6 +160,18 @@ public class MyTree extends JPanel
 		enem.add(enem3);
 		
 		root.add(enem);
+	}
+	
+	private void addUtility(DefaultMutableTreeNode root){
+		DefaultMutableTreeNode util = new DefaultMutableTreeNode("Utility");
+		
+		DefaultMutableTreeNode door = new DefaultMutableTreeNode("70");
+		DefaultMutableTreeNode key = new DefaultMutableTreeNode("71");
+		
+		util.add(door);
+		util.add(key);
+		
+		root.add(util);
 	}
 
 

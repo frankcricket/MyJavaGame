@@ -19,6 +19,11 @@ public class Asset {
 	public static String MOON = "asset/Moon.png";
 	public static String PLAYER = "asset/Player.png";
 	
+	/*
+	 * Imposto a 1 ( maschio ) il tipo di player all'avvio del gioco
+	 */
+	public static int PLAYER_TYPE = 1;
+	
 	
 	//ground
 	
@@ -94,7 +99,14 @@ public class Asset {
 	//background game over: il player ha perso tutte le vite
 	public static final String GAME_OVER = "asset/menu_img/gameOver.png";
 	
+	public static final String LEVEL_UP = "asset/menu_img/level_up.png";
+	
 	public static final String BEST_SCORE_FILE = "scores/best_score.txt";
+	
+	
+	public static final String CLOSED_DOOR = "asset/closed_door.png";
+	public static final String OPENED_DOOR = "asset/opened_door.png";
+	public static final String MAGIC_KEY = "asset/key.png";
 	
 
 	
@@ -145,6 +157,9 @@ public class Asset {
 		map.put("31", ENEMY1);
 		map.put("32", ENEMY2);
 		map.put("33", ENEMY3);
+		
+		map.put("70", CLOSED_DOOR);
+		map.put("71", MAGIC_KEY);
 		
 		
 		map.put("d0", D_0);

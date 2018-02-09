@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 
 import it.unical.mat.igpe17.game.GUI.Play;
 import it.unical.mat.igpe17.game.screens.HandleGameOver;
+import it.unical.mat.igpe17.game.screens.LevelUp;
 
 public class GameTest extends Game {
 
@@ -11,6 +12,8 @@ public class GameTest extends Game {
 	public void create() {
 		setScreen(new Play(null));
 		//setScreen(HandleGameOver.getInstance());
+		//setScreen(LevelUp.getInstance());
+		//setScreen(LevelsHandler.getInstance());
 	}
 	
 	

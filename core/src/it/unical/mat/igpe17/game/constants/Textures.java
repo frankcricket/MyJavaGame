@@ -49,6 +49,11 @@ public class Textures {
 	public static final Texture COIN = new Texture(Asset.COINS);
 	public static final Texture SCORE = new Texture(Asset.SCORE);
 	
+	/*
+	 * DOOR -> EXIT GAME
+	 */
+	public static final Texture DOOR = new Texture(Asset.OPENED_DOOR);
+	
 	static{
 		map.put("D0", D0);
 		map.put("D1", D1);

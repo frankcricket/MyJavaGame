@@ -25,6 +25,7 @@ import it.unical.mat.igpe17.game.actors.JumpListener;
 import it.unical.mat.igpe17.game.actors.Player;
 import it.unical.mat.igpe17.game.actors.PlayerState;
 import it.unical.mat.igpe17.game.constants.Asset;
+import it.unical.mat.igpe17.game.constants.Audio;
 import it.unical.mat.igpe17.game.constants.GameConfig;
 import it.unical.mat.igpe17.game.constants.MyAnimation;
 import it.unical.mat.igpe17.game.constants.Textures;
@@ -33,6 +34,7 @@ import it.unical.mat.igpe17.game.logic.Game;
 import it.unical.mat.igpe17.game.objects.Obstacle;
 import it.unical.mat.igpe17.game.objects.StaticObject;
 import it.unical.mat.igpe17.game.screens.HandleGameOver;
+import it.unical.mat.igpe17.game.screens.LevelUp;
 
 public class Play implements Screen {
 
@@ -43,6 +45,8 @@ public class Play implements Screen {
 
 	private List<StaticObject> enemies;
 	private List<StaticObject> coins;
+	private List<StaticObject> keyAndDoor;
+	
 	
 	private StaticObject toDrawObj;
 
@@ -66,23 +70,20 @@ public class Play implements Screen {
 
 	private Thread jump_player;
 	
-	
-	
+	private boolean ready_for_next_level = false;
+
 
 	public Play(String level) {
 		this.level = level;
+		this.player_type = Asset.PLAYER_TYPE;
 	}
-	public Play(int player_type) {
-		this.player_type = player_type;
-	}
-
 
 	@Override
 	public void show() {
 
+		game = new Game();
 		if (level != null)
 			game.LEVEL = level;
-		game = new Game();
 		game.loadLevel();
 
 		mapRight = game.getColumn() * Asset.TILE;
@@ -91,6 +92,7 @@ public class Play implements Screen {
 		player = game.getPlayer();
 		enemies = game.getEnemy();
 		coins = game.getCoins();
+		keyAndDoor = game.getUtility();
 
 		/*
 		 * mappa e animazioni
@@ -130,7 +132,6 @@ public class Play implements Screen {
 		if(delta > 2*dt_prec){
 			delta = 2*dt_prec;
 		}
-//		System.out.println(delta);
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		elapsedTime += delta;
@@ -146,6 +147,8 @@ public class Play implements Screen {
 		updateLives();
 		updateTimer();
 		updateScores();
+		if(ready_for_next_level)
+			renderDoor();
 		
 		updatePlayer(delta);
 		renderPlayer();
@@ -160,6 +163,7 @@ public class Play implements Screen {
 		renderGenericAnimations();
 		
 		resumePlayer();
+		
 		
 		dt_prec = delta;
 		
@@ -253,7 +257,20 @@ public class Play implements Screen {
 
 
 			updateCamera();
-			game.handleScores();
+			if(game.handleScores()){
+				Audio.coin_music.play();
+			}
+			
+			if(!ready_for_next_level && game.findMagicKey()){
+				ready_for_next_level = true;
+				for(StaticObject so : keyAndDoor){
+					if(((Obstacle)so).getType().equals("70")){
+						door_position = so.getPosition();
+					}
+					resetMapCell(so.getPosition());
+				}
+				keyAndDoor = null;
+			}
 		}
 		
 	}
@@ -302,7 +319,7 @@ public class Play implements Screen {
 			if (player.getGun()) {
 				switch (player.getDirection()) {
 				case 'r': {
-					if (/*player.getState() == PlayerState.IDLING && */shot) {
+					if (shot && !(player.getState() == PlayerState.RUNNING)) {
 						if(e_time > 0.3f){
 							shot = false;
 							e_time = 0;
@@ -320,7 +337,7 @@ public class Play implements Screen {
 					break;
 				} // end of case 'r'
 				case 'l': {
-					if (/*player.getState() == PlayerState.IDLING && */shot) {
+					if (shot && !(player.getState() == PlayerState.RUNNING)) {
 						if(e_time > 0.3f){
 							shot = false;
 							e_time = 0;
@@ -489,6 +506,16 @@ public class Play implements Screen {
 
 		}
 	}
+	
+	private Vector2 door_position;
+	private void renderDoor(){
+		float x = (door_position.y) * Asset.TILE;
+		float y =  ((Asset.HEIGHT / Asset.TILE) - door_position.x - 1) * Asset.TILE;
+		
+		batch.begin();
+		batch.draw(Textures.DOOR, x, y);
+		batch.end();
+	}
 
 	private void renderCoins() {
 		for (StaticObject o : coins) {
@@ -509,8 +536,8 @@ public class Play implements Screen {
 				sprite.flip(true, false);
 			}
 			for (Bullet b : game.getBullets()) {
-				int xB = (int) ((b.getPosition().y) * Asset.TILE);
-				int yB = (int) (((Asset.HEIGHT / Asset.TILE) - b.getPosition().x - 1) * Asset.TILE);
+				float xB = (b.getPosition().y) * Asset.TILE;
+				float yB =  ((Asset.HEIGHT / Asset.TILE) - b.getPosition().x - 1) * Asset.TILE;
 
 				batch.draw(sprite, xB, yB);
 			}
@@ -818,16 +845,26 @@ public class Play implements Screen {
 	private float waiting_time;
 	private boolean stepOver = false;
 	private void resumePlayer(){
+		/*
+		 * Il player è riuscito ad aprire la porta. Passa al livello successivo.
+		 */
+		if(ready_for_next_level){
+			if(game.findCollision(player,new StaticObject(new Vector2(door_position.x,door_position.y+1), new Vector2()))){
+				jump_player.stop();
+				((com.badlogic.gdx.Game) Gdx.app.getApplicationListener()).setScreen(LevelUp.getInstance());
+			}
+		}
+		
 		if(player.getLives() == 0 || (player.getState() == PlayerState.DEAD)){
 			player.setState(PlayerState.DEAD);
 			game.RESUME = false;
 			GameConfig.BEST_SCORE = player.getScore();
+			jump_player.stop();
 			((com.badlogic.gdx.Game) Gdx.app.getApplicationListener()).setScreen(HandleGameOver.getInstance());
 			
 		}
 		if(game.RESUME){
-			
-			
+
 			/*
 			 * Tempo di attesa prima che ritorni sulla mappa
 			 */
@@ -835,9 +872,6 @@ public class Play implements Screen {
 				game.findNewPlayerPosition(player.getPosition());
 				stepOver = true;
 				waiting_time = 6;
-				
-				//reset del timer
-				initTimer();
 		
 				//player state
 				player.setState(PlayerState.IDLING);
@@ -855,6 +889,10 @@ public class Play implements Screen {
 			 */
 			if(stepOver){
 				if(waiting_time > 9.8f){
+					
+					//reset del timer
+					initTimer();
+					
 					game.RESUME = false;
 					stepOver = false;
 					waiting_time = 0;
@@ -882,6 +920,7 @@ public class Play implements Screen {
 		map.dispose();
 		renderer.dispose();
 		animations.dispose();
+		//Audio.dispose();
 	}
 
 	@Override

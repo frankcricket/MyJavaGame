@@ -22,6 +22,7 @@ public class Builder {
 	private List<StaticObject> groundObjects = new LinkedList<StaticObject>();
 	private List<StaticObject> obstacleObjects = new LinkedList<StaticObject>();
 	private List<StaticObject> coins = new LinkedList<StaticObject>();
+	private List<StaticObject> utility = new LinkedList<StaticObject>();
 
 
 	private List<StaticObject> enemiesObjects = new LinkedList<StaticObject>();
@@ -73,6 +74,10 @@ public class Builder {
 				} else if(Integer.parseInt(split[i]) == 50){
 					Obstacle obs = new Obstacle(new Vector2(row,i),  new Vector2(GameConfig.SIZE_OBSTALCE_X, GameConfig.SIZE_OBSTALCE_Y), split[i]);
 					coins.add(obs);
+				}else if(Integer.parseInt(split[i]) == 70
+						|| Integer.parseInt(split[i]) == 71){
+					Obstacle obs = new Obstacle(new Vector2(row,i),  new Vector2(GameConfig.SIZE_OBSTALCE_X, GameConfig.SIZE_OBSTALCE_Y), split[i]);
+					utility.add(obs); 
 				}
 				
 			}
@@ -89,6 +94,9 @@ public class Builder {
 	}
 	protected final List<StaticObject> getCoins() {
 		return coins;
+	}
+	protected final List<StaticObject> getUtility() {
+		return utility;
 	}
 	
 	public List<StaticObject> getEnemiesObjects() {

@@ -19,6 +19,7 @@ public class MyAnimation {
 		 * Player male animation: idle
 		 */
 		aTmp = createAnimation(8, new Texture("animations/player_idle_right.png"), 64, 128, .11f);
+//		aTmp = createAnimation(10, new Texture("animations/enemy3_die.png"), 64, 128, .11f);
 		animations.put("player_idle_right", aTmp);
 		aTmp = createAnimation(8, new Texture("animations/player_idle_left.png"), 64, 128, .11f);
 		animations.put("player_idle_left", aTmp);
@@ -193,8 +194,10 @@ public class MyAnimation {
 		 */
 		aTmp = createAnimation(4, new Texture("animations/coins.png"),64, 64, .16f);
 		animations.put("coins", aTmp);
-		
-		aTmp = createAnimation(9, new Texture("animations/little_coin.png"),50, 50, .04f);
+		/*
+		 * little_coin animation
+		 */
+		aTmp = createAnimation(9, new Texture("animations/little_coin.png"),50, 50, .09f);
 		animations.put("little_coin", aTmp);
 		
 		/*

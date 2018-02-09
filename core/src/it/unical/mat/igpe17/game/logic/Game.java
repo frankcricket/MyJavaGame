@@ -14,6 +14,7 @@ import it.unical.mat.igpe17.game.actors.EnemyState;
 import it.unical.mat.igpe17.game.actors.Player;
 import it.unical.mat.igpe17.game.actors.PlayerState;
 import it.unical.mat.igpe17.game.constants.Asset;
+import it.unical.mat.igpe17.game.constants.Audio;
 import it.unical.mat.igpe17.game.constants.GameConfig;
 import it.unical.mat.igpe17.game.objects.Ground;
 import it.unical.mat.igpe17.game.objects.Obstacle;
@@ -25,7 +26,8 @@ public class Game {
 	// set di default
 	//public static String LEVEL = "levels/firstLevel.tmx";
 	public static String LEVEL = "levels/completeLevel.tmx";
-	//public static String LEVEL = "levels/t1.tmx";
+//	public static String LEVEL = "levels/t1.tmx";
+//	public static String LEVEL = "levels/default_levels/test_door.tmx";
 
 	private Player player;
 	private List<StaticObject> groundObjects;
@@ -33,6 +35,8 @@ public class Game {
 	private List<StaticObject> coins;
 	private List<Bullet> bullets;
 	private List<StaticObject> enemy;
+	
+	private List<StaticObject> utility;
 	
 	public StaticObject toDraw;
 
@@ -50,10 +54,10 @@ public class Game {
 	 */
 	private float pos_fall;
 	private float neg_fall;
-	public static boolean PLAYER_IS_FALLING = false;
-	public static boolean PLAYER_COLLISION = false;
+	public static boolean PLAYER_IS_FALLING;
+	public static boolean PLAYER_COLLISION;
 
-	public static boolean RESUME = false;
+	public static boolean RESUME;
 
 	private int current_coin_count;
 
@@ -67,6 +71,9 @@ public class Game {
 		coins = null;
 		bullets = null;
 		toDraw = null;
+		utility = null;
+		
+		initStaticVariable();
 
 		pos_fall = GameConfig.FALLING_POS_VELOCITY.y;
 		neg_fall = GameConfig.FALLING_NEG_VELOCITY.y;
@@ -89,6 +96,8 @@ public class Game {
 		coins = reader.getCoins();
 		enemy = reader.getEnemy();
 		player = reader.getPlayer();
+		
+		utility = reader.getUtility();
 
 		bullets = new LinkedList<>();
 		
@@ -98,6 +107,12 @@ public class Game {
 		end_camera = Asset.WIDTH;
 
 		current_coin_count = 0;
+	}
+	
+	private void initStaticVariable(){
+		PLAYER_IS_FALLING = false;
+		PLAYER_COLLISION = false;
+		RESUME = false;
 	}
 
 	public void movePlayer(float dt) {
@@ -760,7 +775,7 @@ public class Game {
 	/*
 	 * Verifica collisione tra monete e player
 	 */
-	public void handleScores() {
+	public boolean handleScores() {
 		for (Iterator<StaticObject> iter = coins.iterator(); iter.hasNext();) {
 			Obstacle coin = (Obstacle) iter.next();
 			if (findCollision(player, coin)) {
@@ -768,9 +783,10 @@ public class Game {
 				current_coin_count++;
 				toDraw = coin;
 				player.score(100);
+				return true;
 			}
 		}
-		// handleBullets();
+		return false;
 	}
 
 	private boolean handleBullets(Bullet tmp) {
@@ -805,7 +821,7 @@ public class Game {
 	}
 
 	// gestisce la collisione dati 2 oggetti
-	private boolean findCollision(StaticObject obj1, StaticObject obj2) {
+	public boolean findCollision(StaticObject obj1, StaticObject obj2) {
 
 		float left = obj1.getPosition().y;
 		float bottom = obj1.getPosition().x;
@@ -972,8 +988,6 @@ public class Game {
 
 			if ((l > left && l < right && b > top && b < bottom)// top right
 					|| (l > left && l < right && t > top && t < bottom)// top left
-					|| (r > left && r < right && t > top && t < bottom)// bottom right
-					|| (r > left && r < right && b > top && b < bottom)// bottom left
 			) {
 				
 				return true;
@@ -981,6 +995,38 @@ public class Game {
 		}
 		return false;
 		
+	}
+	
+	/**
+	 * 
+	 * @return true se il player ha trovato la chiave per aprire la porta, false altrimenti
+	 */
+	public boolean findMagicKey(){
+		float bottom = player.getPosition().x;
+		float left = player.getPosition().y;
+		float top = bottom - GameConfig.SIZE_BULLET_Y;
+		float right = left + GameConfig.SIZE_BULLET_X;
+
+		for (StaticObject g : utility) {
+			float b = g.getPosition().x;
+			float l = g.getPosition().y;
+			float t = b - GameConfig.SIZE_GROUND_X;
+			float r = l + GameConfig.SIZE_GROUND_Y;
+
+			//71 = identificativo della chiave
+			if(((Obstacle)g).getType().equals("71")){
+				
+				if ((l >= left && l <= right && b >= top && b <= bottom)// top right
+						|| (l >= left && l <= right && t >= top && t <= bottom)// bottom right
+						|| (r >= left && r <= right && t >= top && t <= bottom)// bottom left
+						|| (r >= left && r <= right && b >= top && b <= bottom)// top left
+						) {
+					player.score(1000);
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	public final List<Bullet> getBullets() {
@@ -1005,6 +1051,10 @@ public class Game {
 
 	public final List<StaticObject> getCoins() {
 		return coins;
+	}
+	
+	public final List<StaticObject> getUtility() {
+		return utility;
 	}
 	
 	public final List<StaticObject> getObstacles() {

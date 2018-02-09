@@ -5,10 +5,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
 
-import it.unical.mat.igpe17.game.actors.Enemy;
 import it.unical.mat.igpe17.game.actors.Player;
-import it.unical.mat.igpe17.game.objects.Ground;
-import it.unical.mat.igpe17.game.objects.Obstacle;
 import it.unical.mat.igpe17.game.objects.StaticObject;
 
 public class Reader {
@@ -82,6 +79,11 @@ public class Reader {
 	public final List<StaticObject> getEnemy() {
 		return builder.getEnemiesObjects();
 	}
+	public final List<StaticObject> getUtility() {
+		return builder.getUtility();
+	}
+	
+	
 
 	public final Player getPlayer() {
 		return builder.getPlayer();

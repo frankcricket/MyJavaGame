@@ -47,6 +47,9 @@ public class Settings implements Screen {
 				if(HandleGameOver.GAME_OVER_INSTANCE){
 					((Game) Gdx.app.getApplicationListener()).setScreen(HandleGameOver.getInstance());
 				}
+				else if(LevelUp.LEVEL_UP_INSTANCE){
+					((Game) Gdx.app.getApplicationListener()).setScreen(LevelUp.getInstance());
+				}
 				else{
 					((Game) Gdx.app.getApplicationListener()).setScreen(MainMenu.getMainMenu());
 				}
@@ -139,7 +142,7 @@ public class Settings implements Screen {
 		table.bottom();
 
 		int x = 730;
-		int y = 443;
+		int y = 450;
 		
 		MusicButtonOff.setPosition(x, y);
 		MusicButtonOn.setPosition(x, y);
