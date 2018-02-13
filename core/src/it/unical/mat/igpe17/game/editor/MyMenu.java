@@ -60,13 +60,13 @@ public class MyMenu extends JMenuBar {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser chooser = new JFileChooser();	
-				File dir = new File(System.getProperty("user.dir")+"\\levels");
+				File dir = new File(System.getProperty("user.dir")+"\\levels\\default_levels");
 				chooser.setCurrentDirectory(dir);
 				if(chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION){
 					String path = chooser.getSelectedFile().getAbsolutePath();
 					File f = new File(path);
 					String result = f.getName();
-					result = "levels/" + result;
+					result = "levels/default_levels/" + result;
 					MainMenu.LEVEL = result;					
 					JOptionPane.showMessageDialog(null, "Operation Completed!");
 				}

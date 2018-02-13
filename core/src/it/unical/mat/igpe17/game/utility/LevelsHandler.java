@@ -29,6 +29,7 @@ public class LevelsHandler {
 	 * Return path del primo livello. Deve essere presente nella cartella!!
 	 */
 	public static final String first(){
+		if(allPaths.size() == 1) return null;// uguale a 1 perchè viene anche letta la cartella tileset
 		Iterator<String> it = allPaths.iterator();
 		if(it.hasNext()){
 			String level = it.next();
@@ -46,6 +47,7 @@ public class LevelsHandler {
 				count = 0;
 				continue;
 			}
+			if(allPaths.size() == 2) return null;
 			String level = it.next();
 			it.remove();
 			return level;

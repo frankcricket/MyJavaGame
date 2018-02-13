@@ -26,7 +26,6 @@ public class MySaveFile {
 		try {
 			JFileChooser fc = new JFileChooser();
 			File dir = new File(System.getProperty("user.dir")+"\\levels");
-			String path = dir.getAbsolutePath();
 			fc.setCurrentDirectory(dir);
 			fc.setDialogTitle("Save in...");
 
@@ -35,7 +34,6 @@ public class MySaveFile {
 				BufferedWriter bw = new BufferedWriter(fw);
 
 				int width = MyPanel.row;
-//				int height = (Asset.WIDTH / Asset.TILE);
 
 				points = MyPanel.getPoint();
 				copyPoints();
@@ -48,7 +46,7 @@ public class MySaveFile {
 					if (pointsTmp.get(i).getName().equals("31")
 							|| pointsTmp.get(i).getName().equals("32")
 							|| pointsTmp.get(i).getName().equals("33")
-							|| pointsTmp.get(i).getName().equals("door")) {
+							|| pointsTmp.get(i).getName().equals("70")) {
 						int xtmp = pointsTmp.get(i).getPoint().x;
 						int ytmp= pointsTmp.get(i).getPoint().y;
 						
@@ -229,7 +227,7 @@ public class MySaveFile {
 				if(split[i].equals("31") 
 						|| split[i].equals("32") 
 						|| split[i].equals("33")
-						|| split[i].equals("door")
+						|| split[i].equals("70")
 					){
 					Point p = new Point(i, row-1);// coordinate invertite
 					Sprite sprite = new Sprite(p, split[i]);

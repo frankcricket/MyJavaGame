@@ -68,6 +68,7 @@ public class Builder {
 							new Vector2(GameConfig.SIZE_ENEMY_X, GameConfig.SIZE_ENEMY_Y),
 							'l',
 							split[i],
+							GameConfig.LIFE_STATUS_ENEMY,
 							EnemyState.RUNNING);
 					
 					enemiesObjects.add(enemy);
@@ -106,7 +107,7 @@ public class Builder {
 	protected final Player getPlayer() {
 		Player p = null;
 
-		Ground tmp_ground = new Ground(new Vector2(3, 100), null, null);
+		Ground tmp_ground = new Ground(new Vector2(5, 100), null, null);
 
 		for (StaticObject obj : groundObjects) {
 			Ground g = (Ground)obj;

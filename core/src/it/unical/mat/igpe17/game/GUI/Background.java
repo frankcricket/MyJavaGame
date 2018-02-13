@@ -46,7 +46,7 @@ public class Background {
 		batch.begin();
 		batch.draw(texture_1,xTexture_1,0);
 		batch.draw(texture_2, xTexture_2,0);
-		//batch.draw(moon,0,0);
+		batch.draw(moon,0,0);
 		
 		batch.end();
 	}

@@ -16,11 +16,13 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 public class ChooseCharacter implements Screen {
 
 	private static ChooseCharacter chooseCharacter = null;
+	private static String level;
 	
-	public static ChooseCharacter getChooseCharacter(){
+	public static ChooseCharacter getChooseCharacter(String l){
 		if (chooseCharacter == null){
 			chooseCharacter = new ChooseCharacter();
 		}
+		level = l;
 		return chooseCharacter;
 	}
 
@@ -46,7 +48,7 @@ public class ChooseCharacter implements Screen {
 		ImageButton character1B = new ImageButton(character1.getDrawable(), character1_2.getDrawable());
 		character1B.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
-				((Game) Gdx.app.getApplicationListener()).setScreen(new Loading(1));
+				((Game) Gdx.app.getApplicationListener()).setScreen(new Loading(1,level));
 			}
 
 		});
@@ -56,7 +58,7 @@ public class ChooseCharacter implements Screen {
 		ImageButton character2B = new ImageButton(character2.getDrawable(), character2_2.getDrawable());
 		character2B.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
-				((Game) Gdx.app.getApplicationListener()).setScreen(new Loading(2));
+				((Game) Gdx.app.getApplicationListener()).setScreen(new Loading(2,level));
 			}
 
 		});

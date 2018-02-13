@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 import it.unical.mat.igpe17.game.editor.MyFrame;
+import it.unical.mat.igpe17.game.editor.MyMenu;
 
 public class MainMenu implements Screen {
 
@@ -51,7 +52,7 @@ public class MainMenu implements Screen {
 		ImageButton singlePlayerB = new ImageButton(singlePlayer.getDrawable(), singlePlayer_2.getDrawable());
 		singlePlayerB.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
-				((Game) Gdx.app.getApplicationListener()).setScreen(ChooseCharacter.getChooseCharacter());
+				((Game) Gdx.app.getApplicationListener()).setScreen(ChooseCharacter.getChooseCharacter(LEVEL));
 			}
 
 		});
@@ -74,7 +75,7 @@ public class MainMenu implements Screen {
 		ImageButton editorB = new ImageButton(editor.getDrawable(), editor_2.getDrawable());
 		editorB.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
-				new MyFrame("Editor - Zombie Shooter");
+				new MyFrame("Editor - Zombies Shooter");
 			}
 
 		});

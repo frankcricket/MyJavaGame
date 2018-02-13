@@ -3,6 +3,8 @@ package it.unical.mat.igpe17.game.screens;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.swing.JOptionPane;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
@@ -16,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
 import it.unical.mat.igpe17.game.GUI.Play;
 import it.unical.mat.igpe17.game.constants.Asset;
+import it.unical.mat.igpe17.game.constants.Audio;
 import it.unical.mat.igpe17.game.constants.MyAnimation;
 import it.unical.mat.igpe17.game.utility.LevelsHandler;
 
@@ -31,13 +34,16 @@ public class Loading implements Screen {
 	public static boolean swap = false;
 	private int player_type;
 	
+	private String loadedLevel;
+	
 	private LevelsHandler l_handler;
 	
 	Animation<TextureRegion> a = animations.getAnimation("loading");
 	
-	public Loading(int type) {
+	public Loading(int type,String level) {
 		player_type = type;
 		l_handler = LevelsHandler.getInstance();
+		loadedLevel = level;
 	}
 
 	@Override
@@ -83,8 +89,27 @@ public class Loading implements Screen {
 		
 		if (swap){
 			Asset.PLAYER_TYPE = player_type;
-			String level = l_handler.first();
-			 ((Game) Gdx.app.getApplicationListener()).setScreen(new Play(level));
+			String level = l_handler.first();			
+			/*
+			 * Verifica presenza livelli nella cartella
+			 */
+			if(level == null){
+				JOptionPane.showMessageDialog(null, "La cartella di configurazione dei livelli non può essere vuota!");
+				Gdx.app.exit();
+				return;
+			}
+			
+			Audio.BACKGROUND_MUSIC = false;
+			Audio.game_menu_music.pause();
+			Audio.GAME_MUSIC = true;
+			Audio.reloadGameMusic();
+			
+			Play.PLAY_OBJECT = null;
+			if(!(loadedLevel == null)){
+				level = null;
+				((Game) Gdx.app.getApplicationListener()).setScreen(Play.getPlay(loadedLevel));
+			}
+			((Game) Gdx.app.getApplicationListener()).setScreen(Play.getPlay(level));
 			 swap = false;
 		}
 	}

@@ -1,9 +1,13 @@
 package it.unical.mat.igpe17.game.screens;
 
+import java.util.ArrayList;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -14,6 +18,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 import it.unical.mat.igpe17.game.GUI.Play;
 import it.unical.mat.igpe17.game.constants.Asset;
+import it.unical.mat.igpe17.game.constants.Audio;
+import it.unical.mat.igpe17.game.constants.GameConfig;
+import it.unical.mat.igpe17.game.constants.Textures;
 import it.unical.mat.igpe17.game.utility.LevelsHandler;
 
 public class LevelUp implements Screen{
@@ -21,6 +28,12 @@ public class LevelUp implements Screen{
 	private Stage stage;
 	private Skin skin; 
 	private Table table;
+	private SpriteBatch batch;
+	
+	private ArrayList<Integer> c_score;
+	private ArrayList<Integer> b_score;
+	private int best_score;
+	private int current_score;
 	
 	public static boolean LEVEL_UP_INSTANCE;
 	
@@ -30,6 +43,8 @@ public class LevelUp implements Screen{
 	private LevelUp() {
 		LEVEL_UP_INSTANCE = false;
 		stage = new Stage();
+		
+		best_score = 0;
 	}
 	
 	public static LevelUp getInstance(){
@@ -44,7 +59,12 @@ public class LevelUp implements Screen{
 
 		Gdx.input.setInputProcessor(stage);
 		table = new Table(skin);
+		batch = new SpriteBatch();
 		table.setBounds(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());	
+		
+		current_score = GameConfig.BEST_SCORE;
+		handleScore();
+ 		initArrays();
 
 		// background image
  		Image backgroundMenu = new Image(new Texture(Asset.LEVEL_UP));
@@ -57,8 +77,15 @@ public class LevelUp implements Screen{
 		next.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				String level = LevelsHandler.next();
+				GameConfig.BEST_SCORE = 0;
 				if(level != null){
-					((com.badlogic.gdx.Game) Gdx.app.getApplicationListener()).setScreen(new Play(level));
+					Play.PLAY_OBJECT = null;
+					
+					Audio.GAME_MUSIC = true;
+					Audio.BACKGROUND_MUSIC = false;
+					Audio.game_menu_music.pause();
+					Audio.reloadGameMusic();
+					((com.badlogic.gdx.Game) Gdx.app.getApplicationListener()).setScreen(Play.getPlay(level));
 				}
 				//TODO GESTIRE CASO IN CUI IL LIVELLO NON CI SIA
 			}
@@ -116,7 +143,62 @@ public class LevelUp implements Screen{
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 	
 		stage.act(delta);
-		stage.draw();}
+		stage.draw();
+		drawScore();
+	}
+	
+	
+protected void handleScore(){
+		
+		FileHandle file = Gdx.files.internal(Asset.BEST_SCORE_FILE);
+		if(!file.exists()){
+			throw new RuntimeException("Il file contenente il punteggio non esiste!");
+		}
+		String score = file.readString();
+		/* Se non è presente un punteggio nel file, scrivo il punteggio corrente */
+		if(score.equals("")){
+			FileHandle w_file = Gdx.files.local(Asset.BEST_SCORE_FILE);
+			w_file.writeString(""+current_score,false);
+		}
+		/*Se nel file è presente un punteggio, devo verificare che sia il migliore*/
+		else{
+			best_score = Integer.parseInt(score);
+			if(current_score > best_score){
+				FileHandle w_file = Gdx.files.local(Asset.BEST_SCORE_FILE);
+				w_file.writeString(""+current_score,false);
+				best_score = current_score;
+			}
+		}	
+	}
+	
+	private void drawScore(){
+		
+		batch.begin();
+		
+		int pos_x =	675;
+		int pos_y = 461;		
+		for(int i = c_score.size()-1; i>=0; i--){
+			Texture t = Textures.get("D"+c_score.get(i));
+			batch.draw(t,pos_x,pos_y);
+			pos_x += 20;
+		}
+		pos_x = 675;
+		pos_y = 321;
+		for(int i = b_score.size()-1; i>=0; i--){
+			Texture t = Textures.get("D"+b_score.get(i));
+			batch.draw(t,pos_x,pos_y);
+			pos_x += 20;
+		}
+		
+		batch.end();
+	}
+	
+	private void initArrays(){
+		//punteggio corrente
+		c_score = Play.handleDigits(current_score);
+		//punteggio migliore
+		b_score = Play.handleDigits(best_score);
+	}
 
 	@Override
 	public void resize(int width, int height) {}

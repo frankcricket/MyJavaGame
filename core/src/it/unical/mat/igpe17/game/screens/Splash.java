@@ -12,6 +12,7 @@ import aurelienribon.tweenengine.BaseTween;
 import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenCallback;
 import aurelienribon.tweenengine.TweenManager;
+import it.unical.mat.igpe17.game.constants.Audio;
 
 public class Splash implements Screen {
 	
@@ -22,6 +23,8 @@ public class Splash implements Screen {
 	
 	@Override
 	public void show() {
+		Audio.BACKGROUND_MUSIC = true;
+		Audio.playGameMenuMusic();
 		batch = new SpriteBatch();
 		tweenManager = new TweenManager();
 		
@@ -41,6 +44,7 @@ public class Splash implements Screen {
 				
 			}
 		}).start(tweenManager);
+		
 	}
 
 	@Override

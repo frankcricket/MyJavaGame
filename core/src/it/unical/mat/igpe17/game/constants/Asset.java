@@ -62,7 +62,7 @@ public class Asset {
 	public static String OBSTACLE14 = "asset/Obstacles/obstacle30.png";
 	
 	
-	public static String COINS = "asset/Obstacles/coin.png";
+	public static String COINS = "asset/Digits/coin.png";
 	
 	//enemies
 	
@@ -92,6 +92,13 @@ public class Asset {
 
 	public static String LIFE = "asset/heart.png";
 	public static String HEART = "asset/Digits/heart.png";
+	public static String SYMBOL_X = "asset/Digits/symbol_x.png";
+	
+	
+	public static String PAUSE_ON = "asset/menu_img/pause_on.png";
+	public static String PAUSE_OFF = "asset/menu_img/pause_off.png";
+	
+	
 	
 	
 	public static String RESUME = "asset/resume.png";
@@ -107,6 +114,9 @@ public class Asset {
 	public static final String CLOSED_DOOR = "asset/closed_door.png";
 	public static final String OPENED_DOOR = "asset/opened_door.png";
 	public static final String MAGIC_KEY = "asset/key.png";
+	
+	public static final String LIFE_BAR_BACKGROUND = "asset/life_bar_background.png";
+	public static final String LIFE_BAR = "asset/life_bar.png";
 	
 
 	

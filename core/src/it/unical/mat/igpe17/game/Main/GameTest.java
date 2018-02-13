@@ -10,7 +10,7 @@ public class GameTest extends Game {
 
 	@Override
 	public void create() {
-		setScreen(new Play(null));
+		setScreen(Play.getPlay(null));
 		//setScreen(HandleGameOver.getInstance());
 		//setScreen(LevelUp.getInstance());
 		//setScreen(LevelsHandler.getInstance());

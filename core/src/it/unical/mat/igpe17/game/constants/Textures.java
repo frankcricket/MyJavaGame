@@ -36,6 +36,10 @@ public class Textures {
 	 * DUE-PUNTI (:)
 	 */
 	public static final Texture DP = new Texture(Asset.getPath("DP"));
+	/*
+	 * X
+	 */
+	public static final Texture SYMBOL_X = new Texture(Asset.SYMBOL_X);
 	
 	/*
 	 * VITA
@@ -53,6 +57,12 @@ public class Textures {
 	 * DOOR -> EXIT GAME
 	 */
 	public static final Texture DOOR = new Texture(Asset.OPENED_DOOR);
+	
+	/*
+	 * VITA DEI NEMICI
+	 */
+	public static final Texture LIFE_BAR_BACKGROUND = new Texture(Asset.LIFE_BAR_BACKGROUND);
+	public static final Texture LIFE_BAR = new Texture(Asset.LIFE_BAR);
 	
 	static{
 		map.put("D0", D0);

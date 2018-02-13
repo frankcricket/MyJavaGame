@@ -44,7 +44,7 @@ public class Player extends DynamicObject implements IPlayer {
 		
 		points = 0;
 		
-		lives = 3;
+		lives = GameConfig.NUM_LIVES;
 		
 		hasGun = false;
 	

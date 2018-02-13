@@ -5,7 +5,9 @@ public enum PlayerState {
 	IDLING,
 	RUNNING,
 	JUMPING,
+	WAITING,
 	HIT,
+	FLASH,
 	DEAD
 	
 }

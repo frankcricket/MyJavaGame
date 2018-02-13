@@ -49,7 +49,6 @@ public class HandleGameOver implements Screen {
 	
 	private HandleGameOver() {
 		best_score = 0;
-		current_score = GameConfig.BEST_SCORE;
 		
 		GAME_OVER_INSTANCE = false;
 	}
@@ -66,6 +65,7 @@ public class HandleGameOver implements Screen {
 
 		// background image
  		Image backgroundMenu = new Image(new Texture(Asset.GAME_OVER));
+ 		current_score = GameConfig.BEST_SCORE;
  		handleScore();
  		initArrays();
 

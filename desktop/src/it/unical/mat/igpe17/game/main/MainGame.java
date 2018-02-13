@@ -13,7 +13,7 @@ public class MainGame {
 	
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		config.title = "Zombie game";
+		config.title = "Zombies game";
 		config.vSyncEnabled = true;
 		//config.useGL30 = true;
 		config.width = WIDTH;

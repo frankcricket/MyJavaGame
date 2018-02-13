@@ -13,18 +13,24 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
+import it.unical.mat.igpe17.game.GUI.Play;
+import it.unical.mat.igpe17.game.constants.Audio;
+
 public class Settings implements Screen {
 
-	private static Settings settings = null;
+	public static boolean ENABLE_MUSIC = true;
+	public static boolean ENABLE_SOUND = true;
+	public static boolean ENABLE_VIBRATION = false;
+	
 
+	private static Settings settings = null;
 	public static Settings getSettings() {
 		if (settings == null)
 			settings = new Settings();
 		return settings;
 	}
 
-	public Settings() {
-	}
+	private Settings() {}
 
 	private Stage stage;
 	private Skin skin; // aspetto di tutto cio' che faremo
@@ -50,6 +56,10 @@ public class Settings implements Screen {
 				else if(LevelUp.LEVEL_UP_INSTANCE){
 					((Game) Gdx.app.getApplicationListener()).setScreen(LevelUp.getInstance());
 				}
+				else if(Play.PAUSE){
+					Play.PAUSE = false;
+					((Game) Gdx.app.getApplicationListener()).setScreen(Play.getInstance());
+				}
 				else{
 					((Game) Gdx.app.getApplicationListener()).setScreen(MainMenu.getMainMenu());
 				}
@@ -69,22 +79,39 @@ public class Settings implements Screen {
 		MusicButtonOn.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				MusicButtonOff.setVisible(true);
-				MusicButtonOn.setVisible(false);
+				if(ENABLE_MUSIC){
+					MusicButtonOff.setVisible(true);
+					MusicButtonOn.setVisible(false);
+					Audio.game_music.pause();
+					Audio.game_menu_music.pause();
+				}
+				ENABLE_MUSIC = false;
 			}
 		});
+		
 
 		MusicButtonOff.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				MusicButtonOn.setVisible(true);
-				MusicButtonOff.setVisible(false);
+				if(!ENABLE_MUSIC){
+					MusicButtonOn.setVisible(true);
+					MusicButtonOff.setVisible(false);
+					if(Audio.BACKGROUND_MUSIC)
+						Audio.game_menu_music.resume();
+					else if(Audio.GAME_MUSIC)
+						Audio.game_music.resume();
+				}
+				ENABLE_MUSIC = true;
 			}
 
-		});
-
-		MusicButtonOff.setVisible(false);
-		
+		});	
+		if(ENABLE_MUSIC){
+			MusicButtonOn.setVisible(true);
+			MusicButtonOff.setVisible(false);
+		}else{
+			MusicButtonOn.setVisible(false);
+			MusicButtonOff.setVisible(true);
+		}
 		
 		//image sound 
 		
@@ -93,21 +120,33 @@ public class Settings implements Screen {
 		SoundOn.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				SoundOff.setVisible(true);
-				SoundOn.setVisible(false);
+				if(ENABLE_SOUND){
+					SoundOff.setVisible(true);
+					SoundOn.setVisible(false);
+				}
+				ENABLE_SOUND = false;
 			}
 		});
 
 		SoundOff.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				SoundOn.setVisible(true);
-				SoundOff.setVisible(false);
+				if(!ENABLE_SOUND){
+					SoundOn.setVisible(true);
+					SoundOff.setVisible(false);
+				}
+				ENABLE_SOUND = true;
 			}
 
 		});
 
-		SoundOff.setVisible(false);
+		if(ENABLE_SOUND){
+			SoundOn.setVisible(true);
+			SoundOff.setVisible(false);
+		}else{
+			SoundOn.setVisible(false);
+			SoundOff.setVisible(true);
+		}
 		
 		//image vibration
 		
@@ -116,25 +155,36 @@ public class Settings implements Screen {
 		VibrationOn.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				VibrationOff.setVisible(true);
-				VibrationOn.setVisible(false);
+				if(ENABLE_VIBRATION){
+					VibrationOff.setVisible(true);
+					VibrationOn.setVisible(false);
+				}
+				ENABLE_VIBRATION = false;
 			}
 		});
 
 		VibrationOff.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				VibrationOn.setVisible(true);
-				VibrationOff.setVisible(false);
+				if(!ENABLE_VIBRATION){
+					VibrationOn.setVisible(true);
+					VibrationOff.setVisible(false);
+				}
+				ENABLE_VIBRATION = true;
 			}
 
 		});
-
-		VibrationOff.setVisible(false);
+		if(ENABLE_VIBRATION){
+			VibrationOn.setVisible(true);
+			VibrationOff.setVisible(false);
+		}else{
+			VibrationOn.setVisible(false);
+			VibrationOff.setVisible(true);
+		}
+		
 		
 		
 		//background
-//		Image background = new Image(new Texture("asset/menu_img/background_settings.png"));
 		Image background = new Image(new Texture("asset/menu_img/options.png"));
 		table.setBackground(background.getDrawable());
 
@@ -164,7 +214,6 @@ public class Settings implements Screen {
 		goToBackB.setPosition(5, 621);
 		table.addActor(goToBackB);
 
-		table.debug();
 		stage.addActor(table);
 	}
 
@@ -191,10 +240,6 @@ public class Settings implements Screen {
 	public void hide() {}
 
 	@Override
-	public void dispose() {
-		stage.dispose();
-		skin.dispose();
-
-	}
+	public void dispose() {	}
 
 }

@@ -11,6 +11,7 @@ public class ZombieGame extends Game {
 	@Override
 	public void create() {
 		setScreen(new Splash());
+		
 	}
 
 	@Override

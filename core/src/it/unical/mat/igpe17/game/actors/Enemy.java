@@ -9,8 +9,6 @@ public class Enemy extends DynamicObject {
 	
 	private EnemyState state;
 
-	private int lives = 3; // quante vite ha il nostro nemico
-	
 	//mosse che fa automaticamente 
 	private int moves = GameConfig.SIZE_MOVE_ENEMY;		
 	private boolean justOnce = true;
@@ -20,12 +18,13 @@ public class Enemy extends DynamicObject {
 	private String type;	
 	private boolean isAlive = true; // il nostro personaggio è vivo o morto?
 	
-	
+	private float life_status;
 
-	public Enemy(Vector2 position, Vector2 size, char direction, String type,EnemyState state) {
+	public Enemy(Vector2 position, Vector2 size, char direction, String type,float life_status,EnemyState state) {
 		super(position, size, direction);
 		this.type = type;
 		this.state = state;
+		this.life_status = life_status;
 	}
 	
 	public void setState(EnemyState state){
@@ -68,16 +67,21 @@ public class Enemy extends DynamicObject {
 		this.moves = moves;
 	}
 
-	public int getLives() {
-		return lives;
+	public final float getLifeStatus() {
+		return life_status;
 	}
 	
 	public String getType() {
 		return type;
 	}
 
-	public void setLives(int lives) {
-		this.lives = lives;
+	/**
+	 * 
+	 * @param life_bar 
+	 * 				quantita' di vita da sottrarre a quella attuale
+	 */
+	public void decreaseLifeStatus(float life_bar) {
+		this.life_status -= life_bar;
 	}
 	public boolean isAlive() {
 		return isAlive;

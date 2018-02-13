@@ -70,7 +70,18 @@ public class GameConfig {
 	
 	
 	public static int BEST_SCORE = 0;
+	public static int NUM_LIVES = 3;
 	
-
+	/*
+	 * Handling Enemies life
+	 */
+	public static final float LIFE_STATUS_ENEMY = 80f;	
+	public static final float DECREASING_ENEMY_LIFE = 10f;
+	
+	/*
+	 * LIFE - BAR dimension
+	 */
+	public static final float BAR_WIDTH = 80f;
+	public static final float BAR_HEIGHT = 10f;
 
 }
