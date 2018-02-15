@@ -132,7 +132,7 @@ public class Play implements Screen, ControllerListener {
 		pause.setPosition(1220, GameConfig.HP);
 		table.addActor(pause);
 
-		Controllers.addListener(this);
+		//Controllers.addListener(this);
 
 	}
 
@@ -241,7 +241,7 @@ public class Play implements Screen, ControllerListener {
 		if (!game.isOver() && !game.RESUME) {
 			if ((Gdx.input.isKeyPressed(Input.Keys.D) 
 					|| Gdx.input.isKeyPressed(Input.Keys.RIGHT))
-					&& !(player.getState() == PlayerState.JUMPING) && !game.PLAYER_IS_FALLING) {
+					&& !(player.getState() == PlayerState.JUMPING)/* && !game.PLAYER_IS_FALLING*/) {
 				player.setDirection('r');
 				player.setState(PlayerState.RUNNING);
 				game.resumeCondition();
@@ -252,7 +252,7 @@ public class Play implements Screen, ControllerListener {
 
 			} else if ((Gdx.input.isKeyPressed(Input.Keys.A) 
 						|| Gdx.input.isKeyPressed(Input.Keys.LEFT))
-						&& !(player.getState() == PlayerState.JUMPING) && !game.PLAYER_IS_FALLING) {
+						&& !(player.getState() == PlayerState.JUMPING) /*&& !game.PLAYER_IS_FALLING*/) {
 				player.setDirection('l');
 				player.setState(PlayerState.RUNNING);
 				game.resumeCondition();
@@ -358,6 +358,11 @@ public class Play implements Screen, ControllerListener {
 			} else {
 				camera.position.x += GameConfig.PLAYER_POS_VELOCITY.y * 1.2;
 			}
+			
+			if(game.PLAYER_IS_FALLING && (camera.position.x - 640) > (player.getPosition().y *Asset.TILE) - 128 ){
+				camera.position.x -= GameConfig.PLAYER_POS_VELOCITY.y * 1.2;
+			}
+			
 			game.setCamera((camera.position.x - camera.viewportWidth / 2) / Asset.TILE);
 
 			game.setEndCamera(game.getEndCamera() + Asset.TILE * 1.5f);

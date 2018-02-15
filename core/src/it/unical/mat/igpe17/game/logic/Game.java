@@ -14,7 +14,6 @@ import it.unical.mat.igpe17.game.actors.EnemyState;
 import it.unical.mat.igpe17.game.actors.Player;
 import it.unical.mat.igpe17.game.actors.PlayerState;
 import it.unical.mat.igpe17.game.constants.Asset;
-import it.unical.mat.igpe17.game.constants.Audio;
 import it.unical.mat.igpe17.game.constants.GameConfig;
 import it.unical.mat.igpe17.game.objects.Ground;
 import it.unical.mat.igpe17.game.objects.Obstacle;
@@ -60,7 +59,6 @@ public class Game {
 	public static boolean RESUME;
 
 	private int current_coin_count;
-	private int max_count_coin;
 
 	private Lock lock;
 	private Condition condition;
@@ -97,7 +95,6 @@ public class Game {
 		groundObjects = reader.getGround();
 		obstacleObjects = reader.getObstacle();
 		coins = reader.getCoins();
-		max_count_coin = coins.size();
 		enemy = reader.getEnemy();
 		player = reader.getPlayer();
 		player_position = player.getPosition();
@@ -687,7 +684,6 @@ public class Game {
 			Ground g = (Ground)obj;
 			float b = g.getPosition().x;
 			float l = g.getPosition().y;
-			float t = b - GameConfig.SIZE_GROUND_X;
 			float r = l + GameConfig.SIZE_GROUND_Y;
 			
 			if ((l > left && l <= right && b > top && b < bottom)// top right

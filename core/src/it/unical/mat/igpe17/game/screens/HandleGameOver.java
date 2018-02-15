@@ -77,6 +77,7 @@ public class HandleGameOver implements Screen {
 		restart.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				LevelsHandler.reload();
+				GAME_OVER_INSTANCE = false;
 				((com.badlogic.gdx.Game) Gdx.app.getApplicationListener()).setScreen(MainMenu.getMainMenu());
 				/*
 				 *  	OPPURE 

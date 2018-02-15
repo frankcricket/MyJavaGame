@@ -25,8 +25,9 @@ public class Settings implements Screen {
 
 	private static Settings settings = null;
 	public static Settings getSettings() {
-		if (settings == null)
+		if (settings == null){
 			settings = new Settings();
+		}
 		return settings;
 	}
 
