@@ -1,11 +1,10 @@
-package it.unical.mat.igpe17.game.GUI;
+package it.unical.mat.igpe17.game.network;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.ControllerListener;
@@ -32,6 +31,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 
+import it.unical.mat.igpe17.game.GUI.Background;
 import it.unical.mat.igpe17.game.actors.Enemy;
 import it.unical.mat.igpe17.game.actors.EnemyState;
 import it.unical.mat.igpe17.game.actors.JumpListener;
@@ -50,7 +50,7 @@ import it.unical.mat.igpe17.game.screens.HandleGameOver;
 import it.unical.mat.igpe17.game.screens.LevelUp;
 import it.unical.mat.igpe17.game.screens.Settings;
 
-public class Play implements Screen, ControllerListener {
+public class MultiplayerGameMain implements Screen {
 
 	private Game game;
 	private Background background;
@@ -90,38 +90,16 @@ public class Play implements Screen, ControllerListener {
 
 	public static boolean PAUSE = false;
 
-	public static Play PLAY_OBJECT;
-
-	private PovDirection directionGamePad = null;
-	private boolean movesGamePad = false;
-	private int buttonCodePressed;
-	private boolean buttonPressed = false;
-
-	public Play(String level) {
+	public MultiplayerGameMain(String level) {
 		this.level = level;
 		this.player_type = Asset.PLAYER_TYPE;
-		
-
-		for (Controller controller : Controllers.getControllers()) 
-		    Gdx.app.log("", controller.getName());
 
 		createWorldObjects();
 	}
 
-	public static Play getPlay(String level) {
-		if (PLAY_OBJECT == null) {
-			PLAY_OBJECT = new Play(level);
-		}
-		return PLAY_OBJECT;
-	}
-
-	public static Play getInstance() {
-		return PLAY_OBJECT;
-	}
-
 	@Override
 	public void show() {
-		Controllers.addListener(this);
+
 		Gdx.input.setInputProcessor(stage);
 		Image pause_on = new Image(new Texture(Asset.PAUSE_ON));
 		Image pause_off = new Image(new Texture(Asset.PAUSE_OFF));
@@ -137,15 +115,14 @@ public class Play implements Screen, ControllerListener {
 		pause.setPosition(1220, GameConfig.HP);
 		table.addActor(pause);
 
-		//Controllers.addListener(this);
+		// Controllers.addListener(this);
 
 	}
 
 	private void createWorldObjects() {
 
 		game = new Game();
-		if (level != null)
-			game.LEVEL = level;
+		game.LEVEL = level;
 		game.loadLevel();
 
 		mapRight = game.getColumn() * Asset.TILE;
@@ -242,101 +219,61 @@ public class Play implements Screen, ControllerListener {
 	private boolean shot = false;
 
 	private void updatePlayer(final float delta) {
-		
 
 		if (!game.isOver() && !game.RESUME) {
-			
-			
-			// cammina a dx
-			if ((Gdx.input.isKeyPressed(Keys.RIGHT) 
-					|| (directionGamePad == PovDirection.east && movesGamePad)) 
-					&& !(player.getState() == PlayerState.JUMPING)
-					&& !game.PLAYER_IS_FALLING) {
+			if ((Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT))
+					&& !(player.getState() == PlayerState.JUMPING)/*
+																	 * && !game.
+																	 * PLAYER_IS_FALLING
+																	 */) {
 				player.setDirection('r');
-				
-				player.setState(PlayerState.RUNNING);				
-				System.out.println(player.getState() + "dx");// stampa
-		
-				
-				
-				if (Gdx.input.isKeyJustPressed(Input.Keys.W)
-						|| (buttonPressed && buttonCodePressed == 0)) {
-					player.setState(PlayerState.JUMPING);
-					
-					//game.resumeCondition();
-					//buttonCodePressed = 1111;
-				}
+				player.setState(PlayerState.RUNNING);
 				game.resumeCondition();
-				
-			// cammina a sx
-			} else if ((Gdx.input.isKeyPressed(Keys.LEFT)
-						|| (directionGamePad == PovDirection.west && movesGamePad))
-						&& !(player.getState() == PlayerState.JUMPING) 
-						&& !game.PLAYER_IS_FALLING) {
-				
+				if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
+					player.setState(PlayerState.JUMPING);
+					game.resumeCondition();
+				}
+
+			} else if ((Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT))
+					&& !(player.getState() == PlayerState.JUMPING) /*
+																	 * && !game.
+																	 * PLAYER_IS_FALLING
+																	 */) {
 				player.setDirection('l');
 				player.setState(PlayerState.RUNNING);
-		
-				System.out.println(player.getState() +"sx");// stampa
-				
-
-
-				if ((Gdx.input.isKeyJustPressed(Input.Keys.W)
-					|| (buttonPressed && buttonCodePressed == 0) )
-						&& !game.PLAYER_IS_FALLING) {
+				game.resumeCondition();
+				if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
 					player.setState(PlayerState.JUMPING);
-
-				//	game.resumeCondition();
-					//buttonCodePressed = 1111;
+					game.resumeCondition();
 				}
+
+			} else if (Gdx.input.isKeyJustPressed(Input.Keys.W) && !(player.getState() == PlayerState.JUMPING)
+					&& !game.PLAYER_IS_FALLING) {
+				player.setState(PlayerState.JUMPING);
+				player.VERTICAL_JUMP = true;
 				game.resumeCondition();
 
-			} else if ((Gdx.input.isKeyJustPressed(Keys.W)
-					|| (buttonPressed && buttonCodePressed == 0))
-					&& !(player.getState() == PlayerState.JUMPING)
-					&& !game.PLAYER_IS_FALLING) {
-			
-				player.setState(PlayerState.JUMPING);
-				player.VERTICAL_JUMP = true;				
-				game.resumeCondition();
 			}
-			else if (!(player.getState() == PlayerState.JUMPING) && !buttonPressed && !game.PLAYER_IS_FALLING) {
-				player.setState(PlayerState.IDLING);
-			}
-			
-				
 			if (player.VERTICAL_JUMP
-					&& (Gdx.input.isKeyJustPressed(Keys.D)
-					||  Gdx.input.isKeyPressed(Keys.D)
-					||  Gdx.input.isKeyJustPressed(Keys.RIGHT)
-					|| (directionGamePad == PovDirection.east && movesGamePad)))  {
+					&& (Gdx.input.isKeyJustPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT))) {
 				player.setDirection('r');
 				game.moveWhileJumping = true;
-			} else if (player.VERTICAL_JUMP 
-					&& (Gdx.input.isKeyJustPressed(Keys.A)
-					|| Gdx.input.isKeyPressed(Keys.LEFT)
-					|| Gdx.input.isKeyJustPressed(Keys.LEFT) 
-					|| (directionGamePad == PovDirection.west && movesGamePad))) {
+			} else if (player.VERTICAL_JUMP && (Gdx.input.isKeyJustPressed(Input.Keys.A))
+					|| Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
 				player.setDirection('l');
 				game.moveWhileJumping = true;
 			}
-			
-		
-			//buttonPressed = false;
-			
-			
+
 			// input selezione pistola
-			if (Gdx.input.isKeyJustPressed(Input.Keys.Q) || (buttonPressed && buttonCodePressed == 5)) {
+			if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
 				if (player.getGun()) {
 					player.setGun(false);
 				} else {
 					player.setGun(true);
 				}
-				buttonCodePressed = 1111;
 			}
-			
 			// input sparo
-			if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || (buttonPressed && buttonCodePressed == 1)) {
+			if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
 				// se il player ha la pistola, allora può sparare
 				if (player.getGun()) {
 					float c_x = player.getPosition().x;
@@ -354,10 +291,7 @@ public class Play implements Screen, ControllerListener {
 					Audio.playShot();
 					shot = true;
 				}
-				buttonCodePressed = 1111;
 			}
-			
-			buttonPressed = false;
 
 			/**
 			 * Se il personaggio è fermo, viene impostato il suo stato come
@@ -365,21 +299,13 @@ public class Play implements Screen, ControllerListener {
 			 * @param state
 			 *            IDLING
 			 */
-			
-			/*
-			if  (      !(player.getState() == PlayerState.RUNNING) 
-					&& !(player.getState() == PlayerState.JUMPING))
-				/*	&& !(Gdx.input.isKeyJustPressed(Keys.W))
-					&& !(buttonPressed && buttonCodePressed == 0)
-					&& !(Gdx.input.isKeyPressed(Keys.RIGHT))
-					&& !(directionGamePad == PovDirection.east && movesGamePad)
-					&& !(Gdx.input.isKeyPressed(Keys.LEFT))
-					&& !(directionGamePad == PovDirection.west && movesGamePad)){
+			if (!(Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT))
+					&& !(Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT))
+					&& !(player.getState() == PlayerState.JUMPING)) {
 				if (!game.PLAYER_IS_FALLING)
 					player.setState(PlayerState.IDLING);
 			}
-			*/ 
-			
+
 			if (game.PLAYER_COLLISION) {
 				player.setState(PlayerState.HIT);
 				player.decreaseLives();
@@ -418,11 +344,11 @@ public class Play implements Screen, ControllerListener {
 			} else {
 				camera.position.x += GameConfig.PLAYER_POS_VELOCITY.y * 1.2;
 			}
-			
-			if(game.PLAYER_IS_FALLING && (camera.position.x - 640) > (player.getPosition().y *Asset.TILE) - 128 ){
+
+			if (game.PLAYER_IS_FALLING && (camera.position.x - 640) > (player.getPosition().y * Asset.TILE) - 128) {
 				camera.position.x -= GameConfig.PLAYER_POS_VELOCITY.y * 1.2;
 			}
-			
+
 			game.setCamera((camera.position.x - camera.viewportWidth / 2) / Asset.TILE);
 
 			game.setEndCamera(game.getEndCamera() + Asset.TILE * 1.5f);
@@ -645,35 +571,34 @@ public class Play implements Screen, ControllerListener {
 			} // end else without gun
 		} // end else player woman
 	}
-	
+
 	/**
 	 * Variabili per la stampa della vita del singolo nemico
 	 */
-	private void renderLifeBar(Enemy e){
+	private void renderLifeBar(Enemy e) {
 
 		float w;
 		float h = GameConfig.BAR_HEIGHT;
-		
-		//posizione del nemico
+
+		// posizione del nemico
 		float xP = ((e.getPosition().y) * Asset.TILE);
 		float yP = ((Asset.HEIGHT / Asset.TILE) - e.getPosition().x - 1) * Asset.TILE;
 
-		//posiziono la barra sopra il nemico
+		// posiziono la barra sopra il nemico
 		xP -= 11;
 		yP += 138;
 
 		batch.begin();
-		
+
 		batch.draw(Textures.LIFE_BAR_BACKGROUND, xP, yP);
-		
+
 		w = e.getLifeStatus();
-		if(w >= 0){
-			batch.draw(Textures.LIFE_BAR, xP, yP,w,h);
+		if (w >= 0) {
+			batch.draw(Textures.LIFE_BAR, xP, yP, w, h);
 		}
-		
+
 		batch.end();
-		
-		
+
 	}
 
 	private void updateEnemy(float delta) {
@@ -1388,6 +1313,10 @@ public class Play implements Screen, ControllerListener {
 			waiting_time += Gdx.graphics.getDeltaTime();
 		}
 	}
+	
+	public int getPlayer1Type(){
+		return player_type;
+	}
 
 	@Override
 	public void resize(int width, int height) {
@@ -1409,86 +1338,4 @@ public class Play implements Screen, ControllerListener {
 	public void resume() {
 	}
 
-	@Override
-	public void connected(Controller controller) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void disconnected(Controller controller) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public boolean buttonDown(Controller controller, int buttonCode) {
-		Gdx.app.log("", "" + buttonCode);
-
-		return false;
-	}
-
-	@Override
-	public boolean buttonUp(Controller controller, int buttonCode) {
-		if (buttonCode == 0 || buttonCode == 1 || buttonCode == 3 || buttonCode == 4 || buttonCode == 5 || buttonCode == 7) {
-			buttonCodePressed = buttonCode;
-			buttonPressed = true;
-			return true;
-		}
-		
-		buttonCodePressed = 1111;
-		buttonPressed = false;
-		
-		return false;
-	}
-
-	@Override
-	public boolean axisMoved(Controller controller, int axisCode, float value) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	//private boolean movePlayerToLeft = false, movePlayerToRight = false;
-
-	@Override
-	public boolean povMoved(Controller controller, int povCode, PovDirection value) {
-
-		if (value == PovDirection.east) {
-			movesGamePad = true;
-			directionGamePad = value;
-			return true;
-		} else if (value == PovDirection.north || value == PovDirection.northEast || value == PovDirection.northWest) {
-			movesGamePad = true;
-			directionGamePad = PovDirection.north;
-			return true;
-		} else if (value == PovDirection.south || value == PovDirection.southEast || value == PovDirection.southWest) {
-			movesGamePad = true;
-			directionGamePad = PovDirection.south;
-			return true;
-		} else if (value == PovDirection.west) {
-			movesGamePad = true;
-			directionGamePad = value;
-			return true;
-		}
-		movesGamePad = false;
-		return false;
-	}
-
-	@Override
-	public boolean xSliderMoved(Controller controller, int sliderCode, boolean value) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean ySliderMoved(Controller controller, int sliderCode, boolean value) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean accelerometerMoved(Controller controller, int accelerometerCode, Vector3 value) {
-		// TODO Auto-generated method stub
-		return false;
-	}
 }

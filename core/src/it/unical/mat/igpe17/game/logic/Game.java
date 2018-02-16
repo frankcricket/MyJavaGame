@@ -23,10 +23,7 @@ import it.unical.mat.igpe17.game.utility.Reader;
 public class Game {
 
 	// set di default
-//	public static String LEVEL = "levels/default_levels/firstLevel.tmx";
-//	public static String LEVEL = "levels/completeLevel.tmx";
 	public static String LEVEL = "levels/default_levels/t2.tmx";
-//	public static String LEVEL = "levels/default_levels/atest_door.tmx";
 
 	private Player player;
 	private List<StaticObject> groundObjects;

@@ -8,17 +8,12 @@
 		blue:  { r: 0, g: 0, b: 1, a: 1 }
 	},
 	com.badlogic.gdx.graphics.g2d.BitmapFont: {
-		white64: { file: font/white64.fnt }, 
-		black64: { file: font/black64.fnt },
-		white32: { file: font/white32.fnt },
-		black32: { file: font/black32.fnt },
-		white16: { file: font/white16.fnt },
-		black16: { file: font/black16.fnt }
+		white64: { file: font/white.fnt }, 
 	},
 	com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
-		default: { font: white32, fontColor: white },
-		big:     { font: white64, fontColor: white },
-		small:   { font: white16, fontColor: white }
+		default: { font: white, fontColor: white },
+		big:     { font: white, fontColor: white },
+		small:   { font: white, fontColor: white }
 	},
 	com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
 		default: { up: button.up, down: button.down, font: black32, pressedOffsetX: 1, pressedOffsetY: -1 },

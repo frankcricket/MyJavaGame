@@ -34,7 +34,7 @@ public class Background {
 	
 	}
 	
-	protected void update(final float dt){
+	public void update(final float dt){
 		
 		xTexture_1 -= BACKGROUND_SPEED * dt;
 		xTexture_2 -= BACKGROUND_SPEED * dt;

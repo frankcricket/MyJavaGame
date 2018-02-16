@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 import it.unical.mat.igpe17.game.editor.MyFrame;
 import it.unical.mat.igpe17.game.editor.MyMenu;
+import it.unical.mat.igpe17.game.network.screen.NetworkChoice;
 
 public class MainMenu implements Screen {
 
@@ -63,7 +64,7 @@ public class MainMenu implements Screen {
 		ImageButton multiplayerB = new ImageButton(multiplayer.getDrawable(), multiplayer_2.getDrawable());
 		multiplayerB.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
-
+				((Game) Gdx.app.getApplicationListener()).setScreen(new NetworkChoice());
 			}
 
 		});
