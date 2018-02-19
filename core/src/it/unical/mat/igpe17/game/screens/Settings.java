@@ -2,6 +2,7 @@ package it.unical.mat.igpe17.game.screens;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -15,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 import it.unical.mat.igpe17.game.GUI.Play;
 import it.unical.mat.igpe17.game.constants.Audio;
+import it.unical.mat.igpe17.game.network.MultiplayerGameMain;
 
 public class Settings implements Screen {
 
@@ -61,7 +63,10 @@ public class Settings implements Screen {
 					Play.PAUSE = false;
 					((Game) Gdx.app.getApplicationListener()).setScreen(Play.getInstance());
 				}
-				else{
+				else if(MultiplayerGameMain.PAUSE){
+					MultiplayerGameMain.PAUSE = false;
+					((Game) Gdx.app.getApplicationListener()).setScreen(MultiplayerGameMain.getInstance());
+				}else{
 					((Game) Gdx.app.getApplicationListener()).setScreen(MainMenu.getMainMenu());
 				}
 
@@ -223,8 +228,29 @@ public class Settings implements Screen {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
-		stage.act(delta); // aggiorna qualsiasi cosa in esso
-		stage.draw(); // dove tutto diventa visibile
+		stage.act(delta); 
+		stage.draw(); 
+		
+		if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)){
+
+			if(HandleGameOver.GAME_OVER_INSTANCE){
+				((Game) Gdx.app.getApplicationListener()).setScreen(HandleGameOver.getInstance());
+			}
+			else if(LevelUp.LEVEL_UP_INSTANCE){
+				((Game) Gdx.app.getApplicationListener()).setScreen(LevelUp.getInstance());
+			}
+			else if(Play.PAUSE){
+				Play.PAUSE = false;
+				((Game) Gdx.app.getApplicationListener()).setScreen(Play.getInstance());
+			}
+			else if(MultiplayerGameMain.PAUSE){
+				MultiplayerGameMain.PAUSE = false;
+				((Game) Gdx.app.getApplicationListener()).setScreen(MultiplayerGameMain.getInstance());
+			}else{
+				((Game) Gdx.app.getApplicationListener()).setScreen(MainMenu.getMainMenu());
+			}
+
+		}
 
 	}
 

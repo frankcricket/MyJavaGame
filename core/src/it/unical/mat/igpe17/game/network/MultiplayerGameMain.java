@@ -6,10 +6,6 @@ import java.util.List;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.controllers.Controller;
-import com.badlogic.gdx.controllers.ControllerListener;
-import com.badlogic.gdx.controllers.Controllers;
-import com.badlogic.gdx.controllers.PovDirection;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -22,20 +18,17 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 
 import it.unical.mat.igpe17.game.GUI.Background;
 import it.unical.mat.igpe17.game.actors.Enemy;
 import it.unical.mat.igpe17.game.actors.EnemyState;
 import it.unical.mat.igpe17.game.actors.JumpListener;
-import it.unical.mat.igpe17.game.actors.Player;
 import it.unical.mat.igpe17.game.actors.PlayerState;
 import it.unical.mat.igpe17.game.constants.Asset;
 import it.unical.mat.igpe17.game.constants.Audio;
@@ -43,7 +36,6 @@ import it.unical.mat.igpe17.game.constants.GameConfig;
 import it.unical.mat.igpe17.game.constants.MyAnimation;
 import it.unical.mat.igpe17.game.constants.Textures;
 import it.unical.mat.igpe17.game.logic.Bullet;
-import it.unical.mat.igpe17.game.logic.Game;
 import it.unical.mat.igpe17.game.objects.Obstacle;
 import it.unical.mat.igpe17.game.objects.StaticObject;
 import it.unical.mat.igpe17.game.screens.HandleGameOver;
@@ -52,9 +44,10 @@ import it.unical.mat.igpe17.game.screens.Settings;
 
 public class MultiplayerGameMain implements Screen {
 
-	private Game game;
+	protected Game game;
 	private Background background;
-	private Player player;
+	VPlayer player;
+	VPlayer virtual_player;
 	public static int player_type = 1;
 
 	private List<StaticObject> enemies;
@@ -82,6 +75,7 @@ public class MultiplayerGameMain implements Screen {
 	private String level;
 
 	private Thread jump_player;
+	private Thread jump_virtual_player;
 
 	private boolean ready_for_next_level = false;
 
@@ -90,11 +84,23 @@ public class MultiplayerGameMain implements Screen {
 
 	public static boolean PAUSE = false;
 
+	private int keyPressed = -1;
+
+	public static MultiplayerGameMain mGame;
+
 	public MultiplayerGameMain(String level) {
 		this.level = level;
 		this.player_type = Asset.PLAYER_TYPE;
 
 		createWorldObjects();
+	}
+
+	public void setInstance(MultiplayerGameMain mGame) {
+		this.mGame = mGame;
+	}
+
+	public static MultiplayerGameMain getInstance() {
+		return mGame;
 	}
 
 	@Override
@@ -115,8 +121,6 @@ public class MultiplayerGameMain implements Screen {
 		pause.setPosition(1220, GameConfig.HP);
 		table.addActor(pause);
 
-		// Controllers.addListener(this);
-
 	}
 
 	private void createWorldObjects() {
@@ -129,6 +133,7 @@ public class MultiplayerGameMain implements Screen {
 
 		background = new Background();
 		player = game.getPlayer();
+		virtual_player = game.getVirtualPlayer();
 		enemies = game.getEnemy();
 		coins = game.getCoins();
 		keyAndDoor = game.getUtility();
@@ -152,16 +157,22 @@ public class MultiplayerGameMain implements Screen {
 		/*
 		 * Faccio partire il Thread che si occuperà del salto del player
 		 */
-		jump_player = new Thread(new JumpListener(game));
+		jump_player = new Thread(new JumpListener(game, true));
 		jump_player.start();
+
+		jump_virtual_player = new Thread(new JumpListener(game, false));
+		jump_virtual_player.start();
+
 		removeObjectsFromMap();
 
 		initTimer();
-		initButton();
+		initButtonPlayer();
+		initButtonVirtualPlayer();
 
 	}
 
 	private float dt_prec = -1f;
+	boolean showScreen = false;
 
 	@Override
 	public void render(float delta) {
@@ -192,93 +203,128 @@ public class MultiplayerGameMain implements Screen {
 			renderer.render();
 
 			renderLives(delta);
+			renderLivesVP(delta);
 			renderTimer(delta);
 			renderScore(delta);
-
+			renderVPScore(delta);
+			if(!enableWatchingShow)
 			if (!(player.getState() == PlayerState.WAITING)) {
 				updatePlayer(delta);
 			}
+			if (!(player.getState() == PlayerState.WAITING)) {
+				updateVirtualPlayer(delta);
+			}
 			renderPlayer();
-			if (!game.RESUME)
+			if (!game.RESUME && !game.RESUME_VP){
 				updateEnemy(delta);
+			}
 			renderEnemy();
 
 			renderCoins();
 
 			updateBullets(delta);
+			updateVPBullets(delta);
 			renderBullets();
 			renderGenericAnimations();
-
-			resumePlayer();
+			
+			if(!enableWatchingShow)
+				resumePlayer();
+			
+			resumeVPlayer();
 
 			dt_prec = delta;
+		}
+		
+		if(showScreen){
+			showScreen = false;
+			setDeadScreen();
 		}
 
 	}
 
-	private boolean shot = false;
+	private boolean shot_local_player = false;
+
+	public static int sendPressedKey;
+	public static boolean sendIsJumping = false;
 
 	private void updatePlayer(final float delta) {
 
 		if (!game.isOver() && !game.RESUME) {
-			if ((Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT))
-					&& !(player.getState() == PlayerState.JUMPING)/*
-																	 * && !game.
-																	 * PLAYER_IS_FALLING
-																	 */) {
+
+			if ((Gdx.input.isKeyPressed(Input.Keys.RIGHT)) && !(player.getState() == PlayerState.JUMPING)) {
+
+				sendPressedKey = Input.Keys.RIGHT;
+				sendIsJumping = false;
+
 				player.setDirection('r');
 				player.setState(PlayerState.RUNNING);
 				game.resumeCondition();
 				if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
+
+					sendPressedKey = Input.Keys.W;
+					sendIsJumping = true;
+
 					player.setState(PlayerState.JUMPING);
 					game.resumeCondition();
 				}
 
-			} else if ((Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT))
-					&& !(player.getState() == PlayerState.JUMPING) /*
-																	 * && !game.
-																	 * PLAYER_IS_FALLING
-																	 */) {
+			} else if ((Gdx.input.isKeyPressed(Input.Keys.LEFT)) && !(player.getState() == PlayerState.JUMPING)) {
+
+				sendPressedKey = Input.Keys.LEFT;
+				sendIsJumping = false;
+
 				player.setDirection('l');
 				player.setState(PlayerState.RUNNING);
 				game.resumeCondition();
 				if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
+
+					sendPressedKey = Input.Keys.W;
+					sendIsJumping = true;
+
 					player.setState(PlayerState.JUMPING);
 					game.resumeCondition();
 				}
 
 			} else if (Gdx.input.isKeyJustPressed(Input.Keys.W) && !(player.getState() == PlayerState.JUMPING)
-					&& !game.PLAYER_IS_FALLING) {
-				player.setState(PlayerState.JUMPING);
+					&& !game.player.player_is_falling) {
+
+				sendPressedKey = Input.Keys.W;
+				sendIsJumping = false;
+
 				player.VERTICAL_JUMP = true;
+				player.setState(PlayerState.JUMPING);
 				game.resumeCondition();
 
 			}
-			if (player.VERTICAL_JUMP
-					&& (Gdx.input.isKeyJustPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT))) {
+
+			// spostamento durante salto in verticale
+			if (player.VERTICAL_JUMP && (Gdx.input.isKeyPressed(Input.Keys.RIGHT))) {
+				sendPressedKey = 81;
 				player.setDirection('r');
-				game.moveWhileJumping = true;
-			} else if (player.VERTICAL_JUMP && (Gdx.input.isKeyJustPressed(Input.Keys.A))
-					|| Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+				game.player.moveWhileJumping = true;
+			} else if (player.VERTICAL_JUMP && (Gdx.input.isKeyPressed(Input.Keys.LEFT))) {
+				sendPressedKey = 82;
 				player.setDirection('l');
-				game.moveWhileJumping = true;
+				game.player.moveWhileJumping = true;
 			}
 
 			// input selezione pistola
 			if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
+				sendPressedKey = Input.Keys.Q;
 				if (player.getGun()) {
 					player.setGun(false);
 				} else {
 					player.setGun(true);
 				}
 			}
+
 			// input sparo
 			if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
 				// se il player ha la pistola, allora può sparare
 				if (player.getGun()) {
+					sendPressedKey = Input.Keys.SPACE;
 					float c_x = player.getPosition().x;
 					float c_y = player.getPosition().y;
-
 					if (player.getDirection() == 'r') {
 						c_x -= 0.57f;
 						c_y += GameConfig.SIZE_PLAYER_X;
@@ -289,36 +335,162 @@ public class MultiplayerGameMain implements Screen {
 						game.addBullet(c_x, c_y, 'l');
 					}
 					Audio.playShot();
-					shot = true;
+					shot_local_player = true;
 				}
 			}
 
-			/**
-			 * Se il personaggio è fermo, viene impostato il suo stato come
-			 * 
-			 * @param state
-			 *            IDLING
-			 */
-			if (!(Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT))
-					&& !(Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT))
+			// Player fermo, imposto stato come idling
+			if (!(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) && !(Gdx.input.isKeyPressed(Input.Keys.LEFT))
 					&& !(player.getState() == PlayerState.JUMPING)) {
-				if (!game.PLAYER_IS_FALLING)
+				if (!game.player.player_is_falling) {
 					player.setState(PlayerState.IDLING);
+				}
 			}
 
-			if (game.PLAYER_COLLISION) {
+			/*
+			 * Gestione pausa di gioco, evento escape da tastiera
+			 */
+			if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+				PAUSE = true;
+				((com.badlogic.gdx.Game) Gdx.app.getApplicationListener()).setScreen(Settings.getSettings());
+			}
+
+			/*
+			 * invio posizione della camera all'altro player
+			 */
+			if (player.getDirection() == 'l' && (player.getPosition().y - game.getCamera() < 1.5f)
+					&& player.getState() != PlayerState.IDLING) {
+				sendPressedKey = 100;
+			}
+
+			if (game.player.player_collision) {
+
+				sendPressedKey = -2;
+
 				player.setState(PlayerState.HIT);
 				player.decreaseLives();
 				game.RESUME = true;
-				game.PLAYER_COLLISION = false;
+				game.player.player_collision = false;
 			}
 
-			updateCamera();
-			if (game.handleScores()) {
+			updateCamera(player);
+
+			if (game.handleScores(player)) {
 				Audio.playCoin();
 			}
 
-			if (!ready_for_next_level && game.findMagicKey()) {
+			if (!ready_for_next_level && game.findMagicKey(player)) {
+				ready_for_next_level = true;
+				Audio.playMagicKey();
+				for (StaticObject so : keyAndDoor) {
+					if (((Obstacle) so).getType().equals("70")) {
+						door_position = so.getPosition();
+					}
+					resetMapCell(so.getPosition());
+				}
+				keyAndDoor = null;
+
+			}
+
+		}
+
+	}
+
+	private boolean shot_virtual_player = false;
+
+	public static int isKeyPressed = -1;
+	public static boolean receiveIsJumping;
+
+	private void updateVirtualPlayer(final float delta) {
+
+		if (!game.isVPOver() && !game.RESUME_VP) {
+
+			if (isKeyPressed == Input.Keys.RIGHT && !(virtual_player.getState() == PlayerState.JUMPING)
+					&& !receiveIsJumping) {
+
+				virtual_player.setDirection('r');
+				virtual_player.setState(PlayerState.RUNNING);
+				isKeyPressed = -1;
+				game.resumeVPCondition();
+
+			} else if (isKeyPressed == Input.Keys.LEFT && !(virtual_player.getState() == PlayerState.JUMPING)
+					&& !receiveIsJumping) {
+
+				virtual_player.setDirection('l');
+				virtual_player.setState(PlayerState.RUNNING);
+				isKeyPressed = -1;
+				game.resumeVPCondition();
+
+			} else if (isKeyPressed == Input.Keys.W && !(virtual_player.getState() == PlayerState.JUMPING)
+					&& !game.virtual_player.player_is_falling && !receiveIsJumping) {
+
+				virtual_player.setState(PlayerState.JUMPING);
+				virtual_player.VERTICAL_JUMP = true;
+				isKeyPressed = -1;
+				game.resumeVPCondition();
+
+			} else if (isKeyPressed == Input.Keys.W && receiveIsJumping) {
+
+				virtual_player.setState(PlayerState.JUMPING);
+				virtual_player.VERTICAL_JUMP = false;
+				isKeyPressed = -1;
+				receiveIsJumping = false;
+				game.resumeVPCondition();
+			}
+
+			if (virtual_player.VERTICAL_JUMP && isKeyPressed == 81) {
+				isKeyPressed = -1;
+				virtual_player.setDirection('r');
+				game.virtual_player.moveWhileJumping = true;
+			} else if (virtual_player.VERTICAL_JUMP && isKeyPressed == 82) {
+				isKeyPressed = -1;
+				virtual_player.setDirection('l');
+				game.virtual_player.moveWhileJumping = true;
+			}
+
+			// input selezione pistola
+			if (isKeyPressed == Input.Keys.Q) {
+				if (virtual_player.getGun()) {
+					virtual_player.setGun(false);
+				} else {
+					virtual_player.setGun(true);
+				}
+				isKeyPressed = -1;
+			}
+
+			// input sparo
+			if (isKeyPressed == Input.Keys.SPACE) {
+				// se il player ha la pistola, allora può sparare
+				if (virtual_player.getGun()) {
+					float c_x = virtual_player.getPosition().x;
+					float c_y = virtual_player.getPosition().y;
+					if (virtual_player.getDirection() == 'r') {
+						c_x -= 0.57f;
+						c_y += GameConfig.SIZE_PLAYER_X;
+
+						game.addVPBullet(c_x, c_y, 'r');
+					} else {
+						c_x -= 0.57f;
+						game.addVPBullet(c_x, c_y, 'l');
+					}
+					Audio.playShot();
+					shot_virtual_player = true;
+				}
+				isKeyPressed = -1;
+			}
+
+			if (game.virtual_player.player_collision) {
+				virtual_player.setState(PlayerState.HIT);
+				virtual_player.decreaseLives();
+				game.RESUME_VP = true;
+				game.virtual_player.player_collision = false;
+			}
+
+			if (game.handleScores(virtual_player)) {
+				Audio.playCoin();
+			}
+
+			if (!ready_for_next_level && game.findMagicKey(virtual_player)) {
 				ready_for_next_level = true;
 				Audio.playMagicKey();
 				for (StaticObject so : keyAndDoor) {
@@ -331,21 +503,34 @@ public class MultiplayerGameMain implements Screen {
 
 			}
 		}
+		
+		if(enableWatchingShow){
+			updateCamera(virtual_player);
+		}
 
 	}
 
-	private void updateCamera() {
-		float y_pos = (player.getPosition().y) * Asset.TILE;
+	private void updateCamera(VPlayer p) {
+		float y_pos = (p.getPosition().y) * Asset.TILE;
+		
+		if(enableWatchingShow){
+			if(y_pos/Asset.TILE < game.getCamera()){
+				
+				return;
+			}
+		}
+		
 		/* (y_pos >= game.getEndCamera() * 0.045) && */
-		if (Math.abs(y_pos - (camera.position.x - 640)) > Asset.TILE * 3 && !player.VERTICAL_JUMP) {
-
-			if (player.getState() == PlayerState.JUMPING) {
+		if (Math.abs(y_pos - (camera.position.x - 640)) > Asset.TILE * 3 && !p.VERTICAL_JUMP) {
+			
+			if (p.getState() == PlayerState.JUMPING) {
 				camera.position.x += GameConfig.POSITIVE_JUMP_VELOCITY.y * 0.9;
 			} else {
 				camera.position.x += GameConfig.PLAYER_POS_VELOCITY.y * 1.2;
 			}
 
-			if (game.PLAYER_IS_FALLING && (camera.position.x - 640) > (player.getPosition().y * Asset.TILE) - 128) {
+			if (p.player_is_falling
+					&& (camera.position.x - 640) > (p.getPosition().y * Asset.TILE) - 128) {
 				camera.position.x -= GameConfig.PLAYER_POS_VELOCITY.y * 1.2;
 			}
 
@@ -377,21 +562,23 @@ public class MultiplayerGameMain implements Screen {
 
 	private void renderPlayer() {
 
+		if(!enableWatchingShow){
+		
 		if (player_type == 1) {
 
 			if (player.getGun()) {
 				switch (player.getDirection()) {
 				case 'r': {
-					if (shot && !(player.getState() == PlayerState.RUNNING)) {
+					if (shot_local_player && !(player.getState() == PlayerState.RUNNING)) {
 						if (e_time > 0.3f) {
-							shot = false;
+							shot_local_player = false;
 							e_time = 0;
 						}
 						drawAnimation(player, "player_m_shot_right");
 						e_time += Gdx.graphics.getDeltaTime();
 					} else if (player.getState() == PlayerState.HIT) {
 						drawAnimation(player, "player_m_dizzy_right");
-					} else if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING
+					} else if (player.getState() == PlayerState.IDLING || game.player.player_is_falling
 							|| player.getState() == PlayerState.WAITING) {
 						drawAnimation(player, "player_m_idle_with_gun_right");
 					} else if (player.getState() == PlayerState.RUNNING) {
@@ -405,16 +592,16 @@ public class MultiplayerGameMain implements Screen {
 					break;
 				} // end of case 'r'
 				case 'l': {
-					if (shot && !(player.getState() == PlayerState.RUNNING)) {
+					if (shot_local_player && !(player.getState() == PlayerState.RUNNING)) {
 						if (e_time > 0.3f) {
-							shot = false;
+							shot_local_player = false;
 							e_time = 0;
 						}
 						drawAnimation(player, "player_m_shot_left");
 						e_time += Gdx.graphics.getDeltaTime();
 					} else if (player.getState() == PlayerState.HIT) {
 						drawAnimation(player, "player_m_dizzy_right");
-					} else if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING
+					} else if (player.getState() == PlayerState.IDLING || game.player.player_is_falling
 							|| player.getState() == PlayerState.WAITING) {
 						drawAnimation(player, "player_m_idle_with_gun_left");
 					} else if (player.getState() == PlayerState.RUNNING) {
@@ -438,7 +625,7 @@ public class MultiplayerGameMain implements Screen {
 				case 'r': {
 					if (player.getState() == PlayerState.HIT) {
 						drawAnimation(player, "player_m_dizzy_right");
-					} else if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING
+					} else if (player.getState() == PlayerState.IDLING || game.player.player_is_falling
 							|| player.getState() == PlayerState.WAITING) {
 						drawAnimation(player, "player_idle_right");
 					} else if (player.getState() == PlayerState.RUNNING) {
@@ -454,7 +641,7 @@ public class MultiplayerGameMain implements Screen {
 				case 'l': {
 					if (player.getState() == PlayerState.HIT) {
 						drawAnimation(player, "player_m_dizzy_left");
-					} else if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING
+					} else if (player.getState() == PlayerState.IDLING || game.player.player_is_falling
 							|| player.getState() == PlayerState.WAITING) {
 						drawAnimation(player, "player_idle_left");
 					} else if (player.getState() == PlayerState.RUNNING) {
@@ -479,16 +666,16 @@ public class MultiplayerGameMain implements Screen {
 			if (player.getGun()) {
 				switch (player.getDirection()) {
 				case 'r': {
-					if (shot && !(player.getState() == PlayerState.RUNNING)) {
+					if (shot_local_player && !(player.getState() == PlayerState.RUNNING)) {
 						if (e_time > 0.3f) {
-							shot = false;
+							shot_local_player = false;
 							e_time = 0;
 						}
 						drawAnimation(player, "player_w_shot_right");
 						e_time += Gdx.graphics.getDeltaTime();
 					} else if (player.getState() == PlayerState.HIT) {
 						drawAnimation(player, "player_w_dizzy_right");
-					} else if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING
+					} else if (player.getState() == PlayerState.IDLING || game.player.player_is_falling
 							|| player.getState() == PlayerState.WAITING) {
 						drawAnimation(player, "player_w_idle_with_gun_right");
 					} else if (player.getState() == PlayerState.RUNNING) {
@@ -502,16 +689,16 @@ public class MultiplayerGameMain implements Screen {
 					break;
 				} // end of case 'r'
 				case 'l': {
-					if (shot && !(player.getState() == PlayerState.RUNNING)) {
+					if (shot_local_player && !(player.getState() == PlayerState.RUNNING)) {
 						if (e_time > 0.3f) {
-							shot = false;
+							shot_local_player = false;
 							e_time = 0;
 						}
 						drawAnimation(player, "player_w_shot_left");
 						e_time += Gdx.graphics.getDeltaTime();
 					} else if (player.getState() == PlayerState.HIT) {
 						drawAnimation(player, "player_w_dizzy_right");
-					} else if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING
+					} else if (player.getState() == PlayerState.IDLING || game.player.player_is_falling
 							|| player.getState() == PlayerState.WAITING) {
 						drawAnimation(player, "player_w_idle_with_gun_left");
 					} else if (player.getState() == PlayerState.RUNNING) {
@@ -535,7 +722,7 @@ public class MultiplayerGameMain implements Screen {
 				case 'r': {
 					if (player.getState() == PlayerState.HIT) {
 						drawAnimation(player, "player_w_dizzy_right");
-					} else if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING
+					} else if (player.getState() == PlayerState.IDLING || game.player.player_is_falling
 							|| player.getState() == PlayerState.WAITING) {
 						drawAnimation(player, "player_w_idle_right");
 					} else if (player.getState() == PlayerState.RUNNING) {
@@ -551,7 +738,7 @@ public class MultiplayerGameMain implements Screen {
 				case 'l': {
 					if (player.getState() == PlayerState.HIT) {
 						drawAnimation(player, "player_w_dizzy_left");
-					} else if (player.getState() == PlayerState.IDLING || game.PLAYER_IS_FALLING
+					} else if (player.getState() == PlayerState.IDLING || game.player.player_is_falling
 							|| player.getState() == PlayerState.WAITING) {
 						drawAnimation(player, "player_w_idle_left");
 					} else if (player.getState() == PlayerState.RUNNING) {
@@ -570,6 +757,206 @@ public class MultiplayerGameMain implements Screen {
 
 			} // end else without gun
 		} // end else player woman
+		
+		}
+
+		// ---------------------------------------------------------------------------------------------------------------
+		// ---------------------------------------------------------------------------------------------------------------
+
+		if (virtual_player.getType() == 1) {
+
+			if (virtual_player.getGun()) {
+				switch (virtual_player.getDirection()) {
+				case 'r': {
+					if (shot_virtual_player && !(virtual_player.getState() == PlayerState.RUNNING)) {
+						if (e_time > 0.3f) {
+							shot_virtual_player = false;
+							e_time = 0;
+						}
+						drawAnimation(virtual_player, "player_m_shot_right");
+						e_time += Gdx.graphics.getDeltaTime();
+					} else if (virtual_player.getState() == PlayerState.HIT) {
+						drawAnimation(virtual_player, "player_m_dizzy_right");
+					} else if (virtual_player.getState() == PlayerState.IDLING || game.virtual_player.player_is_falling
+							|| virtual_player.getState() == PlayerState.WAITING) {
+						drawAnimation(virtual_player, "player_m_idle_with_gun_right");
+					} else if (virtual_player.getState() == PlayerState.RUNNING) {
+						drawAnimation(virtual_player, "player_m_run_with_gun_right");
+					} else if (virtual_player.getState() == PlayerState.JUMPING) {
+						drawAnimation(virtual_player, "player_m_jump_with_gun_right");
+					} else if (virtual_player.getState() == PlayerState.FLASH) {
+						drawAnimation(virtual_player, "player_m_flash_idle_right");
+					}
+
+					break;
+				} // end of case 'r'
+				case 'l': {
+					if (shot_virtual_player && !(virtual_player.getState() == PlayerState.RUNNING)) {
+						if (e_time > 0.3f) {
+							shot_virtual_player = false;
+							e_time = 0;
+						}
+						drawAnimation(virtual_player, "player_m_shot_left");
+						e_time += Gdx.graphics.getDeltaTime();
+					} else if (virtual_player.getState() == PlayerState.HIT) {
+						drawAnimation(virtual_player, "player_m_dizzy_right");
+					} else if (virtual_player.getState() == PlayerState.IDLING || game.virtual_player.player_is_falling
+							|| virtual_player.getState() == PlayerState.WAITING) {
+						drawAnimation(virtual_player, "player_m_idle_with_gun_left");
+					} else if (virtual_player.getState() == PlayerState.RUNNING) {
+						drawAnimation(virtual_player, "player_m_run_with_gun_left");
+
+					} else if (virtual_player.getState() == PlayerState.JUMPING) {
+						drawAnimation(virtual_player, "player_m_jump_with_gun_left");
+					} else if (virtual_player.getState() == PlayerState.FLASH) {
+						drawAnimation(virtual_player, "player_m_flash_idle_left");
+					}
+
+					break;
+				}
+				default:
+					break;
+				}// end of switch
+			} // end if check gun
+			else {
+
+				switch (virtual_player.getDirection()) {
+				case 'r': {
+					if (virtual_player.getState() == PlayerState.HIT) {
+						drawAnimation(virtual_player, "player_m_dizzy_right");
+					} else if (virtual_player.getState() == PlayerState.IDLING || game.virtual_player.player_is_falling
+							|| virtual_player.getState() == PlayerState.WAITING) {
+						drawAnimation(virtual_player, "player_idle_right");
+					} else if (virtual_player.getState() == PlayerState.RUNNING) {
+						drawAnimation(virtual_player, "player_run_right");
+					} else if (virtual_player.getState() == PlayerState.JUMPING) {
+						drawAnimation(virtual_player, "player_jump_right");
+					} else if (virtual_player.getState() == PlayerState.FLASH) {
+						drawAnimation(virtual_player, "player_m_flash_idle_right");
+					}
+
+					break;
+				} // end of case 'r'
+				case 'l': {
+					if (virtual_player.getState() == PlayerState.HIT) {
+						drawAnimation(virtual_player, "player_m_dizzy_left");
+					} else if (virtual_player.getState() == PlayerState.IDLING || game.virtual_player.player_is_falling
+							|| virtual_player.getState() == PlayerState.WAITING) {
+						drawAnimation(virtual_player, "player_idle_left");
+					} else if (virtual_player.getState() == PlayerState.RUNNING) {
+						drawAnimation(virtual_player, "player_run_left");
+
+					} else if (virtual_player.getState() == PlayerState.JUMPING) {
+						drawAnimation(virtual_player, "player_jump_left");
+					} else if (virtual_player.getState() == PlayerState.FLASH) {
+						drawAnimation(virtual_player, "player_m_flash_idle_left");
+					}
+
+					break;
+				}
+				default:
+					break;
+				}// end of switch
+			}
+		} else {
+			/*
+			 * Animazioni del player femmina
+			 */
+			if (virtual_player.getGun()) {
+				switch (virtual_player.getDirection()) {
+				case 'r': {
+					if (shot_virtual_player && !(virtual_player.getState() == PlayerState.RUNNING)) {
+						if (e_time > 0.3f) {
+							shot_virtual_player = false;
+							e_time = 0;
+						}
+						drawAnimation(virtual_player, "player_w_shot_right");
+						e_time += Gdx.graphics.getDeltaTime();
+					} else if (virtual_player.getState() == PlayerState.HIT) {
+						drawAnimation(virtual_player, "player_w_dizzy_right");
+					} else if (virtual_player.getState() == PlayerState.IDLING || game.virtual_player.player_is_falling
+							|| virtual_player.getState() == PlayerState.WAITING) {
+						drawAnimation(virtual_player, "player_w_idle_with_gun_right");
+					} else if (virtual_player.getState() == PlayerState.RUNNING) {
+						drawAnimation(virtual_player, "player_w_run_with_gun_right");
+					} else if (virtual_player.getState() == PlayerState.JUMPING) {
+						drawAnimation(virtual_player, "player_w_jump_with_gun_right");
+					} else if (virtual_player.getState() == PlayerState.FLASH) {
+						drawAnimation(virtual_player, "player_w_flash_idle_right");
+					}
+
+					break;
+				} // end of case 'r'
+				case 'l': {
+					if (shot_virtual_player && !(virtual_player.getState() == PlayerState.RUNNING)) {
+						if (e_time > 0.3f) {
+							shot_virtual_player = false;
+							e_time = 0;
+						}
+						drawAnimation(virtual_player, "player_w_shot_left");
+						e_time += Gdx.graphics.getDeltaTime();
+					} else if (virtual_player.getState() == PlayerState.HIT) {
+						drawAnimation(virtual_player, "player_w_dizzy_right");
+					} else if (virtual_player.getState() == PlayerState.IDLING || game.virtual_player.player_is_falling
+							|| virtual_player.getState() == PlayerState.WAITING) {
+						drawAnimation(virtual_player, "player_w_idle_with_gun_left");
+					} else if (virtual_player.getState() == PlayerState.RUNNING) {
+						drawAnimation(virtual_player, "player_w_run_with_gun_left");
+
+					} else if (virtual_player.getState() == PlayerState.JUMPING) {
+						drawAnimation(virtual_player, "player_w_jump_with_gun_left");
+					} else if (virtual_player.getState() == PlayerState.FLASH) {
+						drawAnimation(virtual_player, "player_w_flash_idle_left");
+					}
+
+					break;
+				}
+				default:
+					break;
+				}// end of switch
+
+			} else { // PLAYER SENZA PISTOLA
+
+				switch (virtual_player.getDirection()) {
+				case 'r': {
+					if (virtual_player.getState() == PlayerState.HIT) {
+						drawAnimation(virtual_player, "player_w_dizzy_right");
+					} else if (virtual_player.getState() == PlayerState.IDLING || game.virtual_player.player_is_falling
+							|| virtual_player.getState() == PlayerState.WAITING) {
+						drawAnimation(virtual_player, "player_w_idle_right");
+					} else if (virtual_player.getState() == PlayerState.RUNNING) {
+						drawAnimation(virtual_player, "player_w_run_right");
+					} else if (virtual_player.getState() == PlayerState.JUMPING) {
+						drawAnimation(virtual_player, "player_w_jump_right");
+					} else if (virtual_player.getState() == PlayerState.FLASH) {
+						drawAnimation(virtual_player, "player_w_flash_idle_right");
+					}
+
+					break;
+				} // end of case 'r'
+				case 'l': {
+					if (virtual_player.getState() == PlayerState.HIT) {
+						drawAnimation(virtual_player, "player_w_dizzy_left");
+					} else if (virtual_player.getState() == PlayerState.IDLING || game.virtual_player.player_is_falling
+							|| virtual_player.getState() == PlayerState.WAITING) {
+						drawAnimation(virtual_player, "player_w_idle_left");
+					} else if (virtual_player.getState() == PlayerState.RUNNING) {
+						drawAnimation(virtual_player, "player_w_run_left");
+					} else if (virtual_player.getState() == PlayerState.JUMPING) {
+						drawAnimation(virtual_player, "player_w_jump_left");
+					} else if (virtual_player.getState() == PlayerState.FLASH) {
+						drawAnimation(virtual_player, "player_w_flash_idle_left");
+					}
+
+					break;
+				}
+				default:
+					break;
+				}// end of switch}
+
+			} // end else without gun
+		} // end else player woman
+
 	}
 
 	/**
@@ -690,22 +1077,46 @@ public class MultiplayerGameMain implements Screen {
 	}
 
 	private void updateBullets(float dt) {
-		game.updateBullets(dt);
+		game.updateBullets(dt, player);
+	}
+
+	private void updateVPBullets(float dt) {
+		game.updateVPBullets(dt, virtual_player);
 	}
 
 	private void renderBullets() {
 		batch.begin();
 		if (!game.getBullets().isEmpty()) {
 			Texture bullet = Textures.BULLET;
-			Sprite sprite = new Sprite(bullet);
-			if (player.getDirection() == 'l') {
-				sprite.flip(true, false);
-			}
+			Sprite b_right = new Sprite(bullet);
+			Sprite b_left = new Sprite(bullet);
+			b_left.flip(true, false);
 			for (Bullet b : game.getBullets()) {
 				float xB = (b.getPosition().y) * Asset.TILE;
 				float yB = ((Asset.HEIGHT / Asset.TILE) - b.getPosition().x - 1) * Asset.TILE;
+				if (b.getDirection() == 'l') {
+					batch.draw(b_left, xB, yB);
+				} else {
+					batch.draw(b_right, xB, yB);
+				}
 
-				batch.draw(sprite, xB, yB);
+			}
+		}
+
+		if (!game.getVPBullets().isEmpty()) {
+			Texture bullet = Textures.BULLET;
+			Sprite b_right = new Sprite(bullet);
+			Sprite b_left = new Sprite(bullet);
+			b_left.flip(true, false);
+			for (Bullet b : game.getVPBullets()) {
+				float xB = (b.getPosition().y) * Asset.TILE;
+				float yB = ((Asset.HEIGHT / Asset.TILE) - b.getPosition().x - 1) * Asset.TILE;
+				if (b.getDirection() == 'l') {
+					batch.draw(b_left, xB, yB);
+				} else {
+					batch.draw(b_right, xB, yB);
+				}
+
 			}
 		}
 		batch.end();
@@ -713,38 +1124,6 @@ public class MultiplayerGameMain implements Screen {
 
 	int clock = 0;
 	float deltaTime = 0;
-
-	private void updateTimer(float delta) {
-
-		deltaTime += Gdx.graphics.getDeltaTime();
-		if ((int) deltaTime > clock) {
-			clock = (int) deltaTime;
-			timer();
-		}
-
-		/*
-		 * batch.begin(); Texture clock = new Texture(Asset.CLOCK); Texture d1 =
-		 * Textures.get("D" + digit[i--]); Texture d2 = Textures.get("D" +
-		 * digit[i--]); Texture d3 = Textures.get("D" + digit[i--]); Texture d4
-		 * = Textures.get("D" + digit[i]);
-		 * 
-		 * Texture dp = Textures.get("DP");
-		 * 
-		 * int width = 15 + 10; float cameraHalfWidth = camera.viewportWidth *
-		 * .5f; float pos_x = (camera.position.x - cameraHalfWidth) + 545; int
-		 * pos_y = GameConfig.HP+4;
-		 * 
-		 * //batch.draw(clock,pos_x,pos_y-2);
-		 * 
-		 * pos_x += width+25; batch.draw(d4, pos_x, pos_y); pos_x += width;
-		 * batch.draw(d3, pos_x, pos_y); pos_x += width - 5; batch.draw(dp,
-		 * pos_x, pos_y); pos_x += width - 15; batch.draw(d2, pos_x, pos_y);
-		 * pos_x += width; batch.draw(d1, pos_x, pos_y);
-		 * 
-		 * batch.end();
-		 */
-
-	}
 
 	protected boolean times_end = false;
 
@@ -786,93 +1165,6 @@ public class MultiplayerGameMain implements Screen {
 		timer();
 		player.score(20);
 
-	}
-
-	private void updateLives() {
-		// Texture vita
-		Texture texture = Textures.LIFE;
-		Texture heart = Textures.HEART;
-		Texture syb_x = Textures.SYMBOL_X;
-
-		int width = heart.getWidth() + 15;
-
-		float cameraHalfWidth = camera.viewportWidth * .5f;
-		float x1 = (camera.position.x - cameraHalfWidth) + 10;
-
-		int y = GameConfig.HP;
-
-		batch.begin();
-
-		// batch.draw(heart, x1, y-2); //stampa riconoscitore cuore
-
-		x1 += width;
-		// batch.draw(texture, x1, y); //stampa di un cuore
-		x1 += 50;
-		y += 6;
-		// batch.draw(syb_x, x1, y); //stampa della x ( il simbolo che precede
-		// il numero di vite)
-		int lives = player.getLives();
-		if (lives < 10) {
-			Texture c1 = Textures.get("D" + lives);
-			x1 += 40;
-			batch.draw(c1, x1, y);
-		} else {
-			int tmp = lives / 10;
-			Texture c1 = Textures.get("D" + tmp);
-			tmp = lives % 10;
-			Texture c2 = Textures.get("D" + tmp);
-			x1 += 40;
-			batch.draw(c1, x1, y);
-			x1 += 17;
-			batch.draw(c2, x1, y);
-		}
-
-		batch.end();
-	}
-
-	private void updateScores() {
-		int coins = game.getCoinsCount();
-		Texture coin = Textures.COIN;
-		Texture score = Textures.SCORE;
-
-		float cameraHalfWidth = camera.viewportWidth * .5f;
-		float pos_x_coin = (camera.position.x - cameraHalfWidth) + 320;
-		float pos_x_score = (camera.position.x - cameraHalfWidth) + 320;
-
-		batch.begin();
-
-		// sprite numero di monete
-		// batch.draw(coin,pos_x_coin,GameConfig.HP,39,40);
-		int y = GameConfig.HP + 4;
-		if (coins < 10) {
-			Texture c1 = Textures.get("D" + coins);
-			pos_x_coin += 55;
-			batch.draw(c1, pos_x_coin, y);
-		} else {
-			int tmp = coins / 10;
-			Texture c1 = Textures.get("D" + tmp);
-			tmp = coins % 10;
-			Texture c2 = Textures.get("D" + tmp);
-			pos_x_coin += 55;
-			batch.draw(c1, pos_x_coin, y);
-			pos_x_coin += 17;
-			batch.draw(c2, pos_x_coin, y);
-		}
-
-		pos_x_score += 550;
-		// sprite punteggio
-		// batch.draw(score,pos_x_score,GameConfig.HP);
-		pos_x_score += 50;
-		ArrayList<Integer> digits = handleDigits(game.getScore());
-		for (int i = digits.size() - 1; i >= 0; i--) {
-			Texture t = Textures.get("D" + digits.get(i));
-			batch.draw(t, pos_x_score, y);
-			pos_x_score += 20;
-		}
-
-		digits.clear();
-
-		batch.end();
 	}
 
 	private float drawingTime = 0.7f;
@@ -1008,7 +1300,7 @@ public class MultiplayerGameMain implements Screen {
 
 	}
 
-	private void initButton() {
+	private void initButtonPlayer() {
 
 		table = new Table();
 		stage = new Stage();
@@ -1033,9 +1325,23 @@ public class MultiplayerGameMain implements Screen {
 		Image clock = new Image(Textures.CLOCK);
 		ImageButton clockB = new ImageButton(clock.getDrawable());
 
-		// immagine decorativa per le vite
+		Image i;
+		if (virtual_player.getType() == 1) {
+			i = new Image(Textures.LABEL_F);
+		} else {
+			i = new Image(Textures.LABEL_M);
+		}
+		ImageButton label_p = new ImageButton(i.getDrawable());
+
 		int x = 10, y = GameConfig.HP;
-		y -= 2;
+		y -= 6;
+
+		// label player
+		label_p.setPosition(x, y);
+
+		x += 70;
+		y += 4;
+		// immagine decorativa per le vite
 		heartB.setPosition(x, y);
 
 		// immagine vita
@@ -1062,6 +1368,7 @@ public class MultiplayerGameMain implements Screen {
 		y += 2;
 		clockB.setPosition(x, y);
 
+		table.addActor(label_p);
 		table.addActor(heartB);
 		table.addActor(lifeB);
 		table.addActor(symbol_xB);
@@ -1071,14 +1378,91 @@ public class MultiplayerGameMain implements Screen {
 		stage.addActor(table);
 	}
 
+	private void initButtonVirtualPlayer() {
+
+		Image heart = new Image(Textures.HEART);
+		ImageButton heartB = new ImageButton(heart.getDrawable());
+
+		Image life = new Image(Textures.LIFE);
+		ImageButton lifeB = new ImageButton(life.getDrawable());
+
+		Image symbol_x = new Image(Textures.SYMBOL_X);
+		ImageButton symbol_xB = new ImageButton(symbol_x.getDrawable());
+
+		Image coin = new Image(Textures.COIN);
+		ImageButton coinB = new ImageButton(coin.getDrawable());
+
+		Image score = new Image(Textures.SCORE);
+		ImageButton scoreB = new ImageButton(score.getDrawable());
+
+		Image i;
+		if (player.getType() == 1) {
+			i = new Image(Textures.LABEL_F);
+		} else {
+			i = new Image(Textures.LABEL_M);
+		}
+		ImageButton label_p = new ImageButton(i.getDrawable());
+
+		int x = 10, y = GameConfig.HP;
+		y -= 66;
+
+		// label player
+		label_p.setPosition(x, y);
+
+		x += 70;
+		y += 4;
+		// immagine decorativa per le vite
+		heartB.setPosition(x, y);
+
+		// immagine vita
+		x += 55;
+		y += 2;
+		lifeB.setPosition(x, y);
+
+		// immagine "x" separatore vita da numero
+		x += 50;
+		y += 6;
+		symbol_xB.setPosition(x, y);
+
+		// immagine rappresentante il numero di coin
+		x = 320;
+		y -= 6;
+		coinB.setPosition(x, y);
+
+		// immagine rappresentante il punteggio
+		x += 550;
+		scoreB.setPosition(x, y);
+
+		// immagine rappresentante il timer
+		x = 545;
+		y += 2;
+
+		table.addActor(label_p);
+		table.addActor(heartB);
+		table.addActor(lifeB);
+		table.addActor(symbol_xB);
+		table.addActor(coinB);
+		table.addActor(scoreB);
+		stage.addActor(table);
+	}
+
 	/**
 	 * UPDATE VITE
 	 */
 	private void renderLives(float delta) {
 
-		int x = 155;
+		int x = 225;
 		int y = GameConfig.HP + 6;
 		int lives = player.getLives();
+
+		printDigits(lives, x, y, 21, delta);
+	}
+
+	private void renderLivesVP(float delta) {
+
+		int x = 225;
+		int y = GameConfig.HP - 55;
+		int lives = virtual_player.getLives();
 
 		printDigits(lives, x, y, 21, delta);
 	}
@@ -1145,7 +1529,7 @@ public class MultiplayerGameMain implements Screen {
 	 */
 	private void renderScore(float delta) {
 
-		int coins = game.getCoinsCount();
+		int coins = game.getCoinsCount(player);
 
 		// monete
 		int pos_x_coin = 375;
@@ -1154,7 +1538,35 @@ public class MultiplayerGameMain implements Screen {
 
 		// punteggio
 		float pos_x_score = 920;
-		ArrayList<Integer> digits = handleDigits(game.getScore());
+		ArrayList<Integer> digits = handleDigits(game.getScore(player));
+		for (int i = digits.size() - 1; i >= 0; i--) {
+			Image img = new Image(Textures.get("D" + digits.get(i)));
+			ImageButton imgB = new ImageButton(img.getDrawable());
+			imgB.setPosition(pos_x_score, y);
+			pos_x_score += 20;
+			table.addActor(imgB);
+			stage.act(delta);
+			stage.draw();
+			table.removeActor(imgB);
+
+		}
+
+		digits.clear();
+
+	}
+
+	private void renderVPScore(float delta) {
+
+		int coins = game.getCoinsCount(virtual_player);
+
+		// monete
+		int pos_x_coin = 375;
+		int y = GameConfig.HP - 55;
+		printDigits(coins, pos_x_coin, y, 17, delta);
+
+		// punteggio
+		float pos_x_score = 920;
+		ArrayList<Integer> digits = handleDigits(game.getScore(virtual_player));
 		for (int i = digits.size() - 1; i >= 0; i--) {
 			Image img = new Image(Textures.get("D" + digits.get(i)));
 			ImageButton imgB = new ImageButton(img.getDrawable());
@@ -1228,9 +1640,13 @@ public class MultiplayerGameMain implements Screen {
 
 	private float waiting_time;
 	private boolean stepOver = false;
+	
+	private boolean enableWatchingShow = false;
+	protected boolean dead = false;
 
 	@SuppressWarnings("deprecation")
 	private void resumePlayer() {
+
 		/*
 		 * Il player è riuscito ad aprire la porta. Passa al livello successivo.
 		 */
@@ -1245,7 +1661,7 @@ public class MultiplayerGameMain implements Screen {
 		if (times_end && player.getState() == PlayerState.WAITING) {
 			GameConfig.BEST_SCORE = player.getScore();
 			GameConfig.NUM_LIVES = player.getLives();
-			if (game.getCoinsCount() == game.getMaxCoinsCount()) {
+			if (game.getCoinsCount(player) == game.getMaxCoinsCount()) {
 				GameConfig.NUM_LIVES += 2;
 			}
 			Audio.GAME_MUSIC = false;
@@ -1258,13 +1674,16 @@ public class MultiplayerGameMain implements Screen {
 			game.RESUME = false;
 			GameConfig.BEST_SCORE = player.getScore();
 			jump_player.stop();
-
+			
 			Audio.GAME_MUSIC = false;
 			Audio.BACKGROUND_MUSIC = true;
 			Audio.game_music.pause();
 			Audio.playGameMenuMusic();
-			((com.badlogic.gdx.Game) Gdx.app.getApplicationListener()).setScreen(HandleGameOver.getInstance());
-
+			
+			
+			enableWatchingShow = true;
+			dead = true;
+			return;
 		}
 
 		if (game.RESUME) {
@@ -1272,7 +1691,7 @@ public class MultiplayerGameMain implements Screen {
 			 * Tempo di attesa prima che il player ritorni sulla mappa
 			 */
 			if (waiting_time > 1.3f && !stepOver) {
-				game.findNewPlayerPosition(player.getPosition());
+				game.findNewPlayerPosition(player.getPosition(),player);
 				stepOver = true;
 				waiting_time = 6;
 
@@ -1313,29 +1732,105 @@ public class MultiplayerGameMain implements Screen {
 			waiting_time += Gdx.graphics.getDeltaTime();
 		}
 	}
+
+	private float vp_waiting_time;
+	private boolean vp_stepOver = false;
+
+	@SuppressWarnings("deprecation")
+	private void resumeVPlayer() {
+
+		/*
+		 * Il player è riuscito ad aprire la porta. Passa al livello successivo.
+		 */
+		if (ready_for_next_level) {
+			if (game.findCollision(virtual_player,
+					new StaticObject(new Vector2(door_position.x, door_position.y + 1), new Vector2()))) {
+				jump_virtual_player.stop();
+				virtual_player.setState(PlayerState.WAITING);
+				turnTimeInMoney();
+			}
+		}
+		if (times_end && virtual_player.getState() == PlayerState.WAITING) {
+			GameConfig.BEST_SCORE = virtual_player.getScore();
+			GameConfig.NUM_LIVES = virtual_player.getLives();
+			if (game.getCoinsCount(virtual_player) == game.getMaxCoinsCount()) {
+				GameConfig.NUM_LIVES += 2;
+			}
+			Audio.GAME_MUSIC = false;
+			Audio.BACKGROUND_MUSIC = true;
+			Audio.game_music.pause();
+			Audio.playGameMenuMusic();
+			((com.badlogic.gdx.Game) Gdx.app.getApplicationListener()).setScreen(LevelUp.getInstance());
+		} else if (virtual_player.getLives() == 0 || (virtual_player.getState() == PlayerState.DEAD)) {
+			virtual_player.setState(PlayerState.DEAD);
+			game.RESUME_VP = false;
+			GameConfig.BEST_SCORE = virtual_player.getScore();
+			jump_virtual_player.stop();
+			
+			Audio.GAME_MUSIC = false;
+			Audio.BACKGROUND_MUSIC = true;
+			Audio.game_music.pause();
+			Audio.playGameMenuMusic();
+
+		}
+
+		if (game.RESUME_VP) {
+			/*
+			 * Tempo di attesa prima che il player ritorni sulla mappa
+			 */
+			if (vp_waiting_time > 1.3f && !vp_stepOver) {
+				game.findNewPlayerPosition(virtual_player.getPosition(),virtual_player);
+				vp_stepOver = true;
+				vp_waiting_time = 6;
+
+			} else {
+				
+				if(!vp_stepOver)
+				virtual_player.setState(PlayerState.HIT);
+			}
+
+			/*
+			 * Tempo di attesa stampa animazione
+			 */
+			if (vp_stepOver) {
+				virtual_player.setState(PlayerState.FLASH);
+				if (vp_waiting_time > 9.8f) {
+					game.RESUME_VP = false;
+					vp_stepOver = false;
+					vp_waiting_time = 0;
+				}
+			}
+
+			vp_waiting_time += Gdx.graphics.getDeltaTime();
+		}
+	}
 	
-	public int getPlayer1Type(){
+	public void setDeadScreen(){
+		PAUSE = true;
+		((com.badlogic.gdx.Game) Gdx.app.getApplicationListener()).setScreen(HandleGameOver.getInstance());
+	}
+
+	public int getPlayer1Type() {
 		return player_type;
 	}
 
-	@Override
-	public void resize(int width, int height) {
+	public int getKeyPressed() {
+		return keyPressed;
 	}
 
 	@Override
-	public void hide() {
-	}
+	public void resize(int width, int height) {}
 
 	@Override
-	public void dispose() {
-	}
+	public void hide() {}
 
 	@Override
-	public void pause() {
-	}
+	public void dispose() {}
 
 	@Override
-	public void resume() {
-	}
+	public void pause() {}
+
+	@Override
+	public void resume() {}
 
 }

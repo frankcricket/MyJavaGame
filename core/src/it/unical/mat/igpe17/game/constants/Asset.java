@@ -23,6 +23,7 @@ public class Asset {
 	 * Imposto a 1 ( maschio ) il tipo di player all'avvio del gioco
 	 */
 	public static int PLAYER_TYPE = 1;
+	public static int V_PLAYER_TYPE = 2;
 	
 	
 	//ground
@@ -117,6 +118,9 @@ public class Asset {
 	
 	public static final String LIFE_BAR_BACKGROUND = "asset/life_bar_background.png";
 	public static final String LIFE_BAR = "asset/life_bar.png";
+	
+	public static final String LABEL_M = "asset/menu_img/label_m.png";
+	public static final String LABEL_F = "asset/menu_img/label_f.png";
 	
 
 	

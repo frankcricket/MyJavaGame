@@ -2,6 +2,7 @@ package it.unical.mat.igpe17.game.Main;
 
 import com.badlogic.gdx.Game;
 
+import it.unical.mat.igpe17.game.network.screen.NetworkChoice;
 import it.unical.mat.igpe17.game.screens.Splash;
 
 public class ZombieGame extends Game {
@@ -11,6 +12,7 @@ public class ZombieGame extends Game {
 	@Override
 	public void create() {
 		setScreen(new Splash());
+//		setScreen(new NetworkChoice());
 		
 	}
 

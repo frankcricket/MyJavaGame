@@ -30,11 +30,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 
 import it.unical.mat.igpe17.game.actors.Enemy;
 import it.unical.mat.igpe17.game.actors.EnemyState;
-import it.unical.mat.igpe17.game.actors.JumpListener;
+import it.unical.mat.igpe17.game.logic.JumpListener;
 import it.unical.mat.igpe17.game.actors.Player;
 import it.unical.mat.igpe17.game.actors.PlayerState;
 import it.unical.mat.igpe17.game.constants.Asset;
@@ -136,8 +135,6 @@ public class Play implements Screen, ControllerListener {
 
 		pause.setPosition(1220, GameConfig.HP);
 		table.addActor(pause);
-
-		//Controllers.addListener(this);
 
 	}
 
@@ -246,25 +243,16 @@ public class Play implements Screen, ControllerListener {
 
 		if (!game.isOver() && !game.RESUME) {
 			
-			
 			// cammina a dx
 			if ((Gdx.input.isKeyPressed(Keys.RIGHT) 
 					|| (directionGamePad == PovDirection.east && movesGamePad)) 
 					&& !(player.getState() == PlayerState.JUMPING)
 					&& !game.PLAYER_IS_FALLING) {
-				player.setDirection('r');
-				
+				player.setDirection('r');				
 				player.setState(PlayerState.RUNNING);				
-				System.out.println(player.getState() + "dx");// stampa
-		
-				
-				
 				if (Gdx.input.isKeyJustPressed(Input.Keys.W)
 						|| (buttonPressed && buttonCodePressed == 0)) {
 					player.setState(PlayerState.JUMPING);
-					
-					//game.resumeCondition();
-					//buttonCodePressed = 1111;
 				}
 				game.resumeCondition();
 				
@@ -276,18 +264,11 @@ public class Play implements Screen, ControllerListener {
 				
 				player.setDirection('l');
 				player.setState(PlayerState.RUNNING);
-		
-				System.out.println(player.getState() +"sx");// stampa
-				
-
-
 				if ((Gdx.input.isKeyJustPressed(Input.Keys.W)
 					|| (buttonPressed && buttonCodePressed == 0) )
 						&& !game.PLAYER_IS_FALLING) {
 					player.setState(PlayerState.JUMPING);
 
-				//	game.resumeCondition();
-					//buttonCodePressed = 1111;
 				}
 				game.resumeCondition();
 
@@ -306,24 +287,16 @@ public class Play implements Screen, ControllerListener {
 			
 				
 			if (player.VERTICAL_JUMP
-					&& (Gdx.input.isKeyJustPressed(Keys.D)
-					||  Gdx.input.isKeyPressed(Keys.D)
-					||  Gdx.input.isKeyJustPressed(Keys.RIGHT)
+					&& (Gdx.input.isKeyJustPressed(Keys.RIGHT)
 					|| (directionGamePad == PovDirection.east && movesGamePad)))  {
 				player.setDirection('r');
 				game.moveWhileJumping = true;
 			} else if (player.VERTICAL_JUMP 
-					&& (Gdx.input.isKeyJustPressed(Keys.A)
-					|| Gdx.input.isKeyPressed(Keys.LEFT)
-					|| Gdx.input.isKeyJustPressed(Keys.LEFT) 
+					&& (Gdx.input.isKeyJustPressed(Keys.LEFT) 
 					|| (directionGamePad == PovDirection.west && movesGamePad))) {
 				player.setDirection('l');
 				game.moveWhileJumping = true;
 			}
-			
-		
-			//buttonPressed = false;
-			
 			
 			// input selezione pistola
 			if (Gdx.input.isKeyJustPressed(Input.Keys.Q) || (buttonPressed && buttonCodePressed == 5)) {
@@ -357,28 +330,14 @@ public class Play implements Screen, ControllerListener {
 				buttonCodePressed = 1111;
 			}
 			
+			if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)){
+				PAUSE = true;
+				((com.badlogic.gdx.Game) Gdx.app.getApplicationListener()).setScreen(Settings.getSettings());
+			}
+			
+			
 			buttonPressed = false;
 
-			/**
-			 * Se il personaggio è fermo, viene impostato il suo stato come
-			 * 
-			 * @param state
-			 *            IDLING
-			 */
-			
-			/*
-			if  (      !(player.getState() == PlayerState.RUNNING) 
-					&& !(player.getState() == PlayerState.JUMPING))
-				/*	&& !(Gdx.input.isKeyJustPressed(Keys.W))
-					&& !(buttonPressed && buttonCodePressed == 0)
-					&& !(Gdx.input.isKeyPressed(Keys.RIGHT))
-					&& !(directionGamePad == PovDirection.east && movesGamePad)
-					&& !(Gdx.input.isKeyPressed(Keys.LEFT))
-					&& !(directionGamePad == PovDirection.west && movesGamePad)){
-				if (!game.PLAYER_IS_FALLING)
-					player.setState(PlayerState.IDLING);
-			}
-			*/ 
 			
 			if (game.PLAYER_COLLISION) {
 				player.setState(PlayerState.HIT);
@@ -789,37 +748,6 @@ public class Play implements Screen, ControllerListener {
 	int clock = 0;
 	float deltaTime = 0;
 
-	private void updateTimer(float delta) {
-
-		deltaTime += Gdx.graphics.getDeltaTime();
-		if ((int) deltaTime > clock) {
-			clock = (int) deltaTime;
-			timer();
-		}
-
-		/*
-		 * batch.begin(); Texture clock = new Texture(Asset.CLOCK); Texture d1 =
-		 * Textures.get("D" + digit[i--]); Texture d2 = Textures.get("D" +
-		 * digit[i--]); Texture d3 = Textures.get("D" + digit[i--]); Texture d4
-		 * = Textures.get("D" + digit[i]);
-		 * 
-		 * Texture dp = Textures.get("DP");
-		 * 
-		 * int width = 15 + 10; float cameraHalfWidth = camera.viewportWidth *
-		 * .5f; float pos_x = (camera.position.x - cameraHalfWidth) + 545; int
-		 * pos_y = GameConfig.HP+4;
-		 * 
-		 * //batch.draw(clock,pos_x,pos_y-2);
-		 * 
-		 * pos_x += width+25; batch.draw(d4, pos_x, pos_y); pos_x += width;
-		 * batch.draw(d3, pos_x, pos_y); pos_x += width - 5; batch.draw(dp,
-		 * pos_x, pos_y); pos_x += width - 15; batch.draw(d2, pos_x, pos_y);
-		 * pos_x += width; batch.draw(d1, pos_x, pos_y);
-		 * 
-		 * batch.end();
-		 */
-
-	}
 
 	protected boolean times_end = false;
 
@@ -863,92 +791,7 @@ public class Play implements Screen, ControllerListener {
 
 	}
 
-	private void updateLives() {
-		// Texture vita
-		Texture texture = Textures.LIFE;
-		Texture heart = Textures.HEART;
-		Texture syb_x = Textures.SYMBOL_X;
 
-		int width = heart.getWidth() + 15;
-
-		float cameraHalfWidth = camera.viewportWidth * .5f;
-		float x1 = (camera.position.x - cameraHalfWidth) + 10;
-
-		int y = GameConfig.HP;
-
-		batch.begin();
-
-		// batch.draw(heart, x1, y-2); //stampa riconoscitore cuore
-
-		x1 += width;
-		// batch.draw(texture, x1, y); //stampa di un cuore
-		x1 += 50;
-		y += 6;
-		// batch.draw(syb_x, x1, y); //stampa della x ( il simbolo che precede
-		// il numero di vite)
-		int lives = player.getLives();
-		if (lives < 10) {
-			Texture c1 = Textures.get("D" + lives);
-			x1 += 40;
-			batch.draw(c1, x1, y);
-		} else {
-			int tmp = lives / 10;
-			Texture c1 = Textures.get("D" + tmp);
-			tmp = lives % 10;
-			Texture c2 = Textures.get("D" + tmp);
-			x1 += 40;
-			batch.draw(c1, x1, y);
-			x1 += 17;
-			batch.draw(c2, x1, y);
-		}
-
-		batch.end();
-	}
-
-	private void updateScores() {
-		int coins = game.getCoinsCount();
-		Texture coin = Textures.COIN;
-		Texture score = Textures.SCORE;
-
-		float cameraHalfWidth = camera.viewportWidth * .5f;
-		float pos_x_coin = (camera.position.x - cameraHalfWidth) + 320;
-		float pos_x_score = (camera.position.x - cameraHalfWidth) + 320;
-
-		batch.begin();
-
-		// sprite numero di monete
-		// batch.draw(coin,pos_x_coin,GameConfig.HP,39,40);
-		int y = GameConfig.HP + 4;
-		if (coins < 10) {
-			Texture c1 = Textures.get("D" + coins);
-			pos_x_coin += 55;
-			batch.draw(c1, pos_x_coin, y);
-		} else {
-			int tmp = coins / 10;
-			Texture c1 = Textures.get("D" + tmp);
-			tmp = coins % 10;
-			Texture c2 = Textures.get("D" + tmp);
-			pos_x_coin += 55;
-			batch.draw(c1, pos_x_coin, y);
-			pos_x_coin += 17;
-			batch.draw(c2, pos_x_coin, y);
-		}
-
-		pos_x_score += 550;
-		// sprite punteggio
-		// batch.draw(score,pos_x_score,GameConfig.HP);
-		pos_x_score += 50;
-		ArrayList<Integer> digits = handleDigits(game.getScore());
-		for (int i = digits.size() - 1; i >= 0; i--) {
-			Texture t = Textures.get("D" + digits.get(i));
-			batch.draw(t, pos_x_score, y);
-			pos_x_score += 20;
-		}
-
-		digits.clear();
-
-		batch.end();
-	}
 
 	private float drawingTime = 0.7f;
 	private float timer_limit = 1.2f;
@@ -1390,36 +1233,25 @@ public class Play implements Screen, ControllerListener {
 	}
 
 	@Override
-	public void resize(int width, int height) {
-	}
+	public void resize(int width, int height) {}
 
 	@Override
-	public void hide() {
-	}
+	public void hide() {}
 
 	@Override
-	public void dispose() {
-	}
+	public void dispose() {}
 
 	@Override
-	public void pause() {
-	}
+	public void pause() {}
 
 	@Override
-	public void resume() {
-	}
+	public void resume() {}
 
 	@Override
-	public void connected(Controller controller) {
-		// TODO Auto-generated method stub
-
-	}
+	public void connected(Controller controller) {}
 
 	@Override
-	public void disconnected(Controller controller) {
-		// TODO Auto-generated method stub
-
-	}
+	public void disconnected(Controller controller) {}
 
 	@Override
 	public boolean buttonDown(Controller controller, int buttonCode) {
@@ -1444,11 +1276,8 @@ public class Play implements Screen, ControllerListener {
 
 	@Override
 	public boolean axisMoved(Controller controller, int axisCode, float value) {
-		// TODO Auto-generated method stub
 		return false;
 	}
-
-	//private boolean movePlayerToLeft = false, movePlayerToRight = false;
 
 	@Override
 	public boolean povMoved(Controller controller, int povCode, PovDirection value) {
@@ -1476,19 +1305,16 @@ public class Play implements Screen, ControllerListener {
 
 	@Override
 	public boolean xSliderMoved(Controller controller, int sliderCode, boolean value) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean ySliderMoved(Controller controller, int sliderCode, boolean value) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean accelerometerMoved(Controller controller, int accelerometerCode, Vector3 value) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 }

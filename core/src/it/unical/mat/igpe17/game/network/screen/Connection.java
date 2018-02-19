@@ -10,13 +10,17 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import it.unical.mat.igpe17.game.GUI.Play;
 import it.unical.mat.igpe17.game.constants.Asset;
 import it.unical.mat.igpe17.game.constants.Audio;
 import it.unical.mat.igpe17.game.network.ClientGame;
+import it.unical.mat.igpe17.game.network.GifDecoder;
 import it.unical.mat.igpe17.game.network.MultiplayerGameMain;
+import it.unical.mat.igpe17.game.network.Server;
 import it.unical.mat.igpe17.game.network.ServerHandler;
 import it.unical.mat.igpe17.game.utility.LevelsHandler;
 
@@ -27,6 +31,7 @@ public class Connection implements Screen{
 	
 	private SpriteBatch batch;
 	private Texture background;
+	private Animation<TextureRegion> animation;
 	private MultiplayerGameMain mGame;
 	
 	private boolean isServer = false;
@@ -38,14 +43,10 @@ public class Connection implements Screen{
 			ip = InetAddress.getLocalHost().getHostAddress();
 			System.out.println("Current ip address: " + ip);
 		} catch (UnknownHostException e) {
-			ip = "127.0.0.1";
+			ip = "127.0.0.1";//ip di default
 		}
 		
-		//avvio il server
-		ServerHandler sh = new ServerHandler(port);
-		sh.start();
-		
-		System.out.println("ho lanciato i thread");
+		new Server(port);
 		
 		isServer = true;
 	}
@@ -72,16 +73,20 @@ public class Connection implements Screen{
 		}
 		if(!isServer){
 			Asset.PLAYER_TYPE = 2;
+			Asset.V_PLAYER_TYPE = 1;
 		}
 		
 		mGame = new MultiplayerGameMain(level);
+		mGame.setInstance(mGame);
 		ClientGame c = new ClientGame(mGame,ip, port);
 		c.start();
 		batch = new SpriteBatch();
-		background = new Texture("asset/connecting.png");
+		background = new Texture("asset/menu_img/connecting.png");
+		animation = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("asset/menu_img/progress_bar.gif").read());
 	}
 	
 	public static int received = 1;
+	float elapsed;
 
 	@Override
 	public void render(float delta) {
@@ -89,11 +94,12 @@ public class Connection implements Screen{
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
+		 elapsed += Gdx.graphics.getDeltaTime();
+		
 		if(received != 0){
 			batch.begin();
-			
 			batch.draw(background, 0, 0);
-			
+			 batch.draw(animation.getKeyFrame(elapsed), 792, 368);
 			batch.end();
 		}
 		else{

@@ -64,6 +64,10 @@ public class Textures {
 	public static final Texture LIFE_BAR_BACKGROUND = new Texture(Asset.LIFE_BAR_BACKGROUND);
 	public static final Texture LIFE_BAR = new Texture(Asset.LIFE_BAR);
 	
+	
+	public static final Texture LABEL_M = new Texture(Asset.LABEL_M);
+	public static final Texture LABEL_F = new Texture(Asset.LABEL_F);
+	
 	static{
 		map.put("D0", D0);
 		map.put("D1", D1);

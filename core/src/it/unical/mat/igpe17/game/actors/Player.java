@@ -14,7 +14,7 @@ public class Player extends DynamicObject implements IPlayer {
 	private Vector2 playerForce;
 	
 	/* variabile per il salto in verticale, senza allungamento */
-	public static boolean VERTICAL_JUMP;
+	public boolean VERTICAL_JUMP;
 	private float posX;
 	private float posY;
 	
@@ -22,7 +22,9 @@ public class Player extends DynamicObject implements IPlayer {
 	
 	private int lives;
 	
-	public boolean hasGun;
+	private boolean hasGun;
+	
+	public int type;
 
 	public Player(Vector2 position, Vector2 size, char direction, PlayerState state) {
 		super(position, size, direction);
@@ -148,6 +150,12 @@ public class Player extends DynamicObject implements IPlayer {
 	}
 	public void setGun(boolean hasGun){
 		this.hasGun = hasGun;
+	}
+	public void setType(int type){
+		this.type = type;
+	}
+	public final int getType(){
+		return this.type;
 	}
 
 }
