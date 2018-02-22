@@ -1190,7 +1190,7 @@ public class Game {
 		return current_coin_count;
 	}
 	public final int getMaxCoinsCount() {
-		return current_coin_count;
+		return coins.size();
 	}
 
 	public final int getScore() {

@@ -51,6 +51,8 @@ public class LevelUp implements Screen{
 		if(level_instance == null){
 			level_instance = new LevelUp();
 		}
+		level_instance.handleScore();
+		level_instance.initArrays();
 		return level_instance;
 	}
 
@@ -87,7 +89,7 @@ public class LevelUp implements Screen{
 					Audio.reloadGameMusic();
 					((com.badlogic.gdx.Game) Gdx.app.getApplicationListener()).setScreen(Play.getPlay(level));
 				}
-				//TODO GESTIRE CASO IN CUI IL LIVELLO NON CI SIA
+
 			}
 
 		});

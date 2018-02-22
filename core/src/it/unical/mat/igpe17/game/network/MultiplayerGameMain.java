@@ -6,6 +6,11 @@ import java.util.List;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.controllers.Controller;
+import com.badlogic.gdx.controllers.ControllerListener;
+import com.badlogic.gdx.controllers.Controllers;
+import com.badlogic.gdx.controllers.PovDirection;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -18,6 +23,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -42,7 +48,7 @@ import it.unical.mat.igpe17.game.screens.HandleGameOver;
 import it.unical.mat.igpe17.game.screens.LevelUp;
 import it.unical.mat.igpe17.game.screens.Settings;
 
-public class MultiplayerGameMain implements Screen {
+public class MultiplayerGameMain implements Screen, ControllerListener {
 
 	protected Game game;
 	private Background background;
@@ -88,6 +94,11 @@ public class MultiplayerGameMain implements Screen {
 
 	public static MultiplayerGameMain mGame;
 
+	private PovDirection directionGamePad = null;
+	private boolean movesGamePad = false;
+	private int buttonCodePressed;
+	private boolean buttonPressed = false;
+
 	public MultiplayerGameMain(String level) {
 		this.level = level;
 		this.player_type = Asset.PLAYER_TYPE;
@@ -106,6 +117,8 @@ public class MultiplayerGameMain implements Screen {
 	@Override
 	public void show() {
 
+		
+		Controllers.addListener(this);
 		Gdx.input.setInputProcessor(stage);
 		Image pause_on = new Image(new Texture(Asset.PAUSE_ON));
 		Image pause_off = new Image(new Texture(Asset.PAUSE_OFF));
@@ -207,15 +220,15 @@ public class MultiplayerGameMain implements Screen {
 			renderTimer(delta);
 			renderScore(delta);
 			renderVPScore(delta);
-			if(!enableWatchingShow)
-			if (!(player.getState() == PlayerState.WAITING)) {
-				updatePlayer(delta);
-			}
+			if (!enableWatchingShow)
+				if (!(player.getState() == PlayerState.WAITING)) {
+					updatePlayer(delta);
+				}
 			if (!(player.getState() == PlayerState.WAITING)) {
 				updateVirtualPlayer(delta);
 			}
 			renderPlayer();
-			if (!game.RESUME && !game.RESUME_VP){
+			if (!game.RESUME && !game.RESUME_VP) {
 				updateEnemy(delta);
 			}
 			renderEnemy();
@@ -226,16 +239,16 @@ public class MultiplayerGameMain implements Screen {
 			updateVPBullets(delta);
 			renderBullets();
 			renderGenericAnimations();
-			
-			if(!enableWatchingShow)
+
+			if (!enableWatchingShow)
 				resumePlayer();
-			
+
 			resumeVPlayer();
 
 			dt_prec = delta;
 		}
-		
-		if(showScreen){
+
+		if (showScreen) {
 			showScreen = false;
 			setDeadScreen();
 		}
@@ -246,85 +259,107 @@ public class MultiplayerGameMain implements Screen {
 
 	public static int sendPressedKey;
 	public static boolean sendIsJumping = false;
-
-	private void updatePlayer(final float delta) {
+	
+private void updatePlayer(final float delta) {
+		
 
 		if (!game.isOver() && !game.RESUME) {
-
-			if ((Gdx.input.isKeyPressed(Input.Keys.RIGHT)) && !(player.getState() == PlayerState.JUMPING)) {
-
+			
+			// cammina a dx
+			if ((Gdx.input.isKeyPressed(Keys.RIGHT) 
+					|| (directionGamePad == PovDirection.east && movesGamePad)) 
+					&& !(player.getState() == PlayerState.JUMPING)
+					&& !game.player.player_is_falling) {
+				
+				System.out.println("i'm running right");
 				sendPressedKey = Input.Keys.RIGHT;
 				sendIsJumping = false;
-
-				player.setDirection('r');
-				player.setState(PlayerState.RUNNING);
-				game.resumeCondition();
-				if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
-
+				
+				player.setDirection('r');				
+				player.setState(PlayerState.RUNNING);				
+				if (Gdx.input.isKeyJustPressed(Input.Keys.W)
+						|| (buttonPressed && buttonCodePressed == 0)) {
 					sendPressedKey = Input.Keys.W;
 					sendIsJumping = true;
-
+					
 					player.setState(PlayerState.JUMPING);
-					game.resumeCondition();
 				}
-
-			} else if ((Gdx.input.isKeyPressed(Input.Keys.LEFT)) && !(player.getState() == PlayerState.JUMPING)) {
-
+				game.resumeCondition();
+				
+			// cammina a sx
+			} else if ((Gdx.input.isKeyPressed(Keys.LEFT)
+						|| (directionGamePad == PovDirection.west && movesGamePad))
+						&& !(player.getState() == PlayerState.JUMPING) 
+						&& !game.player.player_is_falling) {
+				
 				sendPressedKey = Input.Keys.LEFT;
 				sendIsJumping = false;
-
+				
 				player.setDirection('l');
 				player.setState(PlayerState.RUNNING);
-				game.resumeCondition();
-				if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
-
+				if ((Gdx.input.isKeyJustPressed(Input.Keys.W)
+					|| (buttonPressed && buttonCodePressed == 0) )
+						&& !game.player.player_is_falling) {
+					
 					sendPressedKey = Input.Keys.W;
 					sendIsJumping = true;
 
 					player.setState(PlayerState.JUMPING);
-					game.resumeCondition();
+
 				}
-
-			} else if (Gdx.input.isKeyJustPressed(Input.Keys.W) && !(player.getState() == PlayerState.JUMPING)
-					&& !game.player.player_is_falling) {
-
-				sendPressedKey = Input.Keys.W;
-				sendIsJumping = false;
-
-				player.VERTICAL_JUMP = true;
-				player.setState(PlayerState.JUMPING);
 				game.resumeCondition();
 
+			} else if ((Gdx.input.isKeyJustPressed(Keys.W)
+					|| (buttonPressed && buttonCodePressed == 0))
+					&& !(player.getState() == PlayerState.JUMPING)
+					&& !game.player.player_is_falling) {
+				
+				sendPressedKey = Input.Keys.W;
+				sendIsJumping = false;
+			
+				player.setState(PlayerState.JUMPING);
+				player.VERTICAL_JUMP = true;				
+				game.resumeCondition();
 			}
-
-			// spostamento durante salto in verticale
-			if (player.VERTICAL_JUMP && (Gdx.input.isKeyPressed(Input.Keys.RIGHT))) {
+			else if (!(player.getState() == PlayerState.JUMPING) && !buttonPressed &&  !game.player.player_is_falling) {
+				player.setState(PlayerState.IDLING);
+			}
+			
+				
+			if (player.VERTICAL_JUMP
+					&& (Gdx.input.isKeyJustPressed(Keys.RIGHT)
+					|| (directionGamePad == PovDirection.east && movesGamePad)))  {
 				sendPressedKey = 81;
 				player.setDirection('r');
 				game.player.moveWhileJumping = true;
-			} else if (player.VERTICAL_JUMP && (Gdx.input.isKeyPressed(Input.Keys.LEFT))) {
+			} else if (player.VERTICAL_JUMP 
+					&& (Gdx.input.isKeyJustPressed(Keys.LEFT) 
+					|| (directionGamePad == PovDirection.west && movesGamePad))) {
 				sendPressedKey = 82;
 				player.setDirection('l');
 				game.player.moveWhileJumping = true;
 			}
-
+			
 			// input selezione pistola
-			if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
+			if (Gdx.input.isKeyJustPressed(Input.Keys.Q) || (buttonPressed && buttonCodePressed == 5)) {
 				sendPressedKey = Input.Keys.Q;
+
 				if (player.getGun()) {
 					player.setGun(false);
 				} else {
 					player.setGun(true);
 				}
+				buttonCodePressed = 1111;
 			}
-
+			
 			// input sparo
-			if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+			if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || (buttonPressed && buttonCodePressed == 1)) {
 				// se il player ha la pistola, allora può sparare
 				if (player.getGun()) {
 					sendPressedKey = Input.Keys.SPACE;
 					float c_x = player.getPosition().x;
 					float c_y = player.getPosition().y;
+
 					if (player.getDirection() == 'r') {
 						c_x -= 0.57f;
 						c_y += GameConfig.SIZE_PLAYER_X;
@@ -337,36 +372,26 @@ public class MultiplayerGameMain implements Screen {
 					Audio.playShot();
 					shot_local_player = true;
 				}
+				isKeyPressed = -1;
+				buttonCodePressed = 1111;
 			}
-
-			// Player fermo, imposto stato come idling
-			if (!(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) && !(Gdx.input.isKeyPressed(Input.Keys.LEFT))
-					&& !(player.getState() == PlayerState.JUMPING)) {
-				if (!game.player.player_is_falling) {
-					player.setState(PlayerState.IDLING);
-				}
-			}
-
-			/*
-			 * Gestione pausa di gioco, evento escape da tastiera
-			 */
-			if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+			
+			if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)){
 				PAUSE = true;
 				((com.badlogic.gdx.Game) Gdx.app.getApplicationListener()).setScreen(Settings.getSettings());
 			}
-
-			/*
-			 * invio posizione della camera all'altro player
-			 */
+			
+			
+			buttonPressed = false;
+			
 			if (player.getDirection() == 'l' && (player.getPosition().y - game.getCamera() < 1.5f)
 					&& player.getState() != PlayerState.IDLING) {
 				sendPressedKey = 100;
 			}
 
+			
 			if (game.player.player_collision) {
-
 				sendPressedKey = -2;
-
 				player.setState(PlayerState.HIT);
 				player.decreaseLives();
 				game.RESUME = true;
@@ -374,7 +399,6 @@ public class MultiplayerGameMain implements Screen {
 			}
 
 			updateCamera(player);
-
 			if (game.handleScores(player)) {
 				Audio.playCoin();
 			}
@@ -391,10 +415,171 @@ public class MultiplayerGameMain implements Screen {
 				keyAndDoor = null;
 
 			}
-
 		}
 
 	}
+
+/*
+	private void updatePlayer(final float delta) {
+
+		if (!game.isOver() && !game.RESUME) {
+
+			if ((Gdx.input.isKeyPressed(Keys.RIGHT) 
+					|| (directionGamePad == PovDirection.east && movesGamePad))
+					&& !(player.getState() == PlayerState.JUMPING) && !game.player.player_is_falling) {
+				System.out.println("i'm running right");
+				sendPressedKey = Input.Keys.RIGHT;
+				sendIsJumping = false;
+
+				player.setDirection('r');
+				player.setState(PlayerState.RUNNING);
+				game.resumeCondition();
+				if (Gdx.input.isKeyJustPressed(Input.Keys.W) || (buttonPressed && buttonCodePressed == 0)) {
+
+					sendPressedKey = Input.Keys.W;
+					sendIsJumping = true;
+
+					player.setState(PlayerState.JUMPING);
+					game.resumeCondition();
+				}
+
+			} else if ((Gdx.input.isKeyPressed(Keys.LEFT) 
+					|| (directionGamePad == PovDirection.west && movesGamePad))
+					&& !(player.getState() == PlayerState.JUMPING) && !game.player.player_is_falling) {
+				System.out.println("i'm running left");
+				sendPressedKey = Input.Keys.LEFT;
+				sendIsJumping = false;
+
+				player.setDirection('l');
+				player.setState(PlayerState.RUNNING);
+				game.resumeCondition();
+				if ((Gdx.input.isKeyJustPressed(Input.Keys.W) || (buttonPressed && buttonCodePressed == 0))) {
+
+					sendPressedKey = Input.Keys.W;
+					sendIsJumping = true;
+
+					player.setState(PlayerState.JUMPING);
+					game.resumeCondition();
+				}
+
+			}
+		} else if ((Gdx.input.isKeyJustPressed(Keys.W) || (buttonPressed && buttonCodePressed == 0))
+				&& !(player.getState() == PlayerState.JUMPING) && !game.player.player_is_falling) {
+
+			sendPressedKey = Input.Keys.W;
+			sendIsJumping = false;
+
+			player.VERTICAL_JUMP = true;
+			player.setState(PlayerState.JUMPING);
+			game.resumeCondition();
+
+		} else 	if (!(player.getState() == PlayerState.JUMPING) && !buttonPressed && !game.player.player_is_falling) {
+			player.setState(PlayerState.IDLING);
+		}
+
+		// spostamento durante salto in verticale
+		if (player.VERTICAL_JUMP && (Gdx.input.isKeyPressed(Input.Keys.RIGHT))
+				|| directionGamePad == PovDirection.east && movesGamePad) {
+			sendPressedKey = 81;
+			player.setDirection('r');
+			game.player.moveWhileJumping = true;
+		} else if (player.VERTICAL_JUMP && (Gdx.input.isKeyPressed(Input.Keys.LEFT))
+				|| directionGamePad == PovDirection.west && movesGamePad) {
+			sendPressedKey = 82;
+			player.setDirection('l');
+			game.player.moveWhileJumping = true;
+		}
+
+		// input selezione pistola
+		if (Gdx.input.isKeyJustPressed(Input.Keys.Q) || (buttonPressed && buttonCodePressed == 5)) {
+			sendPressedKey = Input.Keys.Q;
+			if (player.getGun()) {
+				player.setGun(false);
+			} else {
+				player.setGun(true);
+			}
+			buttonCodePressed = 1111;
+		}
+
+		// input sparo
+		if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || (buttonPressed && buttonCodePressed == 1)) {
+			// se il player ha la pistola, allora può sparare
+			if (player.getGun()) {
+				sendPressedKey = Input.Keys.SPACE;
+				float c_x = player.getPosition().x;
+				float c_y = player.getPosition().y;
+				if (player.getDirection() == 'r') {
+					c_x -= 0.57f;
+					c_y += GameConfig.SIZE_PLAYER_X;
+
+					game.addBullet(c_x, c_y, 'r');
+				} else {
+					c_x -= 0.57f;
+					game.addBullet(c_x, c_y, 'l');
+				}
+				Audio.playShot();
+				shot_local_player = true;
+			}
+			buttonCodePressed = 1111;
+		}
+
+		// // Player fermo, imposto stato come idling
+//		if (!(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) && !(Gdx.input.isKeyPressed(Input.Keys.LEFT))
+//				&& !(player.getState() == PlayerState.JUMPING)) {
+//			if (!game.player.player_is_falling) {
+//				player.setState(PlayerState.IDLING);
+//			}
+//		}
+		
+		/*
+		 * Gestione pausa di gioco, evento escape da tastiera
+		 
+		if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+			PAUSE = true;
+			((com.badlogic.gdx.Game) Gdx.app.getApplicationListener()).setScreen(Settings.getSettings());
+		}
+
+		
+		 * invio posizione della camera all'altro player
+		 
+			if (player.getDirection() == 'l' && (player.getPosition().y - game.getCamera() < 1.5f)
+					&& player.getState() != PlayerState.IDLING) {
+				sendPressedKey = 100;
+			}
+
+		buttonPressed = false;
+
+		if (game.player.player_collision) {
+
+			sendPressedKey = -2;
+
+			player.setState(PlayerState.HIT);
+			player.decreaseLives();
+			game.RESUME = true;
+			game.player.player_collision = false;
+		}
+
+		updateCamera(player);
+
+		if (game.handleScores(player)) {
+			Audio.playCoin();
+		}
+
+		if (!ready_for_next_level && game.findMagicKey(player)) {
+			ready_for_next_level = true;
+			Audio.playMagicKey();
+			for (StaticObject so : keyAndDoor) {
+				if (((Obstacle) so).getType().equals("70")) {
+					door_position = so.getPosition();
+				}
+				resetMapCell(so.getPosition());
+			}
+			keyAndDoor = null;
+
+		}
+
+	} */
+  
 
 	private boolean shot_virtual_player = false;
 
@@ -503,8 +688,8 @@ public class MultiplayerGameMain implements Screen {
 
 			}
 		}
-		
-		if(enableWatchingShow){
+
+		if (enableWatchingShow) {
 			updateCamera(virtual_player);
 		}
 
@@ -512,25 +697,24 @@ public class MultiplayerGameMain implements Screen {
 
 	private void updateCamera(VPlayer p) {
 		float y_pos = (p.getPosition().y) * Asset.TILE;
-		
-		if(enableWatchingShow){
-			if(y_pos/Asset.TILE < game.getCamera()){
-				
+
+		if (enableWatchingShow) {
+			if (y_pos / Asset.TILE < game.getCamera()) {
+
 				return;
 			}
 		}
-		
+
 		/* (y_pos >= game.getEndCamera() * 0.045) && */
 		if (Math.abs(y_pos - (camera.position.x - 640)) > Asset.TILE * 3 && !p.VERTICAL_JUMP) {
-			
+
 			if (p.getState() == PlayerState.JUMPING) {
 				camera.position.x += GameConfig.POSITIVE_JUMP_VELOCITY.y * 0.9;
 			} else {
 				camera.position.x += GameConfig.PLAYER_POS_VELOCITY.y * 1.2;
 			}
 
-			if (p.player_is_falling
-					&& (camera.position.x - 640) > (p.getPosition().y * Asset.TILE) - 128) {
+			if (p.player_is_falling && (camera.position.x - 640) > (p.getPosition().y * Asset.TILE) - 128) {
 				camera.position.x -= GameConfig.PLAYER_POS_VELOCITY.y * 1.2;
 			}
 
@@ -562,202 +746,202 @@ public class MultiplayerGameMain implements Screen {
 
 	private void renderPlayer() {
 
-		if(!enableWatchingShow){
-		
-		if (player_type == 1) {
+		if (!enableWatchingShow) {
 
-			if (player.getGun()) {
-				switch (player.getDirection()) {
-				case 'r': {
-					if (shot_local_player && !(player.getState() == PlayerState.RUNNING)) {
-						if (e_time > 0.3f) {
-							shot_local_player = false;
-							e_time = 0;
+			if (player_type == 1) {
+
+				if (player.getGun()) {
+					switch (player.getDirection()) {
+					case 'r': {
+						if (shot_local_player && !(player.getState() == PlayerState.RUNNING)) {
+							if (e_time > 0.3f) {
+								shot_local_player = false;
+								e_time = 0;
+							}
+							drawAnimation(player, "player_m_shot_right");
+							e_time += Gdx.graphics.getDeltaTime();
+						} else if (player.getState() == PlayerState.HIT) {
+							drawAnimation(player, "player_m_dizzy_right");
+						} else if (player.getState() == PlayerState.IDLING || game.player.player_is_falling
+								|| player.getState() == PlayerState.WAITING) {
+							drawAnimation(player, "player_m_idle_with_gun_right");
+						} else if (player.getState() == PlayerState.RUNNING) {
+							drawAnimation(player, "player_m_run_with_gun_right");
+						} else if (player.getState() == PlayerState.JUMPING) {
+							drawAnimation(player, "player_m_jump_with_gun_right");
+						} else if (player.getState() == PlayerState.FLASH) {
+							drawAnimation(player, "player_m_flash_idle_right");
 						}
-						drawAnimation(player, "player_m_shot_right");
-						e_time += Gdx.graphics.getDeltaTime();
-					} else if (player.getState() == PlayerState.HIT) {
-						drawAnimation(player, "player_m_dizzy_right");
-					} else if (player.getState() == PlayerState.IDLING || game.player.player_is_falling
-							|| player.getState() == PlayerState.WAITING) {
-						drawAnimation(player, "player_m_idle_with_gun_right");
-					} else if (player.getState() == PlayerState.RUNNING) {
-						drawAnimation(player, "player_m_run_with_gun_right");
-					} else if (player.getState() == PlayerState.JUMPING) {
-						drawAnimation(player, "player_m_jump_with_gun_right");
-					} else if (player.getState() == PlayerState.FLASH) {
-						drawAnimation(player, "player_m_flash_idle_right");
-					}
 
-					break;
-				} // end of case 'r'
-				case 'l': {
-					if (shot_local_player && !(player.getState() == PlayerState.RUNNING)) {
-						if (e_time > 0.3f) {
-							shot_local_player = false;
-							e_time = 0;
+						break;
+					} // end of case 'r'
+					case 'l': {
+						if (shot_local_player && !(player.getState() == PlayerState.RUNNING)) {
+							if (e_time > 0.3f) {
+								shot_local_player = false;
+								e_time = 0;
+							}
+							drawAnimation(player, "player_m_shot_left");
+							e_time += Gdx.graphics.getDeltaTime();
+						} else if (player.getState() == PlayerState.HIT) {
+							drawAnimation(player, "player_m_dizzy_right");
+						} else if (player.getState() == PlayerState.IDLING || game.player.player_is_falling
+								|| player.getState() == PlayerState.WAITING) {
+							drawAnimation(player, "player_m_idle_with_gun_left");
+						} else if (player.getState() == PlayerState.RUNNING) {
+							drawAnimation(player, "player_m_run_with_gun_left");
+
+						} else if (player.getState() == PlayerState.JUMPING) {
+							drawAnimation(player, "player_m_jump_with_gun_left");
+						} else if (player.getState() == PlayerState.FLASH) {
+							drawAnimation(player, "player_m_flash_idle_left");
 						}
-						drawAnimation(player, "player_m_shot_left");
-						e_time += Gdx.graphics.getDeltaTime();
-					} else if (player.getState() == PlayerState.HIT) {
-						drawAnimation(player, "player_m_dizzy_right");
-					} else if (player.getState() == PlayerState.IDLING || game.player.player_is_falling
-							|| player.getState() == PlayerState.WAITING) {
-						drawAnimation(player, "player_m_idle_with_gun_left");
-					} else if (player.getState() == PlayerState.RUNNING) {
-						drawAnimation(player, "player_m_run_with_gun_left");
 
-					} else if (player.getState() == PlayerState.JUMPING) {
-						drawAnimation(player, "player_m_jump_with_gun_left");
-					} else if (player.getState() == PlayerState.FLASH) {
-						drawAnimation(player, "player_m_flash_idle_left");
+						break;
 					}
+					default:
+						break;
+					}// end of switch
+				} // end if check gun
+				else {
 
-					break;
-				}
-				default:
-					break;
-				}// end of switch
-			} // end if check gun
-			else {
-
-				switch (player.getDirection()) {
-				case 'r': {
-					if (player.getState() == PlayerState.HIT) {
-						drawAnimation(player, "player_m_dizzy_right");
-					} else if (player.getState() == PlayerState.IDLING || game.player.player_is_falling
-							|| player.getState() == PlayerState.WAITING) {
-						drawAnimation(player, "player_idle_right");
-					} else if (player.getState() == PlayerState.RUNNING) {
-						drawAnimation(player, "player_run_right");
-					} else if (player.getState() == PlayerState.JUMPING) {
-						drawAnimation(player, "player_jump_right");
-					} else if (player.getState() == PlayerState.FLASH) {
-						drawAnimation(player, "player_m_flash_idle_right");
-					}
-
-					break;
-				} // end of case 'r'
-				case 'l': {
-					if (player.getState() == PlayerState.HIT) {
-						drawAnimation(player, "player_m_dizzy_left");
-					} else if (player.getState() == PlayerState.IDLING || game.player.player_is_falling
-							|| player.getState() == PlayerState.WAITING) {
-						drawAnimation(player, "player_idle_left");
-					} else if (player.getState() == PlayerState.RUNNING) {
-						drawAnimation(player, "player_run_left");
-
-					} else if (player.getState() == PlayerState.JUMPING) {
-						drawAnimation(player, "player_jump_left");
-					} else if (player.getState() == PlayerState.FLASH) {
-						drawAnimation(player, "player_m_flash_idle_left");
-					}
-
-					break;
-				}
-				default:
-					break;
-				}// end of switch
-			}
-		} else {
-			/*
-			 * Animazioni del player femmina
-			 */
-			if (player.getGun()) {
-				switch (player.getDirection()) {
-				case 'r': {
-					if (shot_local_player && !(player.getState() == PlayerState.RUNNING)) {
-						if (e_time > 0.3f) {
-							shot_local_player = false;
-							e_time = 0;
+					switch (player.getDirection()) {
+					case 'r': {
+						if (player.getState() == PlayerState.HIT) {
+							drawAnimation(player, "player_m_dizzy_right");
+						} else if (player.getState() == PlayerState.IDLING || game.player.player_is_falling
+								|| player.getState() == PlayerState.WAITING) {
+							drawAnimation(player, "player_idle_right");
+						} else if (player.getState() == PlayerState.RUNNING) {
+							drawAnimation(player, "player_run_right");
+						} else if (player.getState() == PlayerState.JUMPING) {
+							drawAnimation(player, "player_jump_right");
+						} else if (player.getState() == PlayerState.FLASH) {
+							drawAnimation(player, "player_m_flash_idle_right");
 						}
-						drawAnimation(player, "player_w_shot_right");
-						e_time += Gdx.graphics.getDeltaTime();
-					} else if (player.getState() == PlayerState.HIT) {
-						drawAnimation(player, "player_w_dizzy_right");
-					} else if (player.getState() == PlayerState.IDLING || game.player.player_is_falling
-							|| player.getState() == PlayerState.WAITING) {
-						drawAnimation(player, "player_w_idle_with_gun_right");
-					} else if (player.getState() == PlayerState.RUNNING) {
-						drawAnimation(player, "player_w_run_with_gun_right");
-					} else if (player.getState() == PlayerState.JUMPING) {
-						drawAnimation(player, "player_w_jump_with_gun_right");
-					} else if (player.getState() == PlayerState.FLASH) {
-						drawAnimation(player, "player_w_flash_idle_right");
-					}
 
-					break;
-				} // end of case 'r'
-				case 'l': {
-					if (shot_local_player && !(player.getState() == PlayerState.RUNNING)) {
-						if (e_time > 0.3f) {
-							shot_local_player = false;
-							e_time = 0;
+						break;
+					} // end of case 'r'
+					case 'l': {
+						if (player.getState() == PlayerState.HIT) {
+							drawAnimation(player, "player_m_dizzy_left");
+						} else if (player.getState() == PlayerState.IDLING || game.player.player_is_falling
+								|| player.getState() == PlayerState.WAITING) {
+							drawAnimation(player, "player_idle_left");
+						} else if (player.getState() == PlayerState.RUNNING) {
+							drawAnimation(player, "player_run_left");
+
+						} else if (player.getState() == PlayerState.JUMPING) {
+							drawAnimation(player, "player_jump_left");
+						} else if (player.getState() == PlayerState.FLASH) {
+							drawAnimation(player, "player_m_flash_idle_left");
 						}
-						drawAnimation(player, "player_w_shot_left");
-						e_time += Gdx.graphics.getDeltaTime();
-					} else if (player.getState() == PlayerState.HIT) {
-						drawAnimation(player, "player_w_dizzy_right");
-					} else if (player.getState() == PlayerState.IDLING || game.player.player_is_falling
-							|| player.getState() == PlayerState.WAITING) {
-						drawAnimation(player, "player_w_idle_with_gun_left");
-					} else if (player.getState() == PlayerState.RUNNING) {
-						drawAnimation(player, "player_w_run_with_gun_left");
 
-					} else if (player.getState() == PlayerState.JUMPING) {
-						drawAnimation(player, "player_w_jump_with_gun_left");
-					} else if (player.getState() == PlayerState.FLASH) {
-						drawAnimation(player, "player_w_flash_idle_left");
+						break;
 					}
-
-					break;
+					default:
+						break;
+					}// end of switch
 				}
-				default:
-					break;
-				}// end of switch
+			} else {
+				/*
+				 * Animazioni del player femmina
+				 */
+				if (player.getGun()) {
+					switch (player.getDirection()) {
+					case 'r': {
+						if (shot_local_player && !(player.getState() == PlayerState.RUNNING)) {
+							if (e_time > 0.3f) {
+								shot_local_player = false;
+								e_time = 0;
+							}
+							drawAnimation(player, "player_w_shot_right");
+							e_time += Gdx.graphics.getDeltaTime();
+						} else if (player.getState() == PlayerState.HIT) {
+							drawAnimation(player, "player_w_dizzy_right");
+						} else if (player.getState() == PlayerState.IDLING || game.player.player_is_falling
+								|| player.getState() == PlayerState.WAITING) {
+							drawAnimation(player, "player_w_idle_with_gun_right");
+						} else if (player.getState() == PlayerState.RUNNING) {
+							drawAnimation(player, "player_w_run_with_gun_right");
+						} else if (player.getState() == PlayerState.JUMPING) {
+							drawAnimation(player, "player_w_jump_with_gun_right");
+						} else if (player.getState() == PlayerState.FLASH) {
+							drawAnimation(player, "player_w_flash_idle_right");
+						}
 
-			} else { // PLAYER SENZA PISTOLA
+						break;
+					} // end of case 'r'
+					case 'l': {
+						if (shot_local_player && !(player.getState() == PlayerState.RUNNING)) {
+							if (e_time > 0.3f) {
+								shot_local_player = false;
+								e_time = 0;
+							}
+							drawAnimation(player, "player_w_shot_left");
+							e_time += Gdx.graphics.getDeltaTime();
+						} else if (player.getState() == PlayerState.HIT) {
+							drawAnimation(player, "player_w_dizzy_right");
+						} else if (player.getState() == PlayerState.IDLING || game.player.player_is_falling
+								|| player.getState() == PlayerState.WAITING) {
+							drawAnimation(player, "player_w_idle_with_gun_left");
+						} else if (player.getState() == PlayerState.RUNNING) {
+							drawAnimation(player, "player_w_run_with_gun_left");
 
-				switch (player.getDirection()) {
-				case 'r': {
-					if (player.getState() == PlayerState.HIT) {
-						drawAnimation(player, "player_w_dizzy_right");
-					} else if (player.getState() == PlayerState.IDLING || game.player.player_is_falling
-							|| player.getState() == PlayerState.WAITING) {
-						drawAnimation(player, "player_w_idle_right");
-					} else if (player.getState() == PlayerState.RUNNING) {
-						drawAnimation(player, "player_w_run_right");
-					} else if (player.getState() == PlayerState.JUMPING) {
-						drawAnimation(player, "player_w_jump_right");
-					} else if (player.getState() == PlayerState.FLASH) {
-						drawAnimation(player, "player_w_flash_idle_right");
+						} else if (player.getState() == PlayerState.JUMPING) {
+							drawAnimation(player, "player_w_jump_with_gun_left");
+						} else if (player.getState() == PlayerState.FLASH) {
+							drawAnimation(player, "player_w_flash_idle_left");
+						}
+
+						break;
 					}
+					default:
+						break;
+					}// end of switch
 
-					break;
-				} // end of case 'r'
-				case 'l': {
-					if (player.getState() == PlayerState.HIT) {
-						drawAnimation(player, "player_w_dizzy_left");
-					} else if (player.getState() == PlayerState.IDLING || game.player.player_is_falling
-							|| player.getState() == PlayerState.WAITING) {
-						drawAnimation(player, "player_w_idle_left");
-					} else if (player.getState() == PlayerState.RUNNING) {
-						drawAnimation(player, "player_w_run_left");
-					} else if (player.getState() == PlayerState.JUMPING) {
-						drawAnimation(player, "player_w_jump_left");
-					} else if (player.getState() == PlayerState.FLASH) {
-						drawAnimation(player, "player_w_flash_idle_left");
+				} else { // PLAYER SENZA PISTOLA
+
+					switch (player.getDirection()) {
+					case 'r': {
+						if (player.getState() == PlayerState.HIT) {
+							drawAnimation(player, "player_w_dizzy_right");
+						} else if (player.getState() == PlayerState.IDLING || game.player.player_is_falling
+								|| player.getState() == PlayerState.WAITING) {
+							drawAnimation(player, "player_w_idle_right");
+						} else if (player.getState() == PlayerState.RUNNING) {
+							drawAnimation(player, "player_w_run_right");
+						} else if (player.getState() == PlayerState.JUMPING) {
+							drawAnimation(player, "player_w_jump_right");
+						} else if (player.getState() == PlayerState.FLASH) {
+							drawAnimation(player, "player_w_flash_idle_right");
+						}
+
+						break;
+					} // end of case 'r'
+					case 'l': {
+						if (player.getState() == PlayerState.HIT) {
+							drawAnimation(player, "player_w_dizzy_left");
+						} else if (player.getState() == PlayerState.IDLING || game.player.player_is_falling
+								|| player.getState() == PlayerState.WAITING) {
+							drawAnimation(player, "player_w_idle_left");
+						} else if (player.getState() == PlayerState.RUNNING) {
+							drawAnimation(player, "player_w_run_left");
+						} else if (player.getState() == PlayerState.JUMPING) {
+							drawAnimation(player, "player_w_jump_left");
+						} else if (player.getState() == PlayerState.FLASH) {
+							drawAnimation(player, "player_w_flash_idle_left");
+						}
+
+						break;
 					}
+					default:
+						break;
+					}// end of switch}
 
-					break;
-				}
-				default:
-					break;
-				}// end of switch}
+				} // end else without gun
+			} // end else player woman
 
-			} // end else without gun
-		} // end else player woman
-		
 		}
 
 		// ---------------------------------------------------------------------------------------------------------------
@@ -1640,7 +1824,7 @@ public class MultiplayerGameMain implements Screen {
 
 	private float waiting_time;
 	private boolean stepOver = false;
-	
+
 	private boolean enableWatchingShow = false;
 	protected boolean dead = false;
 
@@ -1674,13 +1858,12 @@ public class MultiplayerGameMain implements Screen {
 			game.RESUME = false;
 			GameConfig.BEST_SCORE = player.getScore();
 			jump_player.stop();
-			
+
 			Audio.GAME_MUSIC = false;
 			Audio.BACKGROUND_MUSIC = true;
 			Audio.game_music.pause();
 			Audio.playGameMenuMusic();
-			
-			
+
 			enableWatchingShow = true;
 			dead = true;
 			return;
@@ -1691,7 +1874,7 @@ public class MultiplayerGameMain implements Screen {
 			 * Tempo di attesa prima che il player ritorni sulla mappa
 			 */
 			if (waiting_time > 1.3f && !stepOver) {
-				game.findNewPlayerPosition(player.getPosition(),player);
+				game.findNewPlayerPosition(player.getPosition(), player);
 				stepOver = true;
 				waiting_time = 6;
 
@@ -1766,7 +1949,7 @@ public class MultiplayerGameMain implements Screen {
 			game.RESUME_VP = false;
 			GameConfig.BEST_SCORE = virtual_player.getScore();
 			jump_virtual_player.stop();
-			
+
 			Audio.GAME_MUSIC = false;
 			Audio.BACKGROUND_MUSIC = true;
 			Audio.game_music.pause();
@@ -1779,14 +1962,14 @@ public class MultiplayerGameMain implements Screen {
 			 * Tempo di attesa prima che il player ritorni sulla mappa
 			 */
 			if (vp_waiting_time > 1.3f && !vp_stepOver) {
-				game.findNewPlayerPosition(virtual_player.getPosition(),virtual_player);
+				game.findNewPlayerPosition(virtual_player.getPosition(), virtual_player);
 				vp_stepOver = true;
 				vp_waiting_time = 6;
 
 			} else {
-				
-				if(!vp_stepOver)
-				virtual_player.setState(PlayerState.HIT);
+
+				if (!vp_stepOver)
+					virtual_player.setState(PlayerState.HIT);
 			}
 
 			/*
@@ -1804,8 +1987,8 @@ public class MultiplayerGameMain implements Screen {
 			vp_waiting_time += Gdx.graphics.getDeltaTime();
 		}
 	}
-	
-	public void setDeadScreen(){
+
+	public void setDeadScreen() {
 		PAUSE = true;
 		((com.badlogic.gdx.Game) Gdx.app.getApplicationListener()).setScreen(HandleGameOver.getInstance());
 	}
@@ -1819,18 +2002,101 @@ public class MultiplayerGameMain implements Screen {
 	}
 
 	@Override
-	public void resize(int width, int height) {}
+	public void resize(int width, int height) {
+	}
 
 	@Override
-	public void hide() {}
+	public void hide() {
+	}
 
 	@Override
-	public void dispose() {}
+	public void dispose() {
+	}
 
 	@Override
-	public void pause() {}
+	public void pause() {
+	}
 
 	@Override
-	public void resume() {}
+	public void resume() {
+	}
+
+	@Override
+	public void connected(Controller controller) {
+	}
+
+	@Override
+	public void disconnected(Controller controller) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public boolean buttonDown(Controller controller, int buttonCode) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean buttonUp(Controller controller, int buttonCode) {
+		if (buttonCode == 0 || buttonCode == 1 || buttonCode == 3 || buttonCode == 4 || buttonCode == 5
+				|| buttonCode == 7) {
+			buttonCodePressed = buttonCode;
+			buttonPressed = true;
+			return true;
+		}
+
+		buttonCodePressed = 1111;
+		buttonPressed = false;
+
+		return false;
+	}
+
+	@Override
+	public boolean axisMoved(Controller controller, int axisCode, float value) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean povMoved(Controller controller, int povCode, PovDirection value) {
+		if (value == PovDirection.east) {
+			movesGamePad = true;
+			directionGamePad = value;
+			return true;
+		} else if (value == PovDirection.north || value == PovDirection.northEast || value == PovDirection.northWest) {
+			movesGamePad = true;
+			directionGamePad = PovDirection.north;
+			return true;
+		} else if (value == PovDirection.south || value == PovDirection.southEast || value == PovDirection.southWest) {
+			movesGamePad = true;
+			directionGamePad = PovDirection.south;
+			return true;
+		} else if (value == PovDirection.west) {
+			movesGamePad = true;
+			directionGamePad = value;
+			return true;
+		}
+		movesGamePad = false;
+		return false;
+	}
+
+	@Override
+	public boolean xSliderMoved(Controller controller, int sliderCode, boolean value) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean ySliderMoved(Controller controller, int sliderCode, boolean value) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean accelerometerMoved(Controller controller, int accelerometerCode, Vector3 value) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 }

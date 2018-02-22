@@ -64,6 +64,7 @@ public class Asset {
 	
 	
 	public static String COINS = "asset/Digits/coin.png";
+	public static String BIG_COINS = "asset/Obstacles/coin.png";
 	
 	//enemies
 	
@@ -163,7 +164,7 @@ public class Asset {
 		map.put("29", OBSTACLE13);
 		map.put("30", OBSTACLE14);
 		
-		map.put("50", COINS);
+		map.put("50", BIG_COINS);
 		
 		
 		//aggiunta nemici

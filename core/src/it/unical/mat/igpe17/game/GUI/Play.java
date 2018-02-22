@@ -1255,13 +1255,6 @@ public class Play implements Screen, ControllerListener {
 
 	@Override
 	public boolean buttonDown(Controller controller, int buttonCode) {
-		Gdx.app.log("", "" + buttonCode);
-
-		return false;
-	}
-
-	@Override
-	public boolean buttonUp(Controller controller, int buttonCode) {
 		if (buttonCode == 0 || buttonCode == 1 || buttonCode == 3 || buttonCode == 4 || buttonCode == 5 || buttonCode == 7) {
 			buttonCodePressed = buttonCode;
 			buttonPressed = true;
@@ -1271,6 +1264,12 @@ public class Play implements Screen, ControllerListener {
 		buttonCodePressed = 1111;
 		buttonPressed = false;
 		
+		return false;
+		
+	}
+
+	@Override
+	public boolean buttonUp(Controller controller, int buttonCode) {
 		return false;
 	}
 
