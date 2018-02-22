@@ -56,6 +56,7 @@ public class Game {
 	public static boolean RESUME;
 
 	private int current_coin_count;
+	private int max_coins;
 
 	private Lock lock;
 	private Condition condition;
@@ -92,6 +93,7 @@ public class Game {
 		groundObjects = reader.getGround();
 		obstacleObjects = reader.getObstacle();
 		coins = reader.getCoins();
+		max_coins = coins.size();
 		enemy = reader.getEnemy();
 		player = reader.getPlayer();
 		player_position = player.getPosition();
@@ -1190,7 +1192,7 @@ public class Game {
 		return current_coin_count;
 	}
 	public final int getMaxCoinsCount() {
-		return coins.size();
+		return max_coins;
 	}
 
 	public final int getScore() {
