@@ -106,8 +106,8 @@ public class Game {
 		
 		removeGroundNearDoor();
 
-		bullets = new LinkedList<>();
-		VPbullets = new LinkedList<>();
+		bullets = new LinkedList<Bullet>();
+		VPbullets = new LinkedList<Bullet>();
 		
 		toDraw = null;
 
